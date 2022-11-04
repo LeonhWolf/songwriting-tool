@@ -1,10 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 
-// import "./index.css";
+import "./index.scss";
 import "./styles/bootstrap.scss";
+import Register from "./pages/Register";
 import App from "./App";
 
 const router = createBrowserRouter([
@@ -13,6 +14,10 @@ const router = createBrowserRouter([
     element: <div>Hello world!</div>,
     errorElement: <div>not found</div>,
     children: [],
+  },
+  {
+    path: "/register",
+    element: <Register />,
   },
 ]);
 
