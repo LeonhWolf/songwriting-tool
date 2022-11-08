@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, waitFor, screen } from "@testing-library/react";
+import { render, fireEvent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import LabelAndInput from "./LabelAndInput";
@@ -11,6 +11,7 @@ describe("Label:", () => {
         labelText={"testLabel"}
         inputId={"test"}
         inputType="text"
+        onValueChange={() => {}}
       />
     );
     const inputElement = screen.getByLabelText("testLabel");
@@ -22,6 +23,7 @@ describe("Label:", () => {
         labelText={"testLabel"}
         inputId={"testId"}
         inputType="text"
+        onValueChange={() => {}}
       />
     );
     const inputElement = screen.getByLabelText("testLabel");
@@ -34,6 +36,7 @@ describe("Label:", () => {
         inputId={"testId"}
         inputType="date"
         isRequired={true}
+        onValueChange={() => {}}
       />
     );
     const labelElement = await screen.findByText("testLabel3");
@@ -42,13 +45,14 @@ describe("Label:", () => {
       `testLabel3${String.fromCharCode(160)}*`
     );
   });
-  it("Should not render '*' when not required.", async () => {
+  it("Should not render '*' when optional.", async () => {
     render(
       <LabelAndInput
         labelText={"testLabel3"}
         inputId={"testId"}
         inputType="date"
         isRequired={false}
+        onValueChange={() => {}}
       />
     );
     const labelElement = await screen.findByText("testLabel3");
@@ -64,6 +68,7 @@ describe("Input:", () => {
         inputId={"test"}
         inputType="text"
         inputPlaceholder="testPlaceholder"
+        onValueChange={() => {}}
       />
     );
     const inputElement = screen.getByPlaceholderText("testPlaceholder");
@@ -75,6 +80,7 @@ describe("Input:", () => {
         labelText={"testLabel1"}
         inputId={"testId"}
         inputType="text"
+        onValueChange={() => {}}
       />
     );
     const inputElement = screen.getByLabelText("testLabel1");
@@ -86,10 +92,45 @@ describe("Input:", () => {
         labelText={"testLabel2"}
         inputId={"testId"}
         inputType="date"
+        onValueChange={() => {}}
       />
     );
     const inputElement = screen.getByLabelText("testLabel2");
     expect(inputElement.getAttribute("type")).toBe("date");
+  });
+});
+
+describe("Emit value:", () => {
+  it("Should emit input value and inputId onChange.", async () => {
+    const valueEmitSpy = jest.fn();
+
+    render(
+      <LabelAndInput
+        labelText={"testLabel2"}
+        inputId={"testId"}
+        inputType="text"
+        invalidMessage="testMessage"
+        onValueChange={valueEmitSpy}
+      />
+    );
+    const inputElement = screen.getByLabelText("testLabel2");
+    fireEvent.change(inputElement, { target: { value: "test" } });
+
+    expect(valueEmitSpy.mock.calls[0]).toEqual(["test", "testId"]);
+  });
+  it("Should not emit when not changed.", () => {
+    const valueEmitSpy = jest.fn();
+
+    render(
+      <LabelAndInput
+        labelText={"testLabel2"}
+        inputId={"testId"}
+        inputType="text"
+        invalidMessage="testMessage"
+        onValueChange={valueEmitSpy}
+      />
+    );
+    expect(valueEmitSpy).not.toHaveBeenCalled();
   });
 });
 
@@ -102,44 +143,50 @@ describe("Invalid Message:", () => {
           inputId={"testId"}
           inputType="text"
           invalidMessage="testMessage"
+          onValueChange={() => {}}
         />
       );
       const invalidElement = screen.getByText("testMessage");
       expect(invalidElement.textContent).toBe("testMessage");
     });
+    it("Should add '.is-invalid' to input.", () => {
+      render(
+        <LabelAndInput
+          labelText={"testLabel2"}
+          inputId={"testId"}
+          inputType="text"
+          invalidMessage="testMessage"
+          onValueChange={() => {}}
+        />
+      );
+      const invalidElement = screen.getByLabelText("testLabel2");
+      expect(invalidElement.classList).toContain("is-invalid");
+    });
   });
-  it("Should add '.is-invalid' to input.", () => {
-    render(
-      <LabelAndInput
-        labelText={"testLabel2"}
-        inputId={"testId"}
-        inputType="text"
-        invalidMessage="testMessage"
-      />
-    );
-    const invalidElement = screen.getByLabelText("testLabel2");
-    expect(invalidElement.classList).toContain("is-invalid");
-  });
-  describe("Don't render invalid message:", () => {});
-  it("Should not render invalid div.", () => {
-    render(
-      <LabelAndInput
-        labelText={"testLabel2"}
-        inputId={"testId"}
-        inputType="text"
-      />
-    );
-    expect(screen.queryByText("testMessage")).not.toBeInTheDocument();
-  });
-  it("Should not add '.is-invalid' to input.", () => {
-    render(
-      <LabelAndInput
-        labelText={"testLabel2"}
-        inputId={"testId"}
-        inputType="text"
-      />
-    );
-    const invalidElement = screen.getByLabelText("testLabel2");
-    expect(invalidElement.classList).not.toContain("is-invalid");
+
+  describe("Don't render invalid message:", () => {
+    it("Should not render invalid div.", () => {
+      render(
+        <LabelAndInput
+          labelText={"testLabel2"}
+          inputId={"testId"}
+          inputType="text"
+          onValueChange={() => {}}
+        />
+      );
+      expect(screen.queryByText("testMessage")).not.toBeInTheDocument();
+    });
+    it("Should not add '.is-invalid' to input.", () => {
+      render(
+        <LabelAndInput
+          labelText={"testLabel2"}
+          inputId={"testId"}
+          inputType="text"
+          onValueChange={() => {}}
+        />
+      );
+      const invalidElement = screen.getByLabelText("testLabel2");
+      expect(invalidElement.classList).not.toContain("is-invalid");
+    });
   });
 });

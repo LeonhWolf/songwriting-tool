@@ -22,6 +22,7 @@ Main.args = {
   inputType: "text",
   inputPlaceholder: "type here",
   isRequired: false,
+  onValueChange: () => {},
 };
 
 export const Required = Template.bind({});
@@ -31,6 +32,7 @@ Required.args = {
   inputType: "text",
   inputPlaceholder: "type here",
   isRequired: true,
+  onValueChange: () => {},
 };
 
 export const Invalid = Template.bind({});
@@ -40,4 +42,5 @@ Invalid.args = {
   inputType: "text",
   inputPlaceholder: "type here",
   invalidMessage: "some invalid message",
+  onValueChange: () => {},
 };

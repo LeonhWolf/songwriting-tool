@@ -1,0 +1,26 @@
+{
+  "inputMissingMessage": "Please provide a {{inputTitle}}",
+  "register": {
+    "title": "Create an account",
+    "subtitle": "Start shopping smart!",
+    "firstName": {
+      "labelText": "First name",
+      "placeholder": "Enter your first name"
+    },
+    "lastName": {
+      "labelText": "Last name",
+      "placeholder": "Enter your last name"
+    },
+    "email": {
+      "labelText": "Email",
+      "placeholder": "Enter your email"
+    },
+    "password": {
+      "labelText": "Password",
+      "placeholder": "Enter your password"
+    },
+    "buttonText": "Sign Up",
+    "accountAlready": "Already have an account?",
+    "logIn": "Log in"
+  }
+}
