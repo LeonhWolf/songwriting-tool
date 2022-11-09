@@ -4,7 +4,6 @@ import "@testing-library/jest-dom";
 
 import Form from "./Form";
 import { IFormProps } from "./Form_Types";
-import LabelAndInput from "../LabelAndInput";
 
 const setInputValue = (
   placeholderText: string,
@@ -27,137 +26,94 @@ const clickSubmitButton = async (): Promise<void> => {
   });
 };
 
-describe.skip("Passing props to label & input", () => {
-  const onValidSubmitMock = jest.fn();
+describe("Passing props to label & input:", () => {
   const formContents: IFormProps["contents"] = [
     {
-      inputId: "testId",
-      labelText: "testLabel",
+      inputId: "textId",
+      labelText: "textLabel",
       inputType: "text",
-      inputPlaceholder: "placeholder",
+      inputPlaceholder: "textPlaceholder",
       isRequired: true,
-      invalidMessage: "invalid",
+      invalidMessage: "textInvalid",
     },
     {
-      inputId: "testId2",
-      labelText: "testLabel2",
+      inputId: "emailId",
+      labelText: "emailLabel",
+      inputType: "email",
+      inputPlaceholder: "emailPlaceholder",
+      isRequired: true,
+      invalidMessage: "emailInvalid",
+    },
+    {
+      inputId: "passwordId",
+      labelText: "passwordLabel",
       inputType: "password",
-      inputPlaceholder: "placeholder2",
-      isRequired: false,
-      invalidMessage: "invalid2",
+      inputPlaceholder: "passwordPlaceholder",
+      isRequired: true,
+      invalidMessage: "passwordInvalid",
     },
   ];
-  describe("LabelAndInput1:", () => {
-    it("Should pass 'inputId'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].inputId
-      ).toBe("testId");
-    });
-    it("Should pass 'labelText'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].labelText
-      ).toBe("testLabel");
-    });
-    it("Should pass 'inputType'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].inputType
-      ).toBe("text");
-    });
-    it("Should pass 'inputPlaceholder'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].inputPlaceholder
-      ).toBe("placeholder");
-    });
-    it("Should pass 'isRequired'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].isRequired
-      ).toBe(true);
-    });
-    it("Should pass 'invalidMessage'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].invalidMessage
-      ).toBe("invalid");
-    });
+  it("Should have proper inputId.", () => {
+    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+
+    expect(screen.getByPlaceholderText("textPlaceholder").id).toBe("textId");
+    expect(screen.getByPlaceholderText("emailPlaceholder").id).toBe("emailId");
+    expect(screen.getByPlaceholderText("passwordPlaceholder").id).toBe(
+      "passwordId"
+    );
   });
-  describe("LabelAndInput2:", () => {
-    it("Should pass 'inputId'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].inputId
-      ).toBe("testId2");
-    });
-    it("Should pass 'labelText'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].labelText
-      ).toBe("testLabel2");
-    });
-    it("Should pass 'inputType'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].inputType
-      ).toBe("date");
-    });
-    it("Should pass 'inputPlaceholder'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].inputPlaceholder
-      ).toBe("placeholder2");
-    });
-    it("Should pass 'isRequired'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].isRequired
-      ).toBe(false);
-    });
-    it("Should pass 'invalidMessage'.", () => {
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].invalidMessage
-      ).toBe("invalid2");
-    });
+  it("Should have proper labelText.", () => {
+    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+
+    expect(screen.getByText("textLabel")).toBeDefined();
+    expect(screen.getByText("emailLabel")).toBeDefined();
+    expect(screen.getByText("passwordLabel")).toBeDefined();
+  });
+  it("Should have proper inputType.", () => {
+    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+
+    expect(
+      screen.getByPlaceholderText("textPlaceholder").getAttribute("type")
+    ).toBe("text");
+    expect(
+      screen.getByPlaceholderText("emailPlaceholder").getAttribute("type")
+    ).toBe("email");
+    expect(
+      screen.getByPlaceholderText("passwordPlaceholder").getAttribute("type")
+    ).toBe("password");
+  });
+  it("Should have proper inputPlaceholder.", () => {
+    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+
+    expect(screen.getByPlaceholderText("textPlaceholder")).toBeDefined();
+    expect(screen.getByPlaceholderText("emailPlaceholder")).toBeDefined();
+    expect(screen.getByPlaceholderText("passwordPlaceholder")).toBeDefined();
+  });
+  it("Should have proper 'isRequired'.", () => {
+    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+
+    // char code 160 is &nbsp;
+    expect(screen.getByText("textLabel").textContent).toBe(
+      `textLabel${String.fromCharCode(160)}*`
+    );
+    expect(screen.getByText("emailLabel").textContent).toBe(
+      `emailLabel${String.fromCharCode(160)}*`
+    );
+    expect(screen.getByText("passwordLabel").textContent).toBe(
+      `passwordLabel${String.fromCharCode(160)}*`
+    );
+  });
+  it("Should have proper invalidMessage.", async () => {
+    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+
+    setInputValue("emailPlaceholder", "asd");
+    setInputValue("passwordPlaceholder", "123");
+
+    await clickSubmitButton();
+
+    expect(screen.getByText("textInvalid")).toBeDefined();
+    expect(screen.getByText("emailInvalid")).toBeDefined();
+    expect(screen.getByText("passwordInvalid")).toBeDefined();
   });
 });
 
