@@ -184,13 +184,8 @@ describe("Form validation:", () => {
 
     render(<Form contents={formContents} onValidSubmit={() => {}} />);
 
-    const inputElement1 = await screen.findByPlaceholderText("placeholder");
-    const inputElement2 = await screen.findByPlaceholderText("placeholder2");
-
-    fireEvent.change(inputElement1, { target: { value: "test" } });
-    fireEvent.change(inputElement2, { target: { value: "test2" } });
-    expect((inputElement1 as HTMLInputElement).value).toBe("test");
-    expect((inputElement2 as HTMLInputElement).value).toBe("test2");
+    setInputValue("placeholder", "test");
+    setInputValue("placeholder2", "test2");
 
     expect(screen.queryByText("invalidTestMessage")).toBe(null);
     expect(screen.queryByText("invalidTestMessage2")).toBe(null);
@@ -219,11 +214,7 @@ describe("Form validation:", () => {
 
       expect(screen.queryByText("invalidTestMessage")).toBe(null);
 
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
-
+      await clickSubmitButton();
       expect(screen.getByText("invalidTestMessage")).toBeDefined();
     });
     it("Should validate when required & filled (after invalidated).", async () => {
@@ -233,20 +224,13 @@ describe("Form validation:", () => {
       const inputElement = await screen.findByPlaceholderText("placeholder");
 
       // invalidate first
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
+      await clickSubmitButton();
       expect(screen.getByText("invalidTestMessage")).toBeDefined();
 
       fireEvent.change(inputElement, { target: { value: "test" } });
       expect((inputElement as HTMLInputElement).value).toBe("test");
 
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
-
+      await clickSubmitButton();
       expect(screen.queryByText("invalidTestMessage")).toBeNull();
     });
     it("Should not emit 'onValidSubmit' when any input is invalid.", async () => {
@@ -256,11 +240,7 @@ describe("Form validation:", () => {
         <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
       );
 
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
-
+      await clickSubmitButton();
       expect(onValidSubmitMock).not.toHaveBeenCalled();
     });
   });
@@ -286,61 +266,33 @@ describe("Form validation:", () => {
     it("Should invalidate without '@'.", async () => {
       render(<Form contents={formContents} onValidSubmit={() => {}} />);
 
-      const emailInputElement = screen.getByPlaceholderText("emailPlaceholder");
-      fireEvent.change(emailInputElement, { target: { value: "test" } });
-      expect((emailInputElement as HTMLInputElement).value).toBe("test");
+      setInputValue("emailPlaceholder", "test");
 
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
-
+      await clickSubmitButton();
       expect(screen.getByText("invalidEmail")).toBeDefined();
     });
     it("Should invalidate with 0 chars before '@'.", async () => {
       render(<Form contents={formContents} onValidSubmit={() => {}} />);
 
-      const emailInputElement = screen.getByPlaceholderText("emailPlaceholder");
-      fireEvent.change(emailInputElement, { target: { value: "@test.de" } });
-      expect((emailInputElement as HTMLInputElement).value).toBe("@test.de");
+      setInputValue("emailPlaceholder", "@test.de");
 
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
-
+      await clickSubmitButton();
       expect(screen.getByText("invalidEmail")).toBeDefined();
     });
     it("Should invalidate if <2 chars after last '.'.", async () => {
       render(<Form contents={formContents} onValidSubmit={() => {}} />);
 
-      const emailInputElement = screen.getByPlaceholderText("emailPlaceholder");
-      fireEvent.change(emailInputElement, { target: { value: "test@test.d" } });
-      expect((emailInputElement as HTMLInputElement).value).toBe("test@test.d");
+      setInputValue("emailPlaceholder", "test@test.d");
 
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
-
+      await clickSubmitButton();
       expect(screen.getByText("invalidEmail")).toBeDefined();
     });
     it("Should validate with preceding conditions true.", async () => {
       render(<Form contents={formContents} onValidSubmit={() => {}} />);
 
-      const emailInputElement = screen.getByPlaceholderText("emailPlaceholder");
-      fireEvent.change(emailInputElement, {
-        target: { value: "test@test.de" },
-      });
-      expect((emailInputElement as HTMLInputElement).value).toBe(
-        "test@test.de"
-      );
+      setInputValue("emailPlaceholder", "test@test.de");
 
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
-
+      await clickSubmitButton();
       expect(screen.queryByText("invalidEmail")).toBeNull();
     });
   });
@@ -375,21 +327,10 @@ describe("Form validation:", () => {
 
       render(<Form contents={formContents} onValidSubmit={() => {}} />);
 
-      const passwordInputElement = screen.getByPlaceholderText(
-        "passwordPlaceholder"
-      );
-      fireEvent.change(passwordInputElement, {
-        target: { value: "1234567" },
-      });
-      expect((passwordInputElement as HTMLInputElement).value).toBe("1234567");
-
+      setInputValue("passwordPlaceholder", "1234567");
       expect(screen.queryByText("passwordInvalid")).toBeNull();
 
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
-
+      await clickSubmitButton();
       expect(screen.getByText("passwordInvalid")).toBeDefined();
     });
     it("Should validate when length >= 8.", async () => {
@@ -422,21 +363,10 @@ describe("Form validation:", () => {
 
       render(<Form contents={formContents} onValidSubmit={() => {}} />);
 
-      const passwordInputElement = screen.getByPlaceholderText(
-        "passwordPlaceholder"
-      );
-      fireEvent.change(passwordInputElement, {
-        target: { value: "12345678" },
-      });
-      expect((passwordInputElement as HTMLInputElement).value).toBe("12345678");
-
+      setInputValue("passwordPlaceholder", "12345678");
       expect(screen.queryByText("passwordInvalid")).toBeNull();
 
-      await act(async () => {
-        const submitButton = await screen.findByText("submit");
-        await submitButton.click();
-      });
-
+      await clickSubmitButton();
       expect(screen.queryByText("passwordInvalid")).toBeNull();
     });
   });
@@ -471,19 +401,8 @@ describe("Form validation:", () => {
 
     render(<Form contents={formContents} onValidSubmit={onValidSubmitMock} />);
 
-    const emailInputElement = screen.getByPlaceholderText("emailPlaceholder");
-    fireEvent.change(emailInputElement, {
-      target: { value: "ab" },
-    });
-    expect((emailInputElement as HTMLInputElement).value).toBe("ab");
-
-    const passwordInputElement = screen.getByPlaceholderText(
-      "passwordPlaceholder"
-    );
-    fireEvent.change(passwordInputElement, {
-      target: { value: "1234567" },
-    });
-    expect((passwordInputElement as HTMLInputElement).value).toBe("1234567");
+    setInputValue("emailPlaceholder", "ab");
+    setInputValue("passwordPlaceholder", "1234567");
 
     await clickSubmitButton();
 
@@ -520,25 +439,9 @@ describe("Form validation:", () => {
 
     render(<Form contents={formContents} onValidSubmit={onValidSubmitMock} />);
 
-    const textInputElement = screen.getByPlaceholderText("textPlaceholder");
-    fireEvent.change(textInputElement, {
-      target: { value: "someText" },
-    });
-    expect((textInputElement as HTMLInputElement).value).toBe("someText");
-
-    const emailInputElement = screen.getByPlaceholderText("emailPlaceholder");
-    fireEvent.change(emailInputElement, {
-      target: { value: "test@test.com" },
-    });
-    expect((emailInputElement as HTMLInputElement).value).toBe("test@test.com");
-
-    const passwordInputElement = screen.getByPlaceholderText(
-      "passwordPlaceholder"
-    );
-    fireEvent.change(passwordInputElement, {
-      target: { value: "12345678" },
-    });
-    expect((passwordInputElement as HTMLInputElement).value).toBe("12345678");
+    setInputValue("textPlaceholder", "someText");
+    setInputValue("emailPlaceholder", "test@test.com");
+    setInputValue("passwordPlaceholder", "12345678");
 
     await clickSubmitButton();
 
