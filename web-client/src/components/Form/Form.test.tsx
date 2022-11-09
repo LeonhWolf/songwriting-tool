@@ -3,8 +3,29 @@ import { act } from "react-dom/test-utils";
 import "@testing-library/jest-dom";
 
 import Form from "./Form";
-import { IFormProps } from "./FormTypes";
+import { IFormProps } from "./Form_Types";
 import LabelAndInput from "../LabelAndInput";
+
+const setInputValue = (
+  placeholderText: string,
+  value: string
+): HTMLInputElement => {
+  const inputElement = screen.getByPlaceholderText(
+    placeholderText
+  ) as HTMLInputElement;
+  fireEvent.change(inputElement, {
+    target: { value },
+  });
+  expect(inputElement.value).toBe(value);
+  return inputElement;
+};
+
+const clickSubmitButton = async (): Promise<void> => {
+  await act(async () => {
+    const submitButton = await screen.findByText("submit");
+    await submitButton.click();
+  });
+};
 
 describe.skip("Passing props to label & input", () => {
   const onValidSubmitMock = jest.fn();
@@ -362,6 +383,8 @@ describe("Form validation:", () => {
       });
       expect((passwordInputElement as HTMLInputElement).value).toBe("1234567");
 
+      expect(screen.queryByText("passwordInvalid")).toBeNull();
+
       await act(async () => {
         const submitButton = await screen.findByText("submit");
         await submitButton.click();
@@ -369,9 +392,237 @@ describe("Form validation:", () => {
 
       expect(screen.getByText("passwordInvalid")).toBeDefined();
     });
+    it("Should validate when length >= 8.", async () => {
+      const formContents: IFormProps["contents"] = [
+        {
+          inputId: "textId",
+          labelText: "textLabel",
+          inputType: "text",
+          inputPlaceholder: "textPlaceholder",
+          isRequired: false,
+          invalidMessage: "textInvalid",
+        },
+        {
+          inputId: "emailId",
+          labelText: "emailLabel",
+          inputType: "email",
+          inputPlaceholder: "emailPlaceholder",
+          isRequired: false,
+          invalidMessage: "invalidEmail",
+        },
+        {
+          inputId: "passwordId",
+          labelText: "passwordLabel",
+          inputType: "password",
+          inputPlaceholder: "passwordPlaceholder",
+          isRequired: true,
+          invalidMessage: "passwordInvalid",
+        },
+      ];
+
+      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+
+      const passwordInputElement = screen.getByPlaceholderText(
+        "passwordPlaceholder"
+      );
+      fireEvent.change(passwordInputElement, {
+        target: { value: "12345678" },
+      });
+      expect((passwordInputElement as HTMLInputElement).value).toBe("12345678");
+
+      expect(screen.queryByText("passwordInvalid")).toBeNull();
+
+      await act(async () => {
+        const submitButton = await screen.findByText("submit");
+        await submitButton.click();
+      });
+
+      expect(screen.queryByText("passwordInvalid")).toBeNull();
+    });
   });
-  it.todo(
-    "Should not emit 'onValidSubmit' when invalid inputs are not required."
-  );
-  it.todo("Should emit 'onValidSubmit' when all inputs are valid.");
+  it("Should not emit 'onValidSubmit' with invalid inputs even if not required.", async () => {
+    const onValidSubmitMock = jest.fn();
+    const formContents: IFormProps["contents"] = [
+      {
+        inputId: "textId",
+        labelText: "textLabel",
+        inputType: "text",
+        inputPlaceholder: "textPlaceholder",
+        isRequired: false,
+        invalidMessage: "textInvalid",
+      },
+      {
+        inputId: "emailId",
+        labelText: "emailLabel",
+        inputType: "email",
+        inputPlaceholder: "emailPlaceholder",
+        isRequired: false,
+        invalidMessage: "invalidEmail",
+      },
+      {
+        inputId: "passwordId",
+        labelText: "passwordLabel",
+        inputType: "password",
+        inputPlaceholder: "passwordPlaceholder",
+        isRequired: false,
+        invalidMessage: "passwordInvalid",
+      },
+    ];
+
+    render(<Form contents={formContents} onValidSubmit={onValidSubmitMock} />);
+
+    const emailInputElement = screen.getByPlaceholderText("emailPlaceholder");
+    fireEvent.change(emailInputElement, {
+      target: { value: "ab" },
+    });
+    expect((emailInputElement as HTMLInputElement).value).toBe("ab");
+
+    const passwordInputElement = screen.getByPlaceholderText(
+      "passwordPlaceholder"
+    );
+    fireEvent.change(passwordInputElement, {
+      target: { value: "1234567" },
+    });
+    expect((passwordInputElement as HTMLInputElement).value).toBe("1234567");
+
+    await clickSubmitButton();
+
+    expect(onValidSubmitMock).not.toHaveBeenCalled();
+  });
+  it("Should emit 'onValidSubmit' when all inputs are valid.", async () => {
+    const onValidSubmitMock = jest.fn();
+    const formContents: IFormProps["contents"] = [
+      {
+        inputId: "textId",
+        labelText: "textLabel",
+        inputType: "text",
+        inputPlaceholder: "textPlaceholder",
+        isRequired: true,
+        invalidMessage: "textInvalid",
+      },
+      {
+        inputId: "emailId",
+        labelText: "emailLabel",
+        inputType: "email",
+        inputPlaceholder: "emailPlaceholder",
+        isRequired: false,
+        invalidMessage: "invalidEmail",
+      },
+      {
+        inputId: "passwordId",
+        labelText: "passwordLabel",
+        inputType: "password",
+        inputPlaceholder: "passwordPlaceholder",
+        isRequired: true,
+        invalidMessage: "passwordInvalid",
+      },
+    ];
+
+    render(<Form contents={formContents} onValidSubmit={onValidSubmitMock} />);
+
+    const textInputElement = screen.getByPlaceholderText("textPlaceholder");
+    fireEvent.change(textInputElement, {
+      target: { value: "someText" },
+    });
+    expect((textInputElement as HTMLInputElement).value).toBe("someText");
+
+    const emailInputElement = screen.getByPlaceholderText("emailPlaceholder");
+    fireEvent.change(emailInputElement, {
+      target: { value: "test@test.com" },
+    });
+    expect((emailInputElement as HTMLInputElement).value).toBe("test@test.com");
+
+    const passwordInputElement = screen.getByPlaceholderText(
+      "passwordPlaceholder"
+    );
+    fireEvent.change(passwordInputElement, {
+      target: { value: "12345678" },
+    });
+    expect((passwordInputElement as HTMLInputElement).value).toBe("12345678");
+
+    await clickSubmitButton();
+
+    const expectedOnValidSubmitArgs: Parameters<
+      IFormProps["onValidSubmit"]
+    >[0] = [
+      {
+        inputId: "textId",
+        inputValue: "someText",
+      },
+      {
+        inputId: "emailId",
+        inputValue: "test@test.com",
+      },
+      {
+        inputId: "passwordId",
+        inputValue: "12345678",
+      },
+    ];
+    expect(onValidSubmitMock).toHaveBeenCalledWith(expectedOnValidSubmitArgs);
+  });
+  it("Should not clear inputs after 'onValidSubmit'.", async () => {
+    const onValidSubmitMock = jest.fn();
+    const formContents: IFormProps["contents"] = [
+      {
+        inputId: "textId",
+        labelText: "textLabel",
+        inputType: "text",
+        inputPlaceholder: "textPlaceholder",
+        isRequired: true,
+        invalidMessage: "textInvalid",
+      },
+      {
+        inputId: "emailId",
+        labelText: "emailLabel",
+        inputType: "email",
+        inputPlaceholder: "emailPlaceholder",
+        isRequired: false,
+        invalidMessage: "invalidEmail",
+      },
+      {
+        inputId: "passwordId",
+        labelText: "passwordLabel",
+        inputType: "password",
+        inputPlaceholder: "passwordPlaceholder",
+        isRequired: true,
+        invalidMessage: "passwordInvalid",
+      },
+    ];
+
+    render(<Form contents={formContents} onValidSubmit={onValidSubmitMock} />);
+
+    const textInputElement = setInputValue("textPlaceholder", "someText");
+    const emailInputElement = setInputValue(
+      "emailPlaceholder",
+      "test@test.com"
+    );
+    const passwordInputElement = setInputValue(
+      "passwordPlaceholder",
+      "12345678"
+    );
+
+    await clickSubmitButton();
+
+    const expectedOnValidSubmitArgs: Parameters<
+      IFormProps["onValidSubmit"]
+    >[0] = [
+      {
+        inputId: "textId",
+        inputValue: "someText",
+      },
+      {
+        inputId: "emailId",
+        inputValue: "test@test.com",
+      },
+      {
+        inputId: "passwordId",
+        inputValue: "12345678",
+      },
+    ];
+    expect(onValidSubmitMock).toHaveBeenCalledWith(expectedOnValidSubmitArgs);
+
+    expect(textInputElement.value).toBe("someText");
+    expect(emailInputElement.value).toBe("test@test.com");
+    expect(passwordInputElement.value).toBe("12345678");
+  });
 });

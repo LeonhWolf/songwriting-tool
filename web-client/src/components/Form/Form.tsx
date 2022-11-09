@@ -8,7 +8,7 @@ import {
   isPasswordValid,
 } from "./Form_Validation";
 
-import { IFormProps, IInputState } from "./FormTypes";
+import { IFormProps, IInputState } from "./Form_Types";
 
 export default function Form(props: IFormProps) {
   const initialInputStates = props.contents.map((content) => {
@@ -35,19 +35,31 @@ export default function Form(props: IFormProps) {
     setInputStates(updatedInputStates);
   };
 
-  const validateInputs = (): void => {
+  const validateInputs = (): boolean => {
+    let areAllInputsValid = true;
+
     const updatedInputStates = inputStates.map((inputState) => {
       const isValid =
         isRequiredValid(inputState) &&
         isEmailValid(inputState) &&
         isPasswordValid(inputState);
+
+      if (!isValid) areAllInputsValid = false;
       return { ...inputState, isValid };
     });
     setInputStates(updatedInputStates);
+
+    return areAllInputsValid;
   };
 
   const handleSubmit = () => {
-    validateInputs();
+    const areAllInputsValid = validateInputs();
+    if (!areAllInputsValid) return;
+
+    const idsAndInputValues = inputStates.map((inputState) => {
+      return { inputId: inputState.inputId, inputValue: inputState.value };
+    });
+    props.onValidSubmit(idsAndInputValues);
   };
 
   return (
