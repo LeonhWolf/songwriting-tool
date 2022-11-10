@@ -1,4 +1,4 @@
-import { IInputState } from "./FormTypes";
+import { IInputState } from "./Form_Types";
 
 export const isRequiredValid = (inputState: IInputState): boolean => {
   if (!inputState.isRequired) return true;
