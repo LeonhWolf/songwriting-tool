@@ -18,4 +18,5 @@ export interface IFormProps {
 export interface IInputState extends Contents {
   value: string;
   isValid: boolean;
+  isWeakPassword?: boolean;
 }

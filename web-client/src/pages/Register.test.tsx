@@ -12,7 +12,7 @@ const renderWithRouter = (component: React.ReactNode): RenderResult => {
   return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
-describe("Titles:", () => {
+describe.skip("Titles:", () => {
   it("Should render title", () => {
     renderWithRouter(<Register />);
     const titleElement = screen.getByText(
@@ -29,7 +29,7 @@ describe("Titles:", () => {
   });
 });
 
-describe("Inputs:", () => {
+describe.skip("Inputs:", () => {
   describe("First name:", () => {
     it("Should render.", () => {
       renderWithRouter(<Register />);
@@ -126,14 +126,14 @@ describe("Inputs:", () => {
   });
 });
 
-describe("Sign up button:", () => {
+describe.skip("Sign up button:", () => {
   it.todo("Should render.");
   it.todo("Should trigger validation.");
   it.todo("Should not trigger request when form invalid.");
   it.todo("Should trigger request when form valid.");
 });
 
-describe("Miscellaneous", () => {
+describe.skip("Miscellaneous", () => {
   it.todo("Should render 'signUp' button.");
   it.todo("Should render 'logIn' link.");
 });

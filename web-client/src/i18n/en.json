@@ -22,5 +22,8 @@
     "buttonText": "Sign Up",
     "accountAlready": "Already have an account?",
     "logIn": "Log in"
+  },
+  "form": {
+    "weakPassword": "You picked one of the 200 weakest passwords. It is strongly advised to chooses another password!"
   }
 }

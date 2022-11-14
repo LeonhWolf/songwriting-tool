@@ -2,6 +2,7 @@ import {
   render,
   screen,
   waitForElementToBeRemoved,
+  act,
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -56,6 +57,27 @@ describe("Toggling visibility:", () => {
       />
     );
     await waitForElementToBeRemoved(() => screen.queryByText("testContent"));
+    expect(screen.queryByText("testContent")).toBe(null);
+  });
+  it("Should not toggle by click on 'targetComponent'.", async () => {
+    render(
+      <Popover
+        doShow={false}
+        content="testContent"
+        targetComponent={<div>test here</div>}
+      />
+    );
+    expect(screen.queryByText("testContent")).toBe(null);
+    const targetComponent = screen.getByText("test here");
+
+    await act(async () => {
+      await targetComponent.click();
+      await targetComponent.click();
+    });
+
+    // apparently the popover only toggles after a delay
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
     expect(screen.queryByText("testContent")).toBe(null);
   });
 });

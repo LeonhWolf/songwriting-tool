@@ -23,6 +23,7 @@ export default function Popover(props: IProps): React.ReactElement {
     if (!popover.current) {
       popover.current = new BsPopover(popoverElement.current ?? "", {
         content: props.content,
+        trigger: "manual",
       });
     }
 
@@ -36,10 +37,7 @@ export default function Popover(props: IProps): React.ReactElement {
   }, []);
 
   return (
-    <div
-      ref={popoverElement as React.RefObject<HTMLDivElement>}
-      style={{ width: "fit-content" }}
-    >
+    <div ref={popoverElement as React.RefObject<HTMLDivElement>}>
       {props.targetComponent}
     </div>
   );

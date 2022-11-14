@@ -1,9 +1,11 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import "@testing-library/jest-dom";
+import "whatwg-fetch";
 
 import Form from "./Form";
 import { IFormProps } from "./Form_Types";
+import i18n from "../../i18n/index";
 
 const setInputValue = (
   placeholderText: string,
@@ -25,6 +27,14 @@ const clickSubmitButton = async (): Promise<void> => {
     await submitButton.click();
   });
 };
+
+const mockResponse = new Response();
+mockResponse.text = () =>
+  new Promise<string>((resolve) => {
+    resolve(JSON.stringify(["123456", "123"]));
+  });
+global.fetch = jest.fn(() => Promise.resolve(mockResponse));
+jest.spyOn(i18n, "t").mockImplementation(() => "testPopoverContent");
 
 describe("Passing props to label & input:", () => {
   const formContents: IFormProps["contents"] = [
@@ -53,8 +63,10 @@ describe("Passing props to label & input:", () => {
       invalidMessage: "passwordInvalid",
     },
   ];
-  it("Should have proper inputId.", () => {
-    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+  it("Should have proper inputId.", async () => {
+    await act(() => {
+      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+    });
 
     expect(screen.getByPlaceholderText("textPlaceholder").id).toBe("textId");
     expect(screen.getByPlaceholderText("emailPlaceholder").id).toBe("emailId");
@@ -62,15 +74,19 @@ describe("Passing props to label & input:", () => {
       "passwordId"
     );
   });
-  it("Should have proper labelText.", () => {
-    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+  it("Should have proper labelText.", async () => {
+    await act(() => {
+      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+    });
 
     expect(screen.getByText("textLabel")).toBeDefined();
     expect(screen.getByText("emailLabel")).toBeDefined();
     expect(screen.getByText("passwordLabel")).toBeDefined();
   });
-  it("Should have proper inputType.", () => {
-    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+  it("Should have proper inputType.", async () => {
+    await act(() => {
+      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+    });
 
     expect(
       screen.getByPlaceholderText("textPlaceholder").getAttribute("type")
@@ -82,15 +98,19 @@ describe("Passing props to label & input:", () => {
       screen.getByPlaceholderText("passwordPlaceholder").getAttribute("type")
     ).toBe("password");
   });
-  it("Should have proper inputPlaceholder.", () => {
-    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+  it("Should have proper inputPlaceholder.", async () => {
+    await act(() => {
+      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+    });
 
     expect(screen.getByPlaceholderText("textPlaceholder")).toBeDefined();
     expect(screen.getByPlaceholderText("emailPlaceholder")).toBeDefined();
     expect(screen.getByPlaceholderText("passwordPlaceholder")).toBeDefined();
   });
-  it("Should have proper 'isRequired'.", () => {
-    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+  it("Should have proper 'isRequired'.", async () => {
+    await act(() => {
+      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+    });
 
     // char code 160 is &nbsp;
     expect(screen.getByText("textLabel").textContent).toBe(
@@ -104,7 +124,9 @@ describe("Passing props to label & input:", () => {
     );
   });
   it("Should have proper invalidMessage.", async () => {
-    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+    await act(() => {
+      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+    });
 
     setInputValue("emailPlaceholder", "asd");
     setInputValue("passwordPlaceholder", "123");
@@ -138,7 +160,9 @@ describe("Form validation:", () => {
       },
     ];
 
-    render(<Form contents={formContents} onValidSubmit={() => {}} />);
+    await act(() => {
+      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+    });
 
     setInputValue("placeholder", "test");
     setInputValue("placeholder2", "test2");
@@ -166,7 +190,9 @@ describe("Form validation:", () => {
       },
     ];
     it("Should invalidate input when required & empty.", async () => {
-      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
 
       expect(screen.queryByText("invalidTestMessage")).toBe(null);
 
@@ -174,7 +200,9 @@ describe("Form validation:", () => {
       expect(screen.getByText("invalidTestMessage")).toBeDefined();
     });
     it("Should validate when required & filled (after invalidated).", async () => {
-      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
 
       expect(screen.queryByText("invalidTestMessage")).toBe(null);
       const inputElement = await screen.findByPlaceholderText("placeholder");
@@ -192,9 +220,11 @@ describe("Form validation:", () => {
     it("Should not emit 'onValidSubmit' when any input is invalid.", async () => {
       const onValidSubmitMock = jest.fn();
 
-      render(
-        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
-      );
+      await act(() => {
+        render(
+          <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
+        );
+      });
 
       await clickSubmitButton();
       expect(onValidSubmitMock).not.toHaveBeenCalled();
@@ -220,7 +250,9 @@ describe("Form validation:", () => {
       },
     ];
     it("Should invalidate without '@'.", async () => {
-      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
 
       setInputValue("emailPlaceholder", "test");
 
@@ -228,7 +260,9 @@ describe("Form validation:", () => {
       expect(screen.getByText("invalidEmail")).toBeDefined();
     });
     it("Should invalidate with 0 chars before '@'.", async () => {
-      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
 
       setInputValue("emailPlaceholder", "@test.de");
 
@@ -236,7 +270,9 @@ describe("Form validation:", () => {
       expect(screen.getByText("invalidEmail")).toBeDefined();
     });
     it("Should invalidate if <2 chars after last '.'.", async () => {
-      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
 
       setInputValue("emailPlaceholder", "test@test.d");
 
@@ -244,7 +280,9 @@ describe("Form validation:", () => {
       expect(screen.getByText("invalidEmail")).toBeDefined();
     });
     it("Should validate with preceding conditions true.", async () => {
-      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
 
       setInputValue("emailPlaceholder", "test@test.de");
 
@@ -253,35 +291,36 @@ describe("Form validation:", () => {
     });
   });
   describe("Password:", () => {
+    const formContents: IFormProps["contents"] = [
+      {
+        inputId: "textId",
+        labelText: "textLabel",
+        inputType: "text",
+        inputPlaceholder: "textPlaceholder",
+        isRequired: false,
+        invalidMessage: "textInvalid",
+      },
+      {
+        inputId: "emailId",
+        labelText: "emailLabel",
+        inputType: "email",
+        inputPlaceholder: "emailPlaceholder",
+        isRequired: false,
+        invalidMessage: "invalidEmail",
+      },
+      {
+        inputId: "passwordId",
+        labelText: "passwordLabel",
+        inputType: "password",
+        inputPlaceholder: "passwordPlaceholder",
+        isRequired: true,
+        invalidMessage: "passwordInvalid",
+      },
+    ];
     it("Should invalidate when length < 8.", async () => {
-      const formContents: IFormProps["contents"] = [
-        {
-          inputId: "textId",
-          labelText: "textLabel",
-          inputType: "text",
-          inputPlaceholder: "textPlaceholder",
-          isRequired: false,
-          invalidMessage: "textInvalid",
-        },
-        {
-          inputId: "emailId",
-          labelText: "emailLabel",
-          inputType: "email",
-          inputPlaceholder: "emailPlaceholder",
-          isRequired: false,
-          invalidMessage: "invalidEmail",
-        },
-        {
-          inputId: "passwordId",
-          labelText: "passwordLabel",
-          inputType: "password",
-          inputPlaceholder: "passwordPlaceholder",
-          isRequired: true,
-          invalidMessage: "passwordInvalid",
-        },
-      ];
-
-      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
 
       setInputValue("passwordPlaceholder", "1234567");
       expect(screen.queryByText("passwordInvalid")).toBeNull();
@@ -290,34 +329,9 @@ describe("Form validation:", () => {
       expect(screen.getByText("passwordInvalid")).toBeDefined();
     });
     it("Should validate when length >= 8.", async () => {
-      const formContents: IFormProps["contents"] = [
-        {
-          inputId: "textId",
-          labelText: "textLabel",
-          inputType: "text",
-          inputPlaceholder: "textPlaceholder",
-          isRequired: false,
-          invalidMessage: "textInvalid",
-        },
-        {
-          inputId: "emailId",
-          labelText: "emailLabel",
-          inputType: "email",
-          inputPlaceholder: "emailPlaceholder",
-          isRequired: false,
-          invalidMessage: "invalidEmail",
-        },
-        {
-          inputId: "passwordId",
-          labelText: "passwordLabel",
-          inputType: "password",
-          inputPlaceholder: "passwordPlaceholder",
-          isRequired: true,
-          invalidMessage: "passwordInvalid",
-        },
-      ];
-
-      render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
 
       setInputValue("passwordPlaceholder", "12345678");
       expect(screen.queryByText("passwordInvalid")).toBeNull();
@@ -325,7 +339,26 @@ describe("Form validation:", () => {
       await clickSubmitButton();
       expect(screen.queryByText("passwordInvalid")).toBeNull();
     });
+    it("Should show popover when password is insecure.", async () => {
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
+
+      setInputValue("passwordPlaceholder", "123456");
+      expect(await screen.findByText("testPopoverContent")).toBeDefined();
+    });
+    it("Should not show popover when password is secure.", async () => {
+      jest.spyOn(i18n, "t").mockImplementation(() => "testPopoverContent");
+
+      await act(() => {
+        render(<Form contents={formContents} onValidSubmit={() => {}} />);
+      });
+      setInputValue("passwordPlaceholder", "Klsdw;Df2");
+
+      expect(screen.queryByText("testPopoverContent")).toBe(null);
+    });
   });
+
   it("Should not emit 'onValidSubmit' with invalid inputs even if not required.", async () => {
     const onValidSubmitMock = jest.fn();
     const formContents: IFormProps["contents"] = [
@@ -355,7 +388,11 @@ describe("Form validation:", () => {
       },
     ];
 
-    render(<Form contents={formContents} onValidSubmit={onValidSubmitMock} />);
+    await act(() => {
+      render(
+        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
+      );
+    });
 
     setInputValue("emailPlaceholder", "ab");
     setInputValue("passwordPlaceholder", "1234567");
@@ -393,7 +430,11 @@ describe("Form validation:", () => {
       },
     ];
 
-    render(<Form contents={formContents} onValidSubmit={onValidSubmitMock} />);
+    await act(() => {
+      render(
+        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
+      );
+    });
 
     setInputValue("textPlaceholder", "someText");
     setInputValue("emailPlaceholder", "test@test.com");
@@ -448,7 +489,11 @@ describe("Form validation:", () => {
       },
     ];
 
-    render(<Form contents={formContents} onValidSubmit={onValidSubmitMock} />);
+    await act(() => {
+      render(
+        <Form contents={formContents} onValidSubmit={onValidSubmitMock} />
+      );
+    });
 
     const textInputElement = setInputValue("textPlaceholder", "someText");
     const emailInputElement = setInputValue(
