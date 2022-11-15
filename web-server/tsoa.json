@@ -1,0 +1,13 @@
+{
+  "entryFile": "src/app.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/api/*.ts"],
+  "spec": {
+    "outputDirectory": "tsoa-build",
+    "specVersion": 3,
+    "description": "API for Smart Grocery List"
+  },
+  "routes": {
+    "routesDir": "tsoa-build"
+  }
+}
