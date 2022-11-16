@@ -1,14 +1,10 @@
-import express, {
-  json,
-  urlencoded,
-  NextFunction,
-  Request,
-  Response,
-} from "express";
+import express, { json, urlencoded } from "express";
+import * as dotenv from "dotenv";
+dotenv.config();
 import swaggerUi from "swagger-ui-express";
-import { ValidateError } from "tsoa";
 
 import { RegisterRoutes } from "../tsoa-build/routes";
+import tsoaValidation from "./utils/TsoaValidation";
 
 const app = express();
 const port = 5500;
@@ -24,29 +20,7 @@ app.use("/api-docs", swaggerUi.serve, async (_req: any, res: any) => {
 
 RegisterRoutes(app);
 
-app.use(
-  (
-    error: unknown,
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Response | void => {
-    if (error instanceof ValidateError) {
-      console.warn(`Caught ValidationError for ${req.path}:`, error.fields);
-
-      return res.status(422).json({
-        message: "Validation failed",
-        details: error?.fields,
-      });
-    }
-
-    if (error instanceof Error) {
-      return res.status(500).json({
-        message: "Internal Server Error",
-      });
-    }
-  }
-);
+app.use(tsoaValidation);
 
 app.listen(port, () => {
   console.log(`Listening on port: ${port}`);

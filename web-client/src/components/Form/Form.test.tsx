@@ -4,7 +4,7 @@ import "@testing-library/jest-dom";
 import "whatwg-fetch";
 
 import Form from "./Form";
-import { IFormProps } from "./Form_Types";
+import { IFormProps } from "./Form.types";
 import i18n from "../../i18n/index";
 
 const setInputValue = (

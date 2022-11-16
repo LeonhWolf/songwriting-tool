@@ -11,7 +11,7 @@ import {
   isPasswordValid,
 } from "./Form_Validation";
 
-import { IFormProps, IInputState } from "./Form_Types";
+import { IFormProps, IInputState } from "./Form.types";
 
 const mostCommonPasswordsTxtFile = require("../../assets/200-most-common-passwords.txt");
 
