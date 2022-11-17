@@ -1,5 +1,6 @@
 import nodemailer, { Transporter } from "nodemailer";
 
+import { logger } from "../utils/logger";
 import { ISendParameters } from "./mailService.types";
 
 let _isTransporterVerified = false;
@@ -13,18 +14,24 @@ function initTransporter(): void {
     !process.env.MAIL_PORT ||
     !process.env.MAIL_USER ||
     !process.env.MAIL_PASSWORD
-  )
+  ) {
+    logger.log(
+      "error",
+      "Email service could not be initialized. Not all environment variables for email config were set."
+    );
     return;
+  }
 
   _transporter = getTransporter();
 
   _transporter
     .verify()
     .then(() => {
+      logger.log("info", "The mail transporter has been verified.");
       _isTransporterVerified = true;
     })
-    .catch((err) => {
-      console.log(err);
+    .catch((error) => {
+      logger.log("error", `Email service could not be verified. ${error}`);
     });
 }
 
@@ -50,11 +57,18 @@ function getTransporter(): Transporter {
 export const send = async (sendParameters: ISendParameters): Promise<void> => {
   if (!_isTransporterVerified)
     throw new Error("'transporter' is not verified.");
-  await _transporter.sendMail({
-    to: sendParameters.toAddress,
-    subject: sendParameters.subject,
-    text: sendParameters.textContent,
-    html: sendParameters.htmlContent,
-    from: sendParameters.from,
-  });
+
+  try {
+    await _transporter.sendMail({
+      to: sendParameters.toAddress,
+      subject: sendParameters.subject,
+      text: sendParameters.textContent,
+      html: sendParameters.htmlContent,
+      from: sendParameters.from,
+    });
+  } catch (error) {
+    // Promise.reject(`Email service could not be verified. ${error}`);
+    logger.log("warn", `Email could not be sent. ${error}`);
+    throw new Error(`Email could not be sent. ${error}`);
+  }
 };

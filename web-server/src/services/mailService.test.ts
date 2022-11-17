@@ -3,6 +3,29 @@ import nodemailer, { SendMailOptions } from "nodemailer";
 const verifyTransporterSpy = jest.fn();
 const sendMailSpy = jest.fn();
 
+const logSpy = jest.fn();
+jest.mock("winston", () => {
+  return {
+    createLogger: () => {
+      return {
+        log: logSpy,
+      };
+    },
+    format: {
+      combine: () => {},
+      timestamp: () => {},
+      errors: () => {},
+      splat: () => {},
+      json: () => {},
+      colorize: () => {},
+    },
+    transports: {
+      Console: jest.fn(),
+      File: jest.fn(),
+    },
+  };
+});
+
 jest.mock("nodemailer", () => {
   return {
     createTestAccount: () => {},
@@ -42,14 +65,15 @@ afterAll(() => {
 });
 
 describe("Init:", () => {
-  it.skip("Should 'createTransport' when imported.", () => {
+  it.skip("Should 'createTransport' when imported.", async () => {
     verifyTransporterSpy.mockResolvedValue("resolved");
     const mailService = require("./mailService");
-    const spy = jest.spyOn(nodemailer, "createTransport");
+
+    await nextTick();
 
     //@ts-ignore
     console.log(nodemailer.createTransport.mock.calls);
-    expect(spy).toHaveBeenCalledWith({
+    expect(nodemailer.createTransport).toHaveBeenCalledWith({
       host: process.env.MAIL_HOST,
       port: parseInt(process.env.MAIL_PORT ?? ""),
       secure: true,
@@ -65,14 +89,43 @@ describe("Init:", () => {
 
     expect(verifyTransporterSpy).toHaveBeenCalled();
   });
+  it("Should log 'info' when 'transporter' is verified.", async () => {
+    verifyTransporterSpy.mockResolvedValue("");
+    const mailService = require("./mailService");
+
+    await nextTick();
+
+    expect(logSpy).toHaveBeenCalledWith(
+      "info",
+      "The mail transporter has been verified."
+    );
+  });
   it("Should catch when 'verify' rejects.", async () => {
     verifyTransporterSpy.mockRejectedValueOnce("Some reason for rejecting.");
     const mailService = require("./mailService");
 
     expect(nextTick).not.toThrow();
   });
-  it.todo("Should log when env variables are missing.");
-  it.todo("Should log when 'verify' rejects.");
+  it("Should log 'error' when env variables are missing.", () => {
+    process.env.MAIL_PASSWORD = undefined;
+    const mailService = require("./mailService");
+
+    expect(logSpy).toHaveBeenCalledWith(
+      "error",
+      "Email service could not be initialized. Not all environment variables for email config were set."
+    );
+  });
+  it("Should log 'error' when 'verify' rejects.", async () => {
+    verifyTransporterSpy.mockRejectedValueOnce("some reason here");
+    const mailService = require("./mailService");
+
+    await nextTick();
+
+    expect(logSpy).toHaveBeenCalledWith(
+      "error",
+      "Email service could not be verified. some reason here"
+    );
+  });
 });
 
 describe("Send mail:", () => {
@@ -87,7 +140,10 @@ describe("Send mail:", () => {
         toAddress: "recipient@server.com",
         subject: "Some email subject",
         htmlContent: "<div>hello mail</div>",
-        from: "sender@server.com",
+        from: {
+          name: "Sender",
+          address: "sender@server.com",
+        },
       })
     ).rejects.toThrowError("'transporter' is not verified.");
   });
@@ -101,13 +157,19 @@ describe("Send mail:", () => {
       toAddress: "recipient@server.com",
       subject: "Some email subject",
       textContent: "Some email text content",
-      from: "sender@server.com",
+      from: {
+        name: "Sender",
+        address: "sender@server.com",
+      },
     });
     const expectedArguments: SendMailOptions = {
       to: "recipient@server.com",
       subject: "Some email subject",
       text: "Some email text content",
-      from: "sender@server.com",
+      from: {
+        name: "Sender",
+        address: "sender@server.com",
+      },
     };
     expect(nodemailer.createTransport().sendMail).toHaveBeenCalledWith(
       expectedArguments
@@ -123,14 +185,20 @@ describe("Send mail:", () => {
       toAddress: "recipient@server.com",
       subject: "Some email subject",
       htmlContent: "<div>hello mail</div>",
-      from: "sender@server.com",
+      from: {
+        name: "Sender",
+        address: "sender@server.com",
+      },
     });
     const expectedArguments: SendMailOptions = {
       to: "recipient@server.com",
       subject: "Some email subject",
       text: undefined,
       html: "<div>hello mail</div>",
-      from: "sender@server.com",
+      from: {
+        name: "Sender",
+        address: "sender@server.com",
+      },
     };
     expect(nodemailer.createTransport().sendMail).toHaveBeenCalledWith(
       expectedArguments
@@ -143,14 +211,36 @@ describe("Send mail:", () => {
 
     await nextTick();
 
-    expect(
+    await expect(
       mailService.send({
         toAddress: "recipient@server.com",
         subject: "Some email subject",
         htmlContent: "<div>hello mail</div>",
         from: "sender@server.com",
       })
-    ).rejects.toEqual("Some reason for rejecting");
+    ).rejects.toThrowError(
+      "Email could not be sent. Some reason for rejecting"
+    );
   });
-  it.todo("Should log when sending mail throws an error.");
+  it("Should log 'warn' when sending mail throws an error.", async () => {
+    verifyTransporterSpy.mockResolvedValueOnce("");
+    const mailService = require("./mailService");
+    sendMailSpy.mockRejectedValueOnce("Some reason for rejecting");
+
+    await nextTick();
+
+    try {
+      await mailService.send({
+        toAddress: "recipient@server.com",
+        subject: "Some email subject",
+        htmlContent: "<div>hello mail</div>",
+        from: "sender@server.com",
+      });
+    } catch (error) {
+      expect(logSpy).toHaveBeenCalledWith(
+        "warn",
+        "Email could not be sent. Some reason for rejecting"
+      );
+    }
+  });
 });

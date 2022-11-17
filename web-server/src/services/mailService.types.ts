@@ -1,9 +1,13 @@
 import { SendMailOptions } from "nodemailer";
 
+interface IAddress {
+  name: string;
+  address: string;
+}
 interface ISendParametersBasic {
   toAddress: string;
   subject: string;
-  from?: SendMailOptions["from"];
+  from: IAddress;
 }
 interface ISendParametersText extends ISendParametersBasic {
   textContent: string;

@@ -23,7 +23,10 @@ export class RegisterController extends Controller {
         toAddress: "leonhardwolf96@gmail.com",
         subject: "testMail",
         textContent: "Some test content",
-        from: "test",
+        from: {
+          name: "Smart Grocery List",
+          address: "leonhardwolf@lw-webdev.de",
+        },
       });
     } catch (error) {
       console.error(error);

@@ -5,6 +5,7 @@ import swaggerUi from "swagger-ui-express";
 
 import { RegisterRoutes } from "../tsoa-build/routes";
 import tsoaValidation from "./utils/TsoaValidation";
+import "./utils/logger";
 
 const app = express();
 const port = 5500;
