@@ -1,14 +1,15 @@
 import express, { json, urlencoded } from "express";
+import process from "process";
 import * as dotenv from "dotenv";
 dotenv.config();
 import swaggerUi from "swagger-ui-express";
 
 import { RegisterRoutes } from "../tsoa-build/routes";
-import tsoaValidation from "./utils/TsoaValidation";
-import "./utils/logger";
+import tsoaValidation from "./utils/tsoaValidation";
+import { logger } from "./utils/logger";
 
 const app = express();
-const port = 5500;
+const port = process.env.PORT || 5000;
 
 app.use(urlencoded({ extended: true }));
 app.use(json());
@@ -20,9 +21,12 @@ app.use("/api-docs", swaggerUi.serve, async (_req: any, res: any) => {
 });
 
 RegisterRoutes(app);
-
 app.use(tsoaValidation);
 
+process.on("uncaughtException", (error) => {
+  logger.log("error", error);
+});
+
 app.listen(port, () => {
-  console.log(`Listening on port: ${port}`);
+  logger.log("info", `Server is listening on port: ${port}.`);
 });
