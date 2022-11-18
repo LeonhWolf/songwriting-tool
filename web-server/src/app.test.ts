@@ -39,27 +39,12 @@ jest.mock("../tsoa-build/routes.ts", () => ({
 const tsoaValidationSpy = jest.fn();
 jest.mock("./utils/tsoaValidation.ts", () => tsoaValidationSpy);
 
-const logSpy = jest.fn();
-const createLoggerSpy = jest.fn(() => ({
-  log: logSpy,
-}));
-jest.mock("winston", () => {
-  return {
-    createLogger: createLoggerSpy,
-    format: {
-      combine: () => {},
-      timestamp: () => {},
-      errors: () => {},
-      splat: () => {},
-      json: () => {},
-      colorize: () => {},
-    },
-    transports: {
-      Console: jest.fn(),
-      File: jest.fn(),
-    },
-  };
-});
+const {
+  winstonMock,
+  logSpy,
+  createLoggerSpy,
+} = require("./utils/testUtils/mockWinston");
+jest.mock("winston", () => winstonMock);
 
 const setEnvVariables = (): void => {
   process.env.PORT = "5500";

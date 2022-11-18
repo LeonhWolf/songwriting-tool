@@ -6,6 +6,7 @@ import swaggerUi from "swagger-ui-express";
 
 import { RegisterRoutes } from "../tsoa-build/routes";
 import tsoaValidation from "./utils/tsoaValidation";
+import handleMongoDBConnection from "./utils/handleMongoDBConnection";
 import { logger } from "./utils/logger";
 
 const app = express();
@@ -13,6 +14,8 @@ const port = process.env.PORT || 5000;
 
 app.use(urlencoded({ extended: true }));
 app.use(json());
+
+handleMongoDBConnection();
 
 app.use("/api-docs", swaggerUi.serve, async (_req: any, res: any) => {
   return res.send(

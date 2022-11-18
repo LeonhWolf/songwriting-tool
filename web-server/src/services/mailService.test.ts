@@ -1,30 +1,9 @@
+const { winstonMock, logSpy } = require("../utils/testUtils/mockWinston");
 import nodemailer, { SendMailOptions } from "nodemailer";
+import resolvePendingPromises from "../utils/testUtils/resolvePendingPromises";
 
 const verifyTransporterSpy = jest.fn();
 const sendMailSpy = jest.fn();
-
-const logSpy = jest.fn();
-jest.mock("winston", () => {
-  return {
-    createLogger: () => {
-      return {
-        log: logSpy,
-      };
-    },
-    format: {
-      combine: () => {},
-      timestamp: () => {},
-      errors: () => {},
-      splat: () => {},
-      json: () => {},
-      colorize: () => {},
-    },
-    transports: {
-      Console: jest.fn(),
-      File: jest.fn(),
-    },
-  };
-});
 
 jest.mock("nodemailer", () => {
   return {
@@ -39,11 +18,7 @@ jest.mock("nodemailer", () => {
   };
 });
 
-const nextTick = async (): Promise<void> => {
-  await new Promise((resolve) => {
-    process.nextTick(resolve);
-  });
-};
+jest.mock("winston", () => winstonMock);
 
 const setEnvVariables = (): void => {
   process.env.MAIL_HOST = "test.server.com";
@@ -69,7 +44,7 @@ describe("Init:", () => {
     verifyTransporterSpy.mockResolvedValue("resolved");
     const mailService = require("./mailService");
 
-    await nextTick();
+    await resolvePendingPromises();
 
     //@ts-ignore
     console.log(nodemailer.createTransport.mock.calls);
@@ -93,7 +68,7 @@ describe("Init:", () => {
     verifyTransporterSpy.mockResolvedValue("");
     const mailService = require("./mailService");
 
-    await nextTick();
+    await resolvePendingPromises();
 
     expect(logSpy).toHaveBeenCalledWith(
       "info",
@@ -104,7 +79,7 @@ describe("Init:", () => {
     verifyTransporterSpy.mockRejectedValueOnce("Some reason for rejecting.");
     const mailService = require("./mailService");
 
-    expect(nextTick).not.toThrow();
+    expect(resolvePendingPromises).not.toThrow();
   });
   it("Should log 'error' when env variables are missing.", () => {
     process.env.MAIL_PASSWORD = undefined;
@@ -119,7 +94,7 @@ describe("Init:", () => {
     verifyTransporterSpy.mockRejectedValueOnce("some reason here");
     const mailService = require("./mailService");
 
-    await nextTick();
+    await resolvePendingPromises();
 
     expect(logSpy).toHaveBeenCalledWith(
       "error",
@@ -133,7 +108,7 @@ describe("Send mail:", () => {
     verifyTransporterSpy.mockRejectedValueOnce("Some reason for rejecting.");
     const mailService = require("./mailService");
 
-    await nextTick();
+    await resolvePendingPromises();
 
     await expect(
       mailService.send({
@@ -151,7 +126,7 @@ describe("Send mail:", () => {
     verifyTransporterSpy.mockResolvedValueOnce("");
     const mailService = require("./mailService");
 
-    await nextTick();
+    await resolvePendingPromises();
 
     await mailService.send({
       toAddress: "recipient@server.com",
@@ -179,7 +154,7 @@ describe("Send mail:", () => {
     verifyTransporterSpy.mockResolvedValueOnce("");
     const mailService = require("./mailService");
 
-    await nextTick();
+    await resolvePendingPromises();
 
     await mailService.send({
       toAddress: "recipient@server.com",
@@ -209,7 +184,7 @@ describe("Send mail:", () => {
     const mailService = require("./mailService");
     sendMailSpy.mockRejectedValueOnce("Some reason for rejecting");
 
-    await nextTick();
+    await resolvePendingPromises();
 
     await expect(
       mailService.send({
@@ -227,7 +202,7 @@ describe("Send mail:", () => {
     const mailService = require("./mailService");
     sendMailSpy.mockRejectedValueOnce("Some reason for rejecting");
 
-    await nextTick();
+    await resolvePendingPromises();
 
     try {
       await mailService.send({
