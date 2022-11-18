@@ -44,7 +44,14 @@ const {
   logSpy,
   createLoggerSpy,
 } = require("./utils/testUtils/mockWinston");
+
 jest.mock("winston", () => winstonMock);
+
+const handleMongoDBConnectionSpy = jest.fn();
+jest.mock("./utils/handleMongoDBConnection", () => ({
+  __esModule: true,
+  default: handleMongoDBConnectionSpy,
+}));
 
 const setEnvVariables = (): void => {
   process.env.PORT = "5500";
@@ -117,4 +124,8 @@ describe("Register middleware:", () => {
 it("Should import the logger.", () => {
   const server = require("./app");
   expect(createLoggerSpy).toHaveBeenCalled();
+});
+it("Should import 'handleMongoDBConnection'.", () => {
+  const server = require("./app");
+  expect(handleMongoDBConnectionSpy).toHaveBeenCalled();
 });

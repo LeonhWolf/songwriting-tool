@@ -55,7 +55,7 @@ const accountDeletedSchema = new Schema<IAccountDeleted>({
   hard_delete_on: Date,
 });
 
-interface IUser {
+export interface IUser {
   email_address: string;
   first_name: string;
   last_name: string;
@@ -66,7 +66,7 @@ interface IUser {
   reset_password?: IResetPassword;
   old_email?: IOldEmail;
   account_deleted?: IAccountDeleted;
-  last_edit_on: Date;
+  last_user_edit_on: Date;
 }
 const userSchema = new Schema<IUser>({
   email_address: {
@@ -94,10 +94,10 @@ const userSchema = new Schema<IUser>({
   reset_password: resetPasswordSchema,
   old_email: oldEmailSchema,
   account_deleted: accountDeletedSchema,
-  last_edit_on: {
+  last_user_edit_on: {
     type: Date,
     required: true,
   },
 });
 
-const User = mongoose.model("User", userSchema);
+export const User = mongoose.model<IUser>("User", userSchema);
