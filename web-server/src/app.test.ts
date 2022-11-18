@@ -15,33 +15,37 @@ const expressListenSpy = jest.fn((port: number, callback: Function) => {
 const expressOnSpy = jest.fn((event: string, callback: Function) => {
   callback("some error message");
 });
+const expressUseSpy = jest.fn();
+const expressDefaultSpy = {
+  use: expressUseSpy,
+  listen: expressListenSpy,
+  on: expressOnSpy,
+};
 jest.mock("express", () => ({
   __esModule: true,
-  default: () => {
-    return {
-      use: jest.fn(),
-      listen: expressListenSpy,
-      on: expressOnSpy,
-    };
-  },
-  urlencoded: jest.fn(),
-  json: jest.fn(),
+  default: () => expressDefaultSpy,
+  urlencoded: jest.fn().mockReturnValue("urlencoded"),
+  json: jest.fn().mockReturnValue("json"),
 }));
 
 jest.mock("swagger-ui-express", () => ({
   serve: jest.fn(),
 }));
 
-jest.mock("../tsoa-build/routes.ts");
+jest.mock("../tsoa-build/routes.ts", () => ({
+  RegisterRoutes: jest.fn(),
+}));
+
+const tsoaValidationSpy = jest.fn();
+jest.mock("./utils/tsoaValidation.ts", () => tsoaValidationSpy);
 
 const logSpy = jest.fn();
+const createLoggerSpy = jest.fn(() => ({
+  log: logSpy,
+}));
 jest.mock("winston", () => {
   return {
-    createLogger: () => {
-      return {
-        log: logSpy,
-      };
-    },
+    createLogger: createLoggerSpy,
     format: {
       combine: () => {},
       timestamp: () => {},
@@ -72,7 +76,7 @@ afterAll(() => {
   process.env = oldEnv;
 });
 
-describe("Server:", () => {
+describe("Server start & error handling:", () => {
   it("Should log 'info' when server is started.", () => {
     const server = require("./app");
     expect(logSpy).toHaveBeenCalledWith(
@@ -98,11 +102,34 @@ describe("Server:", () => {
 });
 
 describe("Register middleware:", () => {
-  it.todo("Should use 'urlencoded'.");
-  it.todo("Should use 'json'.");
-  it.todo("Should serve swaggerUi on '/api-docs'.");
-  it.todo("Should use 'RegisterRoutes'.");
-  it.todo("Should use 'tsoaValidation'.");
+  it("Should use 'urlencoded'.", () => {
+    const server = require("./app");
+    expect(expressUseSpy).toHaveBeenCalledWith("urlencoded");
+  });
+  it("Should use 'json'.", () => {
+    const server = require("./app");
+    expect(expressUseSpy).toHaveBeenCalledWith("json");
+  });
+  it("Should serve swaggerUi on '/api-docs'.", () => {
+    const server = require("./app");
+    expect(expressUseSpy).toHaveBeenCalledWith(
+      "/api-docs",
+      expect.any(Function),
+      expect.any(Function)
+    );
+  });
+  it("Should use 'RegisterRoutes'.", () => {
+    const RegisterRoutes = require("../tsoa-build/routes").RegisterRoutes;
+    const server = require("./app");
+    expect(RegisterRoutes).toHaveBeenCalledWith(expressDefaultSpy);
+  });
+  it("Should use 'tsoaValidation'.", () => {
+    const server = require("./app");
+    expect(expressUseSpy).toHaveBeenCalledWith(tsoaValidationSpy);
+  });
 });
 
-it.todo("Should import the logger.");
+it("Should import the logger.", () => {
+  const server = require("./app");
+  expect(createLoggerSpy).toHaveBeenCalled();
+});
