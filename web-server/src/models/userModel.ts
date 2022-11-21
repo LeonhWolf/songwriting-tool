@@ -1,20 +1,14 @@
 import mongoose, { Schema } from "mongoose";
 
-interface IPassword {
-  hash: string;
-  salt: string;
-}
-const passwordSchema = new Schema<IPassword>({
-  hash: String,
-  salt: String,
-});
-
 interface IAppSettings {
-  app_language: string;
-  ui_theme: string;
+  app_language: "en" | "de";
+  ui_theme?: string;
 }
 const appSettingsSchema = new Schema<IAppSettings>({
-  app_language: String,
+  app_language: {
+    type: String,
+    enum: ["en", "de"],
+  },
   ui_theme: String,
 });
 
@@ -59,7 +53,7 @@ export interface IUser {
   email_address: string;
   first_name: string;
   last_name: string;
-  password: IPassword;
+  password_hash_and_salt: string;
   app_settings: IAppSettings;
   local_sessions?: ILocalSession[];
   account_confirmation?: IAccountConfirmation;
@@ -81,10 +75,7 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
   },
-  password: {
-    type: passwordSchema,
-    required: true,
-  },
+  password_hash_and_salt: { type: String, required: true },
   app_settings: {
     type: appSettingsSchema,
     required: true,
