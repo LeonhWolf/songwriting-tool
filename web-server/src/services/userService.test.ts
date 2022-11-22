@@ -175,8 +175,35 @@ describe("Create:", () => {
     expect(userDocuments).toHaveLength(1);
     expect(userDocuments[0]).toEqual(expectedUser);
   });
+  it("Should return the created user document.", async () => {
+    const newUser: Parameters<typeof create>[0] = {
+      email_address: "john@doe.com",
+      first_name: "John",
+      last_name: "Doe",
+      plainPassword: "...",
+      client_language: "en",
+    };
+    const expectedUser: IUserDb = {
+      __v: expect.any(Number),
+      _id: expect.any(mongoose.Types.ObjectId),
+      email_address: "john@doe.com",
+      first_name: "John",
+      last_name: "Doe",
+      last_user_edit_on: new Date(),
+      app_settings: {
+        _id: expect.any(mongoose.Types.ObjectId),
+        app_language: "en",
+      },
+      account_confirmation: expectedAccountConfirmation,
+      local_sessions: [],
+      password_hash_and_salt: expect.any(String),
+    };
+
+    const createdUser = await create(newUser);
+    expect(createdUser.toObject()).toEqual(expectedUser);
+  });
   describe("Mail already taken:", () => {
-    const johnDoe: IUser = {
+    const getJohnDoe = (): IUser => ({
       email_address: "john@doe.com",
       first_name: "John",
       last_name: "Doe",
@@ -186,8 +213,8 @@ describe("Create:", () => {
       },
       local_sessions: [],
       password_hash_and_salt: "123",
-    };
-    const expectedJohnDoeDocument: IUserDb = {
+    });
+    const getExpectedJohnDoeDocument = (): IUserDb => ({
       __v: expect.any(Number),
       _id: expect.any(mongoose.Types.ObjectId),
       email_address: "john@doe.com",
@@ -200,7 +227,7 @@ describe("Create:", () => {
       },
       local_sessions: [],
       password_hash_and_salt: expect.any(String),
-    };
+    });
     const johnDoeDuplicate: Parameters<typeof create>[0] = {
       email_address: "john@doe.com",
       first_name: "John",
@@ -209,11 +236,11 @@ describe("Create:", () => {
       client_language: "en",
     };
     const insertJohnDoe = async () => {
-      const johnDoeUser = new User(johnDoe);
+      const johnDoeUser = new User(getJohnDoe());
       await johnDoeUser.save();
       const allUsers = await User.find({}).lean();
       expect(allUsers).toHaveLength(1);
-      expect(allUsers[0]).toEqual(expectedJohnDoeDocument);
+      expect(allUsers[0]).toEqual(getExpectedJohnDoeDocument());
     };
     it("Should reject.", async () => {
       await insertJohnDoe();
@@ -228,7 +255,7 @@ describe("Create:", () => {
       );
       const allUsers = await User.find({}).lean();
       expect(allUsers).toHaveLength(1);
-      expect(allUsers[0]).toEqual(expectedJohnDoeDocument);
+      expect(allUsers[0]).toEqual(getExpectedJohnDoeDocument());
     });
   });
 });

@@ -54,7 +54,9 @@ function getTransporter(): Transporter {
   return transporter;
 }
 
-export const send = async (sendParameters: ISendParameters): Promise<void> => {
+export const sendMail = async (
+  sendParameters: ISendParameters
+): Promise<void> => {
   if (!_isTransporterVerified)
     throw new Error("'transporter' is not verified.");
 

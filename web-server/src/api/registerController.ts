@@ -1,11 +1,8 @@
 import { Body, Controller, Post, Route, SuccessResponse } from "tsoa";
 
-import { send } from "../services/mailService";
-
-interface IRequest {
-  testId: number;
-  message: string;
-}
+import { INewUser, create } from "../services/userService";
+import { sendMail } from "../services/mailService";
+import { getInterpolatedEmailString } from "../services/emailTemplateService";
 
 @Route("register")
 export class RegisterController extends Controller {
@@ -17,24 +14,42 @@ export class RegisterController extends Controller {
     "User was created if email address was not already in use."
   )
   @Post()
-  public async createUser(@Body() requestBody: IRequest): Promise<void> {
-    try {
-      await send({
-        toAddress: "leonhardwolf96@gmail.com",
-        subject: "testMail",
-        textContent: "Some test content",
-        from: {
-          name: "Smart Grocery List",
-          address: "leonhardwolf@lw-webdev.de",
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
+  public async createUser(@Body() requestBody: INewUser): Promise<void> {
+    const createdUser = await create(requestBody);
+    const confirmationExpiresOn = createdUser.get("expires_on") as Date;
+
+    const interpolatedEmailString = await getInterpolatedEmailString(
+      "registerConfirmation",
+      {
+        name: `${requestBody.first_name} ${requestBody.last_name}`,
+        confirmationLink: `${process.env.BASE_URL}/accountConfirmation?id=123`,
+        expiresOnDate: confirmationExpiresOn.toISOString(),
+      }
+    );
+    sendMail({
+      toAddress: requestBody.email_address,
+      subject: "Registration confirmation: Smart Grocery List",
+      from: {
+        name: "Smart Grocery List",
+        address: "leonhardwolf@lw-webdev.de",
+      },
+      htmlContent: interpolatedEmailString,
+    });
+
+    // try {
+    //   await send({
+    //     toAddress: "leonhardwolf96@gmail.com",
+    //     subject: "testMail",
+    //     textContent: "Some test content",
+    //     from: {
+    //       name: "Smart Grocery List",
+    //       address: "leonhardwolf@lw-webdev.de",
+    //     },
+    //   });
+    // } catch (error) {
+    //   console.error(error);
+    // }
 
     this.setStatus(200);
-    console.log(requestBody.message);
-    console.log(requestBody.testId);
-    return;
   }
 }

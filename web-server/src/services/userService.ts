@@ -1,6 +1,8 @@
+import mongoose from "mongoose";
 import argon2 from "argon2";
 
 import { IUser, User } from "../models/userModel";
+import { addDaysToDate } from "../utils/dateUtils";
 
 export interface INewUser
   extends Pick<IUser, "email_address" | "first_name" | "last_name"> {
@@ -8,11 +10,13 @@ export interface INewUser
   client_language: IUser["app_settings"]["app_language"];
 }
 
-function addDaysToDate(date: Date, numberOfDays: number): void {
-  date.setDate(date.getDate() + numberOfDays);
-}
-
-export async function create(newUser: INewUser) {
+export async function create(
+  newUser: INewUser
+  // ): Promise<mongoose.Document<unknown, any, IUser>> {
+): Promise<
+  mongoose.Document<unknown, any, IUser> &
+    IUser & { _id: mongoose.Types.ObjectId }
+> {
   const usersWithEmail = await User.aggregate([
     { $match: { email_address: newUser.email_address } },
   ]);
@@ -27,8 +31,7 @@ export async function create(newUser: INewUser) {
     timeCost: 2,
   });
   const now = new Date();
-  const accountConfirmationExpiresOn = new Date(now);
-  addDaysToDate(accountConfirmationExpiresOn, 14);
+  const accountConfirmationExpiresOn = addDaysToDate(now, 14);
 
   const user = new User<IUser>({
     email_address: newUser.email_address,
@@ -43,5 +46,6 @@ export async function create(newUser: INewUser) {
     },
     last_user_edit_on: now,
   });
-  await user.save();
+  const createdUser = await user.save();
+  return createdUser;
 }

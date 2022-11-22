@@ -111,7 +111,7 @@ describe("Send mail:", () => {
     await resolvePendingPromises();
 
     await expect(
-      mailService.send({
+      mailService.sendMail({
         toAddress: "recipient@server.com",
         subject: "Some email subject",
         htmlContent: "<div>hello mail</div>",
@@ -128,7 +128,7 @@ describe("Send mail:", () => {
 
     await resolvePendingPromises();
 
-    await mailService.send({
+    await mailService.sendMail({
       toAddress: "recipient@server.com",
       subject: "Some email subject",
       textContent: "Some email text content",
@@ -156,7 +156,7 @@ describe("Send mail:", () => {
 
     await resolvePendingPromises();
 
-    await mailService.send({
+    await mailService.sendMail({
       toAddress: "recipient@server.com",
       subject: "Some email subject",
       htmlContent: "<div>hello mail</div>",
@@ -187,7 +187,7 @@ describe("Send mail:", () => {
     await resolvePendingPromises();
 
     await expect(
-      mailService.send({
+      mailService.sendMail({
         toAddress: "recipient@server.com",
         subject: "Some email subject",
         htmlContent: "<div>hello mail</div>",
@@ -205,7 +205,7 @@ describe("Send mail:", () => {
     await resolvePendingPromises();
 
     try {
-      await mailService.send({
+      await mailService.sendMail({
         toAddress: "recipient@server.com",
         subject: "Some email subject",
         htmlContent: "<div>hello mail</div>",
