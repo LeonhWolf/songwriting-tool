@@ -2,7 +2,7 @@ import argon2 from "argon2";
 
 import { IUser, User } from "../models/userModel";
 
-interface INewUser
+export interface INewUser
   extends Pick<IUser, "email_address" | "first_name" | "last_name"> {
   plainPassword: string;
   client_language: IUser["app_settings"]["app_language"];

@@ -9,7 +9,7 @@ import tsoaValidation from "./utils/tsoaValidation";
 import handleMongoDBConnection from "./utils/handleMongoDBConnection";
 import { logger } from "./utils/logger";
 
-const app = express();
+export const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(urlencoded({ extended: true }));

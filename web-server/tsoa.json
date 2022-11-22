@@ -5,9 +5,22 @@
   "spec": {
     "outputDirectory": "tsoa-build",
     "specVersion": 3,
-    "description": "API for Smart Grocery List"
+    "description": "API for Smart Grocery List."
   },
   "routes": {
+    "basePath": "/api",
     "routesDir": "tsoa-build"
+  },
+  "swagger": {
+    "info": {
+      "description": "API for Smart Grocery List.",
+      "title": "Smart Grocery List API"
+    },
+    "servers": [
+      {
+        "url": "/api",
+        "description": "The main API."
+      }
+    ]
   }
 }
