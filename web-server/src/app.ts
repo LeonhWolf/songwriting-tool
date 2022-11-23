@@ -29,7 +29,8 @@ app.use(tsoaValidation);
 process.on("uncaughtException", (error) => {
   logger.log("error", error);
 });
-
-app.listen(port, () => {
-  logger.log("info", `Server is listening on port: ${port}.`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => {
+    logger.log("info", `Server is listening on port: ${port}.`);
+  });
+}

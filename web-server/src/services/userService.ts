@@ -10,6 +10,9 @@ export interface INewUser
   client_language: IUser["app_settings"]["app_language"];
 }
 
+export function getEmailTakenErrorMessage(emailAddress: string): string {
+  return `User with email '${emailAddress}' already exists.`;
+}
 export async function create(
   newUser: INewUser
   // ): Promise<mongoose.Document<unknown, any, IUser>> {
@@ -22,9 +25,7 @@ export async function create(
   ]);
   const isEmailAlreadyTaken = usersWithEmail.length > 0;
   if (isEmailAlreadyTaken)
-    throw new Error(
-      `User with email '${newUser.email_address}' already exists.`
-    );
+    throw new Error(getEmailTakenErrorMessage(newUser.email_address));
 
   const hash_and_salt = await argon2.hash(newUser.plainPassword, {
     parallelism: 1,

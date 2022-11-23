@@ -1,20 +1,22 @@
-const userServiceCreateMock = jest.fn(() => ({
-  get: () => {
+const mongoose = require("mongoose");
+
+const mongooseObjectIdToStringMock = jest.fn(() => "someObjectId");
+const userServiceCreateGetMock = jest.fn((path: string) => {
+  if (path === "account_confirmation.expires_on")
     return new Date("1970-01-15T00:00:00.000Z");
-  },
-}));
-const mailServiceSendMock = jest.fn();
+  if (path === "account_confirmation._id")
+    return { toString: mongooseObjectIdToStringMock };
+  return;
+});
+const userServiceCreateMock = jest.fn().mockResolvedValue({
+  get: userServiceCreateGetMock,
+});
+const mailServiceSendMock = jest.fn().mockResolvedValue("");
 const emailInterpolationMock = jest
   .fn()
   .mockResolvedValue("Interpolated email mock");
-
-import request from "supertest";
-import fakeTimers from "@sinonjs/fake-timers";
-
-import { app } from "../app";
-import { INewUser } from "../services/userService";
-import { ISendParameters } from "../services/mailService.types";
-import { logSpy } from "../utils/testUtils/mockWinston";
+const getEmailTakenErrorMessageMock = jest.fn(() => "Email taken error msg.");
+const winstonMock = require("../utils/testUtils/mockWinston").winstonMock;
 
 jest.mock("../utils/handleMongoDBConnection", () => ({
   __esModule: true,
@@ -24,6 +26,7 @@ jest.mock("../utils/handleMongoDBConnection", () => ({
 jest.mock("../services/userService.ts", () => ({
   __esModule: true,
   default: () => jest.fn(),
+  getEmailTakenErrorMessage: getEmailTakenErrorMessageMock,
   create: userServiceCreateMock,
 }));
 
@@ -37,14 +40,24 @@ jest.mock("../services/emailTemplateService.ts", () => ({
   getInterpolatedEmailString: emailInterpolationMock,
 }));
 
+jest.mock("winston", () => winstonMock);
+
+import request from "supertest";
+import fakeTimers from "@sinonjs/fake-timers";
+
+import { app } from "../app";
+import { INewUser } from "../services/userService";
+import { ISendParameters } from "../services/mailService.types";
+import { logSpy } from "../utils/testUtils/mockWinston";
+
 const oldEnv = process.env;
 let clock: fakeTimers.InstalledClock;
 beforeAll(() => {
   process.env = { ...oldEnv };
-  process.env.BASE_URL = "https://base-url.com";
   clock = fakeTimers.install();
 });
 beforeEach(() => {
+  process.env.BASE_URL = "https://base-url.com";
   jest.clearAllMocks();
 });
 
@@ -53,21 +66,21 @@ afterAll(() => {
   clock.uninstall();
 });
 
+const newUser: INewUser = {
+  email_address: "john@doe.com",
+  first_name: "John",
+  last_name: "Doe",
+  plainPassword: "123456",
+  client_language: "en",
+};
+const getPostResponse = async (): Promise<request.Response> => {
+  const response = await request(app)
+    .post("/api/register")
+    .send(newUser)
+    .set("Accept", "application/json");
+  return response;
+};
 describe("Success:", () => {
-  const newUser: INewUser = {
-    email_address: "john@doe.com",
-    first_name: "John",
-    last_name: "Doe",
-    plainPassword: "123456",
-    client_language: "en",
-  };
-  const getPostResponse = async (): Promise<request.Response> => {
-    const response = await request(app)
-      .post("/api/register")
-      .send(newUser)
-      .set("Accept", "application/json");
-    return response;
-  };
   it("Should create user.", async () => {
     await getPostResponse();
     expect(userServiceCreateMock).toHaveBeenCalledWith(newUser);
@@ -76,10 +89,12 @@ describe("Success:", () => {
     await getPostResponse();
     const expectedInterpolationDataArgument = {
       name: "John Doe",
-      confirmationLink: "https://base-url.com/accountConfirmation?id=123",
+      confirmationLink:
+        "https://base-url.com/accountConfirmation?id=someObjectId",
       expiresOnDate: "1970-01-15T00:00:00.000Z",
     };
 
+    expect(mongooseObjectIdToStringMock).toHaveBeenCalledTimes(1);
     expect(emailInterpolationMock).toHaveBeenCalledTimes(1);
     expect(emailInterpolationMock).toHaveBeenCalledWith(
       "registerConfirmation",
@@ -108,22 +123,70 @@ describe("Success:", () => {
 });
 describe("Failure:", () => {
   describe("Duplicate email:", () => {
-    it.todo("Should send '200'.");
-    it.todo("Should not create user.");
-    it.todo("Should not send mail.");
+    it("Should send '200'.", async () => {
+      userServiceCreateMock.mockRejectedValueOnce("Email taken error msg.");
+      const response = await getPostResponse();
+      expect(response.statusCode).toBe(200);
+    });
+    it("Should not send mail.", async () => {
+      userServiceCreateMock.mockRejectedValueOnce("Email taken error msg.");
+      const response = await getPostResponse();
+      expect(mailServiceSendMock).not.toHaveBeenCalled();
+    });
   });
   describe("Env variable 'BASE_URL' is not set", () => {
-    it.todo("Should send '500'.");
-    it.todo("Should not create user.");
-    it.todo("Should not send mail.");
-    it.todo("Should log 'error' with error.");
+    it("Should send '500'.", async () => {
+      process.env.BASE_URL = undefined;
+      const response = await getPostResponse();
+      expect(response.statusCode).toBe(500);
+    });
+    it("Should not create user.", async () => {
+      process.env.BASE_URL = undefined;
+      const response = await getPostResponse();
+      expect(userServiceCreateMock).not.toHaveBeenCalled();
+    });
+    it("Should not send mail.", async () => {
+      process.env.BASE_URL = undefined;
+      const response = await getPostResponse();
+      expect(mailServiceSendMock).not.toHaveBeenCalled();
+    });
+    it("Should log 'error' with error.", async () => {
+      process.env.BASE_URL = undefined;
+      const response = await getPostResponse();
+      expect(logSpy).toHaveBeenCalledWith(
+        "error",
+        "User not registered: Environment variable 'BASE_URL' is 'undefined'."
+      );
+    });
   });
   describe("'create()' fails:", () => {
-    it.todo("Should log 'error' with error.");
-    it.todo("Should send '500'.");
+    it("Should send '500'.", async () => {
+      userServiceCreateMock.mockRejectedValueOnce("Some DB error.");
+      const response = await getPostResponse();
+      expect(response.statusCode).toBe(500);
+    });
+    it("Should log 'error' with error.", async () => {
+      userServiceCreateMock.mockRejectedValueOnce("Some DB error.");
+      const response = await getPostResponse();
+      expect(logSpy).toHaveBeenCalledWith(
+        "error",
+        "User not registered: Some DB error."
+      );
+    });
   });
   describe("'sendMail()' fails:", () => {
-    it.todo("Should log 'error' with error.");
-    it.todo("Should send '500'.");
+    it("Should send '500'.", async () => {
+      mailServiceSendMock.mockRejectedValueOnce("Some mail error.");
+      const response = await getPostResponse();
+      expect(response.statusCode).toBe(500);
+    });
+    it("Should log 'error' with error.", async () => {
+      mailServiceSendMock.mockRejectedValueOnce("Some mail error.");
+      const response = await getPostResponse();
+      expect(logSpy).toHaveBeenCalledWith(
+        "error",
+        "User not registered: Some mail error."
+      );
+    });
   });
 });
