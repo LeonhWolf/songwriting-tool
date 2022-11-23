@@ -50,3 +50,11 @@ export async function create(
   const createdUser = await user.save();
   return createdUser;
 }
+
+export async function doDelete(userId: mongoose.Types.ObjectId): Promise<void> {
+  const response = await User.deleteOne({ _id: userId });
+  if (response.deletedCount === 0)
+    throw new Error(
+      `User cannot be deleted because there is no user with id '${userId.toString()}'.`
+    );
+}

@@ -1,10 +1,14 @@
 const argon2HashMock = jest.fn().mockResolvedValue("Hash and salt");
 
+jest.mock("argon2", () => ({
+  hash: argon2HashMock,
+}));
+
 import fakeTimers from "@sinonjs/fake-timers";
 import mongoose from "mongoose";
 
 import { IUser, User } from "../models/userModel";
-import { create } from "./userService";
+import { create, doDelete } from "./userService";
 import setupAndDropTestDB from "../utils/testUtils/setupAndDropTestDB";
 
 type IAppSettingsDb = IUser["app_settings"] & {
@@ -19,10 +23,6 @@ interface IUserDb extends IUser {
   app_settings: IAppSettingsDb;
   account_confirmation?: IAccountConfirmationDb;
 }
-
-jest.mock("argon2", () => ({
-  hash: argon2HashMock,
-}));
 
 setupAndDropTestDB({ doDropDbBeforeEach: true });
 
@@ -257,5 +257,75 @@ describe("Create:", () => {
       expect(allUsers).toHaveLength(1);
       expect(allUsers[0]).toEqual(getExpectedJohnDoeDocument());
     });
+  });
+});
+
+describe("Delete:", () => {
+  const getExpectedUser = (): IUserDb => ({
+    __v: expect.any(Number),
+    _id: expect.any(mongoose.Types.ObjectId),
+    email_address: "john@doe.com",
+    first_name: "John",
+    last_name: "Doe",
+    last_user_edit_on: new Date(),
+    app_settings: {
+      _id: expect.any(mongoose.Types.ObjectId),
+      app_language: "en",
+    },
+    account_confirmation: expectedAccountConfirmation,
+    local_sessions: [],
+    password_hash_and_salt: expect.any(String),
+  });
+  const newUser1: Parameters<typeof create>[0] = {
+    email_address: "john@doe.com",
+    first_name: "John",
+    last_name: "Doe",
+    plainPassword: "123456",
+    client_language: "en",
+  };
+  const newUser2: Parameters<typeof create>[0] = {
+    email_address: "jane@doe.com",
+    first_name: "Jane",
+    last_name: "Doe",
+    plainPassword: "654321",
+    client_language: "de",
+  };
+  it("Should delete user by id.", async () => {
+    await create(newUser1);
+
+    const createdUser2 = await create(newUser2);
+    const createdUser2Id = createdUser2.get("_id") as mongoose.Types.ObjectId;
+
+    await doDelete(createdUser2Id);
+
+    const userDocuments = await User.find({}).lean();
+    expect(userDocuments).toHaveLength(1);
+    expect(userDocuments[0]).toEqual(getExpectedUser());
+  });
+  describe("User with id does not exist:", () => {
+    it("Should reject if user with id does not exist.", async () => {
+      await create(newUser1);
+
+      const nonExistingUserId = new mongoose.Types.ObjectId(
+        "0001e240bb3b909f271115a3"
+      );
+      await expect(doDelete(nonExistingUserId)).rejects.toThrow(
+        "User cannot be deleted because there is no user with id '0001e240bb3b909f271115a3'."
+      );
+    });
+  });
+
+  it("Should reject if 'deleteOne' rejects.", async () => {
+    await create(newUser1);
+
+    const createdUser2 = await create(newUser2);
+    const createdUser2Id = createdUser2.get("_id") as mongoose.Types.ObjectId;
+
+    jest
+      .spyOn(User, "deleteOne")
+      .mockRejectedValueOnce("Some DB error on 'deleteOne'.");
+    await expect(doDelete(createdUser2Id)).rejects.toBe(
+      "Some DB error on 'deleteOne'."
+    );
   });
 });
