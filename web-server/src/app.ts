@@ -8,6 +8,7 @@ import { RegisterRoutes } from "../tsoa-build/routes";
 import tsoaValidation from "./utils/tsoaValidation";
 import handleMongoDBConnection from "./utils/handleMongoDBConnection";
 import { logger } from "./utils/logger";
+import tasksSchedulerService from "./services/tasksSchedulerService";
 
 export const app = express();
 const port = process.env.PORT || 5000;
@@ -25,6 +26,8 @@ app.use("/api-docs", swaggerUi.serve, async (_req: any, res: any) => {
 
 RegisterRoutes(app);
 app.use(tsoaValidation);
+
+tasksSchedulerService();
 
 process.on("uncaughtException", (error) => {
   logger.log("error", error);

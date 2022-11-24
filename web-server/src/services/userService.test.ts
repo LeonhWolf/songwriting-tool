@@ -8,7 +8,7 @@ import fakeTimers from "@sinonjs/fake-timers";
 import mongoose from "mongoose";
 
 import { IUser, User } from "../models/userModel";
-import { create, doDelete } from "./userService";
+import { create, findAll, deleteOne, deleteMany } from "./userService";
 import setupAndDropTestDB from "../utils/testUtils/setupAndDropTestDB";
 
 type IAppSettingsDb = IUser["app_settings"] & {
@@ -33,6 +33,7 @@ beforeAll(() => {
 });
 beforeEach(() => {
   jest.clearAllMocks();
+  clock.setSystemTime(new Date("1970-01-01T00:00:00.000Z"));
 });
 
 afterAll(() => {
@@ -260,72 +261,339 @@ describe("Create:", () => {
   });
 });
 
+describe("FindAll:", () => {
+  describe("Find by 'isAccountConfirmationExpired':", () => {
+    it("Should return all documents.", async () => {
+      const newUser1: Parameters<typeof create>[0] = {
+        email_address: "john@doe.com",
+        first_name: "John",
+        last_name: "Doe",
+        plainPassword: "123456",
+        client_language: "en",
+      };
+      const newUser2: Parameters<typeof create>[0] = {
+        email_address: "jane@doe.com",
+        first_name: "Jane",
+        last_name: "Doe",
+        plainPassword: "654321",
+        client_language: "de",
+      };
+      const newUser3: Parameters<typeof create>[0] = {
+        email_address: "jack@doe.com",
+        first_name: "Jack",
+        last_name: "Doe",
+        plainPassword: "112233",
+        client_language: "en",
+      };
+      const accountConfirmation: IAccountConfirmationDb = {
+        _id: expect.any(mongoose.Types.ObjectId),
+        expires_on: new Date("1970-01-15T00:00:00.000Z"),
+      };
+      const getExpectedUser1 = (): IUserDb => ({
+        __v: expect.any(Number),
+        _id: expect.any(mongoose.Types.ObjectId),
+        email_address: "john@doe.com",
+        first_name: "John",
+        last_name: "Doe",
+        last_user_edit_on: new Date("1970-01-01T00:00:00.000Z"),
+        app_settings: {
+          _id: expect.any(mongoose.Types.ObjectId),
+          app_language: "en",
+        },
+        account_confirmation: accountConfirmation,
+        local_sessions: [],
+        password_hash_and_salt: expect.any(String),
+      });
+      const getExpectedUser2 = (): IUserDb => ({
+        __v: expect.any(Number),
+        _id: expect.any(mongoose.Types.ObjectId),
+        email_address: "jane@doe.com",
+        first_name: "Jane",
+        last_name: "Doe",
+        last_user_edit_on: new Date("1970-01-01T00:00:00.000Z"),
+        app_settings: {
+          _id: expect.any(mongoose.Types.ObjectId),
+          app_language: "de",
+        },
+        account_confirmation: accountConfirmation,
+        local_sessions: [],
+        password_hash_and_salt: expect.any(String),
+      });
+
+      await create(newUser1);
+      await create(newUser2);
+
+      clock.setSystemTime(new Date("1970-01-20T00:00:00.000Z"));
+      await create(newUser3);
+
+      clock.setSystemTime(new Date("1970-01-15T00:00:00.001Z"));
+      const expiredUsers = await findAll("isAccountConfirmationExpired");
+      clock.setSystemTime(new Date("1970-01-01T00:00:00.000Z"));
+
+      expect(expiredUsers).toHaveLength(2);
+      expect(expiredUsers[0].toObject()).toEqual(getExpectedUser1());
+      expect(expiredUsers[1].toObject()).toEqual(getExpectedUser2());
+    });
+    it("Should return empty array when non found.", async () => {
+      const newUser3: Parameters<typeof create>[0] = {
+        email_address: "jack@doe.com",
+        first_name: "Jack",
+        last_name: "Doe",
+        plainPassword: "112233",
+        client_language: "en",
+      };
+      await create(newUser3);
+      const expiredUsers = await findAll("isAccountConfirmationExpired");
+      expect(expiredUsers).toEqual([]);
+    });
+    it("Should reject if find rejects.", async () => {
+      jest
+        .spyOn(User, "find")
+        .mockRejectedValueOnce("Some DB error on 'find'.");
+
+      await expect(findAll("isAccountConfirmationExpired")).rejects.toBe(
+        "Some DB error on 'find'."
+      );
+    });
+  });
+  describe("Find by 'id':", () => {
+    it("Should return all found by array of filter argument.", async () => {
+      const newUser1: Parameters<typeof create>[0] = {
+        email_address: "john@doe.com",
+        first_name: "John",
+        last_name: "Doe",
+        plainPassword: "123456",
+        client_language: "en",
+      };
+      const newUser2: Parameters<typeof create>[0] = {
+        email_address: "jane@doe.com",
+        first_name: "Jane",
+        last_name: "Doe",
+        plainPassword: "654321",
+        client_language: "de",
+      };
+      const newUser3: Parameters<typeof create>[0] = {
+        email_address: "jack@doe.com",
+        first_name: "Jack",
+        last_name: "Doe",
+        plainPassword: "112233",
+        client_language: "en",
+      };
+      const getExpectedUser1 = (): IUserDb => ({
+        __v: expect.any(Number),
+        _id: expect.any(mongoose.Types.ObjectId),
+        email_address: "john@doe.com",
+        first_name: "John",
+        last_name: "Doe",
+        last_user_edit_on: new Date(),
+        app_settings: {
+          _id: expect.any(mongoose.Types.ObjectId),
+          app_language: "en",
+        },
+        account_confirmation: expectedAccountConfirmation,
+        local_sessions: [],
+        password_hash_and_salt: expect.any(String),
+      });
+      const getExpectedUser2 = (): IUserDb => ({
+        __v: expect.any(Number),
+        _id: expect.any(mongoose.Types.ObjectId),
+        email_address: "jane@doe.com",
+        first_name: "Jane",
+        last_name: "Doe",
+        last_user_edit_on: new Date(),
+        app_settings: {
+          _id: expect.any(mongoose.Types.ObjectId),
+          app_language: "de",
+        },
+        account_confirmation: expectedAccountConfirmation,
+        local_sessions: [],
+        password_hash_and_salt: expect.any(String),
+      });
+      const createdUser1 = await create(newUser1);
+      const createdUser2 = await create(newUser2);
+      await create(newUser3);
+      const createdUser1Id = createdUser1.get("_id") as mongoose.Types.ObjectId;
+      const createdUser2Id = createdUser2.get("_id") as mongoose.Types.ObjectId;
+
+      const users = await findAll("id", [createdUser1Id, createdUser2Id]);
+      expect(users).toHaveLength(2);
+      expect(users[0].toObject()).toEqual(getExpectedUser1());
+      expect(users[1].toObject()).toEqual(getExpectedUser2());
+    });
+    it("Should return empty array when non found.", async () => {
+      const newUser1: Parameters<typeof create>[0] = {
+        email_address: "john@doe.com",
+        first_name: "John",
+        last_name: "Doe",
+        plainPassword: "123456",
+        client_language: "en",
+      };
+      await create(newUser1);
+
+      const nonExistingUserId = new mongoose.Types.ObjectId(
+        "0001e240bb3b909f271115a3"
+      );
+
+      const users = await findAll("id", [nonExistingUserId]);
+      expect(users).toEqual([]);
+    });
+    it("Should reject if 'find' rejects.", async () => {
+      const newUser1: Parameters<typeof create>[0] = {
+        email_address: "john@doe.com",
+        first_name: "John",
+        last_name: "Doe",
+        plainPassword: "123456",
+        client_language: "en",
+      };
+
+      const createdUser1 = await create(newUser1);
+      const createdUser1Id = createdUser1.get("_id") as mongoose.Types.ObjectId;
+
+      jest
+        .spyOn(User, "find")
+        .mockRejectedValueOnce("Some DB error on 'find'.");
+
+      await expect(findAll("id", [createdUser1Id])).rejects.toBe(
+        "Some DB error on 'find'."
+      );
+    });
+  });
+});
+
 describe("Delete:", () => {
-  const getExpectedUser = (): IUserDb => ({
-    __v: expect.any(Number),
-    _id: expect.any(mongoose.Types.ObjectId),
-    email_address: "john@doe.com",
-    first_name: "John",
-    last_name: "Doe",
-    last_user_edit_on: new Date(),
-    app_settings: {
+  describe("'deleteOne()':", () => {
+    const getExpectedUser = (): IUserDb => ({
+      __v: expect.any(Number),
       _id: expect.any(mongoose.Types.ObjectId),
-      app_language: "en",
-    },
-    account_confirmation: expectedAccountConfirmation,
-    local_sessions: [],
-    password_hash_and_salt: expect.any(String),
-  });
-  const newUser1: Parameters<typeof create>[0] = {
-    email_address: "john@doe.com",
-    first_name: "John",
-    last_name: "Doe",
-    plainPassword: "123456",
-    client_language: "en",
-  };
-  const newUser2: Parameters<typeof create>[0] = {
-    email_address: "jane@doe.com",
-    first_name: "Jane",
-    last_name: "Doe",
-    plainPassword: "654321",
-    client_language: "de",
-  };
-  it("Should delete user by id.", async () => {
-    await create(newUser1);
+      email_address: "john@doe.com",
+      first_name: "John",
+      last_name: "Doe",
+      last_user_edit_on: new Date(),
+      app_settings: {
+        _id: expect.any(mongoose.Types.ObjectId),
+        app_language: "en",
+      },
+      account_confirmation: expectedAccountConfirmation,
+      local_sessions: [],
+      password_hash_and_salt: expect.any(String),
+    });
+    const newUser1: Parameters<typeof create>[0] = {
+      email_address: "john@doe.com",
+      first_name: "John",
+      last_name: "Doe",
+      plainPassword: "123456",
+      client_language: "en",
+    };
+    const newUser2: Parameters<typeof create>[0] = {
+      email_address: "jane@doe.com",
+      first_name: "Jane",
+      last_name: "Doe",
+      plainPassword: "654321",
+      client_language: "de",
+    };
+    it("Should delete user by id.", async () => {
+      await create(newUser1);
 
-    const createdUser2 = await create(newUser2);
-    const createdUser2Id = createdUser2.get("_id") as mongoose.Types.ObjectId;
+      const createdUser2 = await create(newUser2);
+      const createdUser2Id = createdUser2.get("_id") as mongoose.Types.ObjectId;
 
-    await doDelete(createdUser2Id);
+      await deleteOne(createdUser2Id);
 
-    const userDocuments = await User.find({}).lean();
-    expect(userDocuments).toHaveLength(1);
-    expect(userDocuments[0]).toEqual(getExpectedUser());
-  });
-  describe("User with id does not exist:", () => {
+      const userDocuments = await User.find({}).lean();
+      expect(userDocuments).toHaveLength(1);
+      expect(userDocuments[0]).toEqual(getExpectedUser());
+    });
     it("Should reject if user with id does not exist.", async () => {
       await create(newUser1);
 
       const nonExistingUserId = new mongoose.Types.ObjectId(
         "0001e240bb3b909f271115a3"
       );
-      await expect(doDelete(nonExistingUserId)).rejects.toThrow(
+      await expect(deleteOne(nonExistingUserId)).rejects.toThrow(
         "User cannot be deleted because there is no user with id '0001e240bb3b909f271115a3'."
       );
     });
+    it("Should reject if mongoose 'deleteOne' rejects.", async () => {
+      await create(newUser1);
+
+      const createdUser2 = await create(newUser2);
+      const createdUser2Id = createdUser2.get("_id") as mongoose.Types.ObjectId;
+
+      jest
+        .spyOn(User, "deleteOne")
+        .mockRejectedValueOnce("Some DB error on 'deleteOne'.");
+      await expect(deleteOne(createdUser2Id)).rejects.toBe(
+        "Some DB error on 'deleteOne'."
+      );
+    });
   });
+  describe("'deleteMany()':", () => {
+    const getExpectedUser3 = (): IUserDb => ({
+      __v: expect.any(Number),
+      _id: expect.any(mongoose.Types.ObjectId),
+      email_address: "jack@doe.com",
+      first_name: "Jack",
+      last_name: "Doe",
+      last_user_edit_on: new Date(),
+      app_settings: {
+        _id: expect.any(mongoose.Types.ObjectId),
+        app_language: "en",
+      },
+      account_confirmation: expectedAccountConfirmation,
+      local_sessions: [],
+      password_hash_and_salt: expect.any(String),
+    });
+    const newUser1: Parameters<typeof create>[0] = {
+      email_address: "john@doe.com",
+      first_name: "John",
+      last_name: "Doe",
+      plainPassword: "123456",
+      client_language: "en",
+    };
+    const newUser2: Parameters<typeof create>[0] = {
+      email_address: "jane@doe.com",
+      first_name: "Jane",
+      last_name: "Doe",
+      plainPassword: "654321",
+      client_language: "de",
+    };
+    const newUser3: Parameters<typeof create>[0] = {
+      email_address: "jack@doe.com",
+      first_name: "Jack",
+      last_name: "Doe",
+      plainPassword: "112233",
+      client_language: "en",
+    };
+    it("Should delete users by id.", async () => {
+      const createdUser1 = await create(newUser1);
+      const createdUser1Id = createdUser1.get("_id") as mongoose.Types.ObjectId;
 
-  it("Should reject if 'deleteOne' rejects.", async () => {
-    await create(newUser1);
+      const createdUser2 = await create(newUser2);
+      const createdUser2Id = createdUser2.get("_id") as mongoose.Types.ObjectId;
 
-    const createdUser2 = await create(newUser2);
-    const createdUser2Id = createdUser2.get("_id") as mongoose.Types.ObjectId;
+      await create(newUser3);
 
-    jest
-      .spyOn(User, "deleteOne")
-      .mockRejectedValueOnce("Some DB error on 'deleteOne'.");
-    await expect(doDelete(createdUser2Id)).rejects.toBe(
-      "Some DB error on 'deleteOne'."
-    );
+      await deleteMany([createdUser1Id, createdUser2Id]);
+
+      const userDocuments = await User.find({}).lean();
+      expect(userDocuments).toHaveLength(1);
+      expect(userDocuments[0]).toEqual(getExpectedUser3());
+    });
+    it("Should reject if mongoose 'deleteMany' rejects.", async () => {
+      const createdUser1 = await create(newUser1);
+      const createdUser1Id = createdUser1.get("_id") as mongoose.Types.ObjectId;
+
+      const createdUser2 = await create(newUser2);
+      const createdUser2Id = createdUser2.get("_id") as mongoose.Types.ObjectId;
+
+      await create(newUser3);
+
+      jest
+        .spyOn(User, "deleteMany")
+        .mockRejectedValueOnce("Some DB error on 'deleteMany'.");
+      await expect(deleteMany([createdUser1Id, createdUser2Id])).rejects.toBe(
+        "Some DB error on 'deleteMany'."
+      );
+    });
   });
 });

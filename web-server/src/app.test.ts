@@ -53,6 +53,12 @@ jest.mock("./utils/handleMongoDBConnection", () => ({
   default: handleMongoDBConnectionSpy,
 }));
 
+const tasksSchedulerServiceMock = jest.fn();
+jest.mock("./services/tasksSchedulerService.ts", () => ({
+  __esModule: true,
+  default: tasksSchedulerServiceMock,
+}));
+
 const setEnvVariables = (): void => {
   process.env.PORT = "5500";
 };
@@ -128,4 +134,8 @@ it("Should import the logger.", () => {
 it("Should import 'handleMongoDBConnection'.", () => {
   const server = require("./app");
   expect(handleMongoDBConnectionSpy).toHaveBeenCalled();
+});
+it("Should import 'tasksSchedulerService'.", () => {
+  const server = require("./app");
+  expect(tasksSchedulerServiceMock).toHaveBeenCalledTimes(1);
 });

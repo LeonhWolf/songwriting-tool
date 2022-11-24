@@ -15,7 +15,6 @@ export function getEmailTakenErrorMessage(emailAddress: string): string {
 }
 export async function create(
   newUser: INewUser
-  // ): Promise<mongoose.Document<unknown, any, IUser>> {
 ): Promise<
   mongoose.Document<unknown, any, IUser> &
     IUser & { _id: mongoose.Types.ObjectId }
@@ -51,10 +50,41 @@ export async function create(
   return createdUser;
 }
 
-export async function doDelete(userId: mongoose.Types.ObjectId): Promise<void> {
+export async function findAll(
+  query: "isAccountConfirmationExpired" | "id",
+  ids?: mongoose.Types.ObjectId[]
+): Promise<
+  (mongoose.Document<unknown, any, IUser> &
+    IUser & { _id: mongoose.Types.ObjectId })[]
+> {
+  if (query === "isAccountConfirmationExpired") {
+    const now = new Date();
+    const users = User.find({
+      "account_confirmation.expires_on": { $lt: now },
+    });
+    return users;
+  }
+
+  const users = User.find({
+    $or: ids?.map((id) => ({ _id: id })),
+  });
+  return users;
+}
+
+export async function deleteOne(
+  userId: mongoose.Types.ObjectId
+): Promise<void> {
   const response = await User.deleteOne({ _id: userId });
   if (response.deletedCount === 0)
     throw new Error(
       `User cannot be deleted because there is no user with id '${userId.toString()}'.`
     );
+}
+
+export async function deleteMany(
+  userIds: mongoose.Types.ObjectId[]
+): Promise<void> {
+  const response = await User.deleteMany({
+    $or: userIds?.map((userId) => ({ _id: userId })),
+  });
 }
