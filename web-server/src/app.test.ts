@@ -1,4 +1,6 @@
 let processPort: string | undefined = "5500";
+let baseUrl: string | undefined = "https://mockBaseUrl.com";
+let nodeEnv: string | undefined = "production";
 const processOnSpy = jest.fn((event: string, listener: Function) => {
   listener("process error message");
 });
@@ -6,6 +8,8 @@ jest.mock("process", () => ({
   on: processOnSpy,
   env: {
     PORT: processPort,
+    BASE_URL: baseUrl,
+    NODE_ENV: nodeEnv,
   },
 }));
 
@@ -26,6 +30,12 @@ jest.mock("express", () => ({
   default: () => expressDefaultSpy,
   urlencoded: jest.fn().mockReturnValue("urlencoded"),
   json: jest.fn().mockReturnValue("json"),
+}));
+
+const corsSpy = jest.fn().mockReturnValue("corsMockReturn");
+jest.mock("cors", () => ({
+  __esModule: true,
+  default: corsSpy,
 }));
 
 jest.mock("swagger-ui-express", () => ({
@@ -107,6 +117,26 @@ describe("Register middleware:", () => {
   it("Should use 'json'.", () => {
     const server = require("./app");
     expect(expressUseSpy).toHaveBeenCalledWith("json");
+  });
+  describe("Cors:", () => {
+    it("Should use front-end dev server origin in development.", () => {
+      nodeEnv = "development";
+      const server = require("./app");
+      expect(corsSpy).toHaveBeenCalledTimes(1);
+      expect(corsSpy).toHaveBeenCalledWith({
+        origin: ["http://localhost:3000"],
+      });
+      expect(expressUseSpy).toHaveBeenCalledWith("corsMockReturn");
+    });
+    it("Should use domain origin in production.", () => {
+      nodeEnv = "production";
+      const server = require("./app");
+      expect(corsSpy).toHaveBeenCalledTimes(1);
+      expect(corsSpy).toHaveBeenCalledWith({
+        origin: ["https://mockBaseUrl.com"],
+      });
+      expect(expressUseSpy).toHaveBeenCalledWith("corsMockReturn");
+    });
   });
   it("Should serve swaggerUi on '/api-docs'.", () => {
     const server = require("./app");

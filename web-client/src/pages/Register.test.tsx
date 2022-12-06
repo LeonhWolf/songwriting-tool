@@ -1,139 +1,277 @@
-import { render, screen, RenderResult } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { BrowserRouter } from "react-router-dom";
+import "whatwg-fetch";
 
 import i18next from "../i18n/index";
 import Register from "./Register";
-import LabelAndInput from "../components/LabelAndInput";
+import { setInputValue } from "../utils/testUtils";
+import { registerUser } from "../services/authenticationService";
 
-jest.mock("../components/LabelAndInput.tsx", () => jest.fn());
+jest.mock("../services/authenticationService.ts", () => ({
+  registerUser: jest.fn().mockResolvedValue(""),
+}));
 
-const renderWithRouter = (component: React.ReactNode): RenderResult => {
-  return render(<BrowserRouter>{component}</BrowserRouter>);
+const renderWithAct = async (): Promise<void> => {
+  /*eslint-disable*/
+  await act(() => {
+    render(
+      <BrowserRouter>
+        <Register />
+      </BrowserRouter>
+    );
+  });
 };
 
-describe.skip("Titles:", () => {
-  it("Should render title", () => {
-    renderWithRouter(<Register />);
-    const titleElement = screen.getByText(
-      i18next.t("register.title").toString()
-    );
-    expect(titleElement).toBeDefined();
+const mockResponse = new Response();
+mockResponse.text = () =>
+  new Promise<string>((resolve) => {
+    resolve(JSON.stringify(["123456", "123"]));
   });
-  it("Should render subtitle", () => {
-    renderWithRouter(<Register />);
-    const subtitleElement = screen.getByText(
-      i18next.t("register.subtitle").toString()
-    );
-    expect(subtitleElement).toBeDefined();
+global.fetch = jest.fn(() => Promise.resolve(mockResponse));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe("Titles:", () => {
+  it("Should render title.", async () => {
+    await renderWithAct();
+    const title = i18next.t("register.title");
+    expect(screen.getByText(title)).toBeDefined();
+  });
+  it("Should render subtitle.", async () => {
+    await renderWithAct();
+    const subtitle = i18next.t("register.subtitle");
+    expect(screen.getByText(subtitle)).toBeDefined();
   });
 });
 
-describe.skip("Inputs:", () => {
+describe("Inputs:", () => {
   describe("First name:", () => {
-    it("Should render.", () => {
-      renderWithRouter(<Register />);
-      const firstNameLabelText = i18next
-        .t("register.firstName.labelText")
-        .toString();
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].labelText
-      ).toBe(firstNameLabelText);
+    it("Should have id 'firstName' (should render, should be required).", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.firstName.labelText") + " *";
+      const input = screen.getByLabelText(labelText);
+      expect(input).toBeDefined();
+      expect(input.id).toBe("firstName");
     });
-    it("Should be required.", () => {
-      renderWithRouter(<Register />);
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].isRequired
-      ).toBe(true);
+    it("Should be text input.", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.firstName.labelText") + " *";
+      const input = screen.getByLabelText(labelText) as HTMLInputElement;
+      expect(input.type).toBe("text");
     });
-    it("Should have placeholder.", () => {
-      renderWithRouter(<Register />);
-      const firstNamePlaceholder = i18next
-        .t("register.firstName.placeholder")
-        .toString();
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].inputPlaceholder
-      ).toBe(firstNamePlaceholder);
+    it("Should render placeholder.", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.firstName.labelText") + " *";
+      const placeholder = i18next.t("register.firstName.placeholder");
+      const input = screen.getByLabelText(labelText) as HTMLInputElement;
+      expect(input.placeholder).toBe(placeholder);
     });
-    it("Should have input missing message.", () => {
-      renderWithRouter(<Register />);
-      const invalidMessage = i18next
-        .t("inputMissingMessage", {
-          inputTitle: `${i18next.t("register.firstName.labelText")}`,
-        })
-        .toString();
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[0][0].invalidMessage
-      ).toBe(invalidMessage);
-    });
+    it.todo("Should show invalid message on invalid submit.");
   });
   describe("Last name:", () => {
-    it("Should render.", () => {
-      renderWithRouter(<Register />);
-      const firstNameLabelText = i18next
-        .t("register.lastName.labelText")
-        .toString();
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].labelText
-      ).toBe(firstNameLabelText);
+    it("Should have id 'lastName' (should render, should be required).", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.lastName.labelText") + " *";
+      const input = screen.getByLabelText(labelText);
+      expect(input).toBeDefined();
+      expect(input.id).toBe("lastName");
     });
-    it("Should be required.", () => {
-      renderWithRouter(<Register />);
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].isRequired
-      ).toBe(true);
+    it("Should be text input.", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.lastName.labelText") + " *";
+      const input = screen.getByLabelText(labelText) as HTMLInputElement;
+      expect(input.type).toBe("text");
     });
-    it("Should have placeholder.", () => {
-      renderWithRouter(<Register />);
-      const firstNamePlaceholder = i18next
-        .t("register.lastName.placeholder")
-        .toString();
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].inputPlaceholder
-      ).toBe(firstNamePlaceholder);
+    it("Should render placeholder.", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.lastName.labelText") + " *";
+      const placeholder = i18next.t("register.lastName.placeholder");
+      const input = screen.getByLabelText(labelText) as HTMLInputElement;
+      expect(input.placeholder).toBe(placeholder);
     });
-    it("Should have input missing message.", () => {
-      renderWithRouter(<Register />);
-      const invalidMessage = i18next
-        .t("inputMissingMessage", {
-          inputTitle: `${i18next.t("register.lastName.labelText")}`,
-        })
-        .toString();
-      expect(
-        (LabelAndInput as jest.MockedFunction<typeof LabelAndInput>).mock
-          .calls[1][0].invalidMessage
-      ).toBe(invalidMessage);
-    });
+    it.todo("Should show invalid message on invalid submit.");
   });
   describe("Email:", () => {
-    it.todo("Should render.");
-    it.todo("Should be required.");
-    it.todo("Should have placeholder.");
-    it.todo("Should have invalid message.");
+    it("Should have id 'email' (should render, should be required).", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.email.labelText") + " *";
+      const input = screen.getByLabelText(labelText);
+      expect(input).toBeDefined();
+      expect(input.id).toBe("email");
+    });
+    it("Should be email input.", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.email.labelText") + " *";
+      const input = screen.getByLabelText(labelText) as HTMLInputElement;
+      expect(input.type).toBe("email");
+    });
+    it("Should render placeholder.", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.email.labelText") + " *";
+      const placeholder = i18next.t("register.email.placeholder");
+      const input = screen.getByLabelText(labelText) as HTMLInputElement;
+      expect(input.placeholder).toBe(placeholder);
+    });
+    it.todo("Should show invalid message on invalid submit.");
   });
   describe("Password:", () => {
-    it.todo("Should render.");
-    it.todo("Should be required.");
-    it.todo("Should have placeholder.");
-    it.todo("Should have invalid message.");
+    it("Should have id 'password' (should render, should be required).", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.password.labelText") + " *";
+      const input = screen.getByLabelText(labelText);
+      expect(input).toBeDefined();
+      expect(input.id).toBe("password");
+    });
+    it("Should be password input.", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.password.labelText") + " *";
+      const input = screen.getByLabelText(labelText) as HTMLInputElement;
+      expect(input.type).toBe("password");
+    });
+    it("Should render placeholder.", async () => {
+      await renderWithAct();
+      const labelText = i18next.t("register.password.labelText") + " *";
+      const placeholder = i18next.t("register.password.placeholder");
+      const input = screen.getByLabelText(labelText) as HTMLInputElement;
+      expect(input.placeholder).toBe(placeholder);
+    });
+    it.todo("Should show invalid message on invalid submit.");
   });
 });
+it("Should render register button.", async () => {
+  await renderWithAct();
+  const buttonText = i18next.t("register.buttonText");
+  expect(screen.getByText(buttonText)).toBeDefined();
+});
+it("Should render log in link.", async () => {
+  await renderWithAct();
+  const alreadyAccountText = i18next.t("register.accountAlready");
+  const logInText = i18next.t("register.logIn");
 
-describe.skip("Sign up button:", () => {
-  it.todo("Should render.");
-  it.todo("Should trigger validation.");
-  it.todo("Should not trigger request when form invalid.");
-  it.todo("Should trigger request when form valid.");
+  expect(screen.getByText(alreadyAccountText)).toBeDefined();
+  expect(screen.getByText(logInText)).toBeDefined();
+});
+it("Should link log in link to page.", async () => {
+  await renderWithAct();
+  const logInText = i18next.t("register.logIn");
+
+  const linkElement = screen.getByText(logInText) as HTMLLinkElement;
+  expect(linkElement.href).toBe("http://localhost/login");
 });
 
-describe.skip("Miscellaneous", () => {
-  it.todo("Should render 'signUp' button.");
-  it.todo("Should render 'logIn' link.");
+describe("Calling register service:", () => {
+  jest.spyOn(navigator, "language", "get").mockReturnValue("en-US");
+
+  const enterValidInputContents = (): void => {
+    const firstNamePlaceholder = i18next.t("register.firstName.placeholder");
+    setInputValue(firstNamePlaceholder, "John");
+
+    const lastNamePlaceholder = i18next.t("register.lastName.placeholder");
+    setInputValue(lastNamePlaceholder, "Doe");
+
+    const emailPlaceholder = i18next.t("register.email.placeholder");
+    setInputValue(emailPlaceholder, "john@doe.com");
+
+    const passwordPlaceholder = i18next.t("register.password.placeholder");
+    setInputValue(passwordPlaceholder, "123456789");
+  };
+
+  it("Should call register service with input values on button press.", async () => {
+    await renderWithAct();
+    const buttonText = i18next.t("register.buttonText");
+    const registerButton = screen.getByText(buttonText);
+
+    enterValidInputContents();
+
+    const expectedRegisterUserArgs: Parameters<typeof registerUser>[0] = {
+      first_name: "John",
+      last_name: "Doe",
+      email_address: "john@doe.com",
+      plainPassword: "123456789",
+      client_language: "en",
+    };
+
+    await act(() => {
+      registerButton.click();
+    });
+
+    expect(registerUser).toHaveBeenCalledWith(expectedRegisterUserArgs);
+  });
+  it("Should detect 'de' client language.", async () => {
+    jest.spyOn(navigator, "language", "get").mockReturnValueOnce("de-DE");
+
+    await renderWithAct();
+    const buttonText = i18next.t("register.buttonText");
+    const registerButton = screen.getByText(buttonText);
+
+    enterValidInputContents();
+
+    const expectedRegisterUserArgs: Parameters<typeof registerUser>[0] = {
+      first_name: "John",
+      last_name: "Doe",
+      email_address: "john@doe.com",
+      plainPassword: "123456789",
+      client_language: "de",
+    };
+
+    await act(() => {
+      registerButton.click();
+    });
+    expect(registerUser).toHaveBeenCalledWith(expectedRegisterUserArgs);
+  });
+  it("Should use 'en' as fallback language.", async () => {
+    jest.spyOn(navigator, "language", "get").mockReturnValueOnce("fr-FR");
+
+    await renderWithAct();
+    const buttonText = i18next.t("register.buttonText");
+    const registerButton = screen.getByText(buttonText);
+
+    enterValidInputContents();
+
+    const expectedRegisterUserArgs: Parameters<typeof registerUser>[0] = {
+      first_name: "John",
+      last_name: "Doe",
+      email_address: "john@doe.com",
+      plainPassword: "123456789",
+      client_language: "en",
+    };
+
+    await act(() => {
+      registerButton.click();
+    });
+    expect(registerUser).toHaveBeenCalledWith(expectedRegisterUserArgs);
+  });
+  it("Should not call register service without button press.", async () => {
+    await renderWithAct();
+    enterValidInputContents();
+
+    expect(registerUser).toHaveBeenCalledTimes(0);
+  });
+  it("Should not call register service if form is invalid.", async () => {
+    await renderWithAct();
+
+    const firstNamePlaceholder = i18next.t("register.firstName.placeholder");
+    setInputValue(firstNamePlaceholder, "");
+
+    const lastNamePlaceholder = i18next.t("register.lastName.placeholder");
+    setInputValue(lastNamePlaceholder, "Doe");
+
+    const emailPlaceholder = i18next.t("register.email.placeholder");
+    setInputValue(emailPlaceholder, ".com");
+
+    const passwordPlaceholder = i18next.t("register.password.placeholder");
+    setInputValue(passwordPlaceholder, "1");
+
+    const buttonText = i18next.t("register.buttonText");
+    const registerButton = screen.getByText(buttonText);
+
+    await act(() => {
+      registerButton.click();
+    });
+
+    expect(registerUser).toHaveBeenCalledTimes(0);
+  });
 });

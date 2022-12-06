@@ -1,11 +1,8 @@
 import { Body, Controller, Post, Route, SuccessResponse } from "tsoa";
 import mongoose from "mongoose";
 
-import {
-  INewUser,
-  create,
-  getEmailTakenErrorMessage,
-} from "../services/userService";
+import { INewUser } from "../../../api-types/authentication.types";
+import { create, getEmailTakenErrorMessage } from "../services/userService";
 import { sendMail } from "../services/mailService";
 import { getInterpolatedEmailString } from "../services/emailTemplateService";
 import { logger } from "../utils/logger";
@@ -59,7 +56,10 @@ export class RegisterController extends Controller {
 
       this.setStatus(200);
     } catch (error) {
-      if (error === getEmailTakenErrorMessage(requestBody.email_address)) {
+      if (
+        (error as Error).message ===
+        getEmailTakenErrorMessage(requestBody.email_address)
+      ) {
         this.setStatus(200);
         return;
       }

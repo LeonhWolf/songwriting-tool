@@ -46,7 +46,7 @@ import request from "supertest";
 import fakeTimers from "@sinonjs/fake-timers";
 
 import { app } from "../app";
-import { INewUser } from "../services/userService";
+import { INewUser } from "../../../api-types/authentication.types";
 import { ISendParameters } from "../services/mailService.types";
 import { logSpy } from "../utils/testUtils/mockWinston";
 
@@ -124,7 +124,9 @@ describe("Success:", () => {
 describe("Failure:", () => {
   describe("Duplicate email:", () => {
     it("Should send '200'.", async () => {
-      userServiceCreateMock.mockRejectedValueOnce("Email taken error msg.");
+      userServiceCreateMock.mockRejectedValueOnce(
+        new Error("Email taken error msg.")
+      );
       const response = await getPostResponse();
       expect(response.statusCode).toBe(200);
     });

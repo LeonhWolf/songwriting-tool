@@ -3,12 +3,7 @@ import argon2 from "argon2";
 
 import { IUser, User } from "../models/userModel";
 import { addDaysToDate } from "../utils/dateUtils";
-
-export interface INewUser
-  extends Pick<IUser, "email_address" | "first_name" | "last_name"> {
-  plainPassword: string;
-  client_language: IUser["app_settings"]["app_language"];
-}
+import { INewUser } from "../../../api-types/authentication.types";
 
 export function getEmailTakenErrorMessage(emailAddress: string): string {
   return `User with email '${emailAddress}' already exists.`;

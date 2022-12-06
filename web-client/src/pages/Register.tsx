@@ -1,99 +1,109 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import "../i18n/index";
-import LabelAndInput from "../components/LabelAndInput";
-import { ILabelAndInputProps } from "../components/LabelAndInput";
+import i18n from "../i18n/index";
+import AuthenticationTitleAndSubtitle from "../components/AuthenticationTitleAndSubtitle";
+import Form from "../components/Form/Form";
+import { IFormProps } from "../components/Form/Form.types";
 import Button from "../components/Button";
+import { registerUser } from "../services/authenticationService";
+import { SupportedLanguages } from "../../../api-types/i18n.types";
 
-type IInputTexts = Pick<
-  ILabelAndInputProps,
-  "inputId" | "labelText" | "inputPlaceholder" | "invalidMessage"
->;
+const formContents: IFormProps["contents"] = [
+  {
+    inputId: "firstName",
+    labelText: i18n.t("register.firstName.labelText"),
+    inputType: "text",
+    isRequired: true,
+    inputPlaceholder: i18n.t("register.firstName.placeholder"),
+  },
+  {
+    inputId: "lastName",
+    labelText: i18n.t("register.lastName.labelText"),
+    inputType: "text",
+    isRequired: true,
+    inputPlaceholder: i18n.t("register.lastName.placeholder"),
+  },
+  {
+    inputId: "email",
+    labelText: i18n.t("register.email.labelText"),
+    inputType: "email",
+    isRequired: true,
+    inputPlaceholder: i18n.t("register.email.placeholder"),
+  },
+  {
+    inputId: "password",
+    labelText: i18n.t("register.password.labelText"),
+    inputType: "password",
+    isRequired: true,
+    inputPlaceholder: i18n.t("register.password.placeholder"),
+  },
+];
 
-const getTranslationStrings = (key: string, t: Function): IInputTexts => {
-  const labelTextTranslation = t(`register.${key}.labelText`);
-  return {
-    inputId: labelTextTranslation,
-    labelText: labelTextTranslation,
-    inputPlaceholder: t(`register.${key}.placeholder`),
-    invalidMessage: t("inputMissingMessage", {
-      inputTitle: labelTextTranslation,
-    }),
-  };
+const getClientLanguage = (): SupportedLanguages => {
+  const navigatorLanguage = navigator.language;
+  const navigatorLanguageFirstTwoChars = navigatorLanguage.slice(0, 2);
+  if (navigatorLanguageFirstTwoChars === "de") return "de";
+  return "en";
 };
 
 const Register = (props: any) => {
   const { t, i18n } = useTranslation();
-  const inputContents: ILabelAndInputProps[] = [
-    // {
-    //   ...getTranslationStrings("firstName", t),
-    //   inputType: "text",
-    //   isRequired: true,
-    // },
-    // {
-    //   ...getTranslationStrings("lastName", t),
-    //   inputType: "text",
-    //   isRequired: true,
-    // },
-    // {
-    //   ...getTranslationStrings("email", t),
-    //   inputType: "text",
-    //   isRequired: true,
-    // },
-    // {
-    //   ...getTranslationStrings("password", t),
-    //   inputType: "password",
-    //   isRequired: true,
-    // },
-  ];
+  const [formState, setFormState] =
+    useState<Parameters<IFormProps["onValidSubmit"]>[0]>();
+  const [isRegisterPendingState, setIsRegisterPendingState] =
+    useState<boolean>(false);
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
+  const [doValidateForm, setDoValidateForm] = useState<boolean>(false);
+
+  const handleSignUpClick = () => {
+    if (!doValidateForm) setDoValidateForm(true);
+    if (!isFormValid) return;
+    if (!isRegisterPendingState) setIsRegisterPendingState(true);
+
+    if (!formState) return;
+    const firstName = formState[0].inputValue;
+    const lastName = formState[1].inputValue;
+    const emailAddress = formState[2].inputValue;
+    const plainPassword = formState[3].inputValue;
+    const clientLanguage = getClientLanguage();
+
+    registerUser({
+      first_name: firstName,
+      last_name: lastName,
+      email_address: emailAddress,
+      plainPassword: plainPassword,
+      client_language: clientLanguage,
+    }).then(() => {
+      setIsRegisterPendingState(false);
+    });
+  };
 
   return (
-    <div className="container d-flex flex-column align-items-center justify-content-center h-100">
-      <h2 className="mb-2">{t("register.title")}</h2>
-      <p className="text-muted mb-5">{t("register.subtitle")}</p>
-
-      <div style={{ maxWidth: "350px", width: "350px" }}>
-        <div
-          id="inputs"
-          className="d-flex flex-column mb-3"
-          style={{ rowGap: "10px" }}
-        >
-          {/* {inputContents.map((inputContent) => {
-            return (
-              <LabelAndInput
-                key={inputContent.labelText}
-                inputId={inputContent.labelText}
-                labelText={inputContent.labelText}
-                inputType={inputContent.inputType}
-                inputPlaceholder={inputContent.inputPlaceholder}
-                isRequired={inputContent.isRequired}
-                invalidMessage={inputContent.invalidMessage}
-              />
-            );
-          })} */}
-        </div>
-        <div className="d-grid w-100 mb-4">
-          {/* <Button
-            text={t("register.buttonText")}
-            clicked={() => {
-              console.log("hi");
-            }}
-          /> */}
-        </div>
-        <div
-          id="already-account"
-          className="d-flex flex-row align-items-center justify-content-center"
-        >
-          <p className="m-0 text-muted">{t("register.accountAlready")}&nbsp;</p>
+    <AuthenticationTitleAndSubtitle
+      title={t("register.title")}
+      subtitle={t("register.subtitle")}
+    >
+      <>
+        <Form
+          contents={formContents}
+          onValidSubmit={(validFormState) => {
+            setFormState(validFormState);
+          }}
+          doShowValidation={doValidateForm}
+          onValidationChange={(isValid) => {
+            setIsFormValid(isValid);
+          }}
+        />
+        <Button text={t("register.buttonText")} onClick={handleSignUpClick} />
+        <p>
+          {t("register.accountAlready")}{" "}
           <Link to="/login">{t("register.logIn")}</Link>
-        </div>
-      </div>
-    </div>
+        </p>
+      </>
+    </AuthenticationTitleAndSubtitle>
   );
 };
-
-Register.propTypes = {};
 
 export default Register;

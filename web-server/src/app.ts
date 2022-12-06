@@ -1,4 +1,5 @@
 import express, { json, urlencoded } from "express";
+import cors from "cors";
 import process from "process";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -15,6 +16,16 @@ const port = process.env.PORT || 5000;
 
 app.use(urlencoded({ extended: true }));
 app.use(json());
+
+const origin =
+  process.env.NODE_ENV === "production"
+    ? process.env.BASE_URL
+    : "http://localhost:3000";
+app.use(
+  cors({
+    origin: [`${origin}`],
+  })
+);
 
 handleMongoDBConnection();
 

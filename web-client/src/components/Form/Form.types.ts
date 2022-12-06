@@ -13,7 +13,9 @@ interface IEmitValue extends Pick<ILabelAndInputProps, "inputId"> {
 
 export interface IFormProps {
   contents: Contents[];
+  doShowValidation: boolean;
   onValidSubmit: (inputs: IEmitValue[]) => void;
+  onValidationChange: (isValid: boolean) => void;
 }
 export interface IInputState extends Contents {
   value: string;

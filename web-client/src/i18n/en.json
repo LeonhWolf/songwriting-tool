@@ -1,7 +1,7 @@
 {
   "inputMissingMessage": "Please provide a {{inputTitle}}",
   "register": {
-    "title": "Create an account",
+    "title": "Create an Account",
     "subtitle": "Start shopping smart!",
     "firstName": {
       "labelText": "First name",

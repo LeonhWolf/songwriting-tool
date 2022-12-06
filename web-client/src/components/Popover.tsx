@@ -13,6 +13,7 @@ export default function Popover(props: IProps): React.ReactElement {
 
   const togglePopover = () => {
     if (props.doShow) {
+      console.log(popover.current);
       popover.current?.show();
       return;
     }
@@ -20,17 +21,15 @@ export default function Popover(props: IProps): React.ReactElement {
   };
 
   useEffect(() => {
-    if (!popover.current) {
-      popover.current = new BsPopover(popoverElement.current ?? "", {
-        content: props.content,
-        trigger: "manual",
-      });
-    }
-
     togglePopover();
   }, [props.doShow]);
 
   useEffect(() => {
+    popover.current = new BsPopover(popoverElement.current ?? "", {
+      content: props.content,
+      trigger: "manual",
+    });
+
     return function cleanup() {
       popover.current?.dispose();
     };

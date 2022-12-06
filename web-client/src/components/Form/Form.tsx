@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import "../../i18n";
 import Popover from "../Popover";
 import LabelAndInput from "../LabelAndInput";
-import Button from "../Button";
 import {
   isRequiredValid,
   isEmailValid,
@@ -24,11 +23,12 @@ export default function Form(props: IFormProps) {
         ...content,
         inputId: content.inputId,
         value: "",
-        isValid: true,
+        isValid: !!!content.isRequired,
       };
       return inputState;
     })
   );
+  const [isFormValidState, setIsFormValidState] = useState<boolean>(false);
 
   useEffect(() => {
     fetch(mostCommonPasswordsTxtFile)
@@ -38,6 +38,12 @@ export default function Form(props: IFormProps) {
         setWeakPasswords(passwords);
       });
   }, []);
+  useEffect(() => {
+    if (props.doShowValidation) handleValidateStateChange();
+  }, [props.doShowValidation]);
+  useEffect(() => {
+    handleValidateStateChange();
+  }, [inputStates]);
 
   const isWeakPassword = (password: string): boolean => {
     if (!weakPasswords) return false;
@@ -45,45 +51,62 @@ export default function Form(props: IFormProps) {
     return false;
   };
 
-  const handleOnValueChange = (updatedValue: string, inputId: string) => {
-    const updatedInputStates = inputStates.map((inputValue) => {
-      let updatedInputState = inputValue;
-      if (inputValue.inputId !== inputId) return inputValue;
-      if (inputValue.inputId === inputId) {
-        updatedInputState = { ...inputValue, value: updatedValue };
-      }
-      if (inputValue.inputType === "password") {
-      }
+  const getUpdatedValueAndIsValid = (
+    updatedValue: string,
+    inputId: string
+  ): typeof inputStates => {
+    const updatedInputStates = inputStates.map((inputState) => {
+      if (inputState.inputId !== inputId) return inputState;
+
+      const updatedInputState = { ...inputState, value: updatedValue };
+      const isValid =
+        isRequiredValid(updatedInputState) &&
+        isEmailValid(updatedInputState) &&
+        isPasswordValid(updatedInputState);
+      updatedInputState["isValid"] = isValid;
+
       return updatedInputState;
     });
+
+    return updatedInputStates;
+  };
+
+  const handleOnValueChange = (updatedValue: string, inputId: string) => {
+    const updatedInputStates = getUpdatedValueAndIsValid(updatedValue, inputId);
 
     setInputStates(updatedInputStates);
   };
 
-  const validateInputs = (): boolean => {
+  const areInputsValid = (): boolean => {
     let areAllInputsValid = true;
-
-    const updatedInputStates = inputStates.map((inputState) => {
-      const isValid =
-        isRequiredValid(inputState) &&
-        isEmailValid(inputState) &&
-        isPasswordValid(inputState);
-
-      if (!isValid) areAllInputsValid = false;
-      return { ...inputState, isValid };
+    inputStates.forEach((inputState) => {
+      if (!inputState.isValid) areAllInputsValid = false;
     });
-    setInputStates(updatedInputStates);
 
     return areAllInputsValid;
   };
 
-  const handleSubmit = () => {
-    const areAllInputsValid = validateInputs();
-    if (!areAllInputsValid) return;
-
+  const getOnlyIdsAndInputValues = (): Parameters<
+    typeof props.onValidSubmit
+  >[0] => {
     const idsAndInputValues = inputStates.map((inputState) => {
       return { inputId: inputState.inputId, inputValue: inputState.value };
     });
+
+    return idsAndInputValues;
+  };
+
+  const handleValidateStateChange = () => {
+    const areAllInputsValid = areInputsValid();
+
+    if (isFormValidState !== areAllInputsValid) {
+      props.onValidationChange(areAllInputsValid);
+      setIsFormValidState(areAllInputsValid);
+    }
+
+    if (!areAllInputsValid) return;
+
+    const idsAndInputValues = getOnlyIdsAndInputValues();
     props.onValidSubmit(idsAndInputValues);
   };
 
@@ -104,7 +127,9 @@ export default function Form(props: IFormProps) {
                   inputPlaceholder={inputState.inputPlaceholder}
                   isRequired={inputState.isRequired}
                   invalidMessage={
-                    inputState.isValid ? undefined : inputState.invalidMessage
+                    inputState.isValid || !props.doShowValidation
+                      ? undefined
+                      : inputState.invalidMessage
                   }
                   onValueChange={handleOnValueChange}
                 />
@@ -121,13 +146,14 @@ export default function Form(props: IFormProps) {
             inputPlaceholder={inputState.inputPlaceholder}
             isRequired={inputState.isRequired}
             invalidMessage={
-              inputState.isValid ? undefined : inputState.invalidMessage
+              inputState.isValid || !props.doShowValidation
+                ? undefined
+                : inputState.invalidMessage
             }
             onValueChange={handleOnValueChange}
           />
         );
       })}
-      <Button text="submit" onClick={handleSubmit} />
     </form>
   );
 }
