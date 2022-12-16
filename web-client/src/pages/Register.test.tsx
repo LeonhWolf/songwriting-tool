@@ -75,7 +75,17 @@ describe("Inputs:", () => {
       const input = screen.getByLabelText(labelText) as HTMLInputElement;
       expect(input.placeholder).toBe(placeholder);
     });
-    it.todo("Should show invalid message on invalid submit.");
+    it("Should show invalid message on invalid submit.", async () => {
+      await renderWithAct();
+
+      const submitButton = screen.getByRole("button");
+      fireEvent.click(submitButton);
+
+      const invalidMessage = i18next.t("form.inputMissingMessage", {
+        inputTitle: i18next.t("register.firstName.text"),
+      });
+      expect(screen.getByText(invalidMessage)).toBeDefined();
+    });
   });
   describe("Last name:", () => {
     it("Should have id 'lastName' (should render, should be required).", async () => {
@@ -98,7 +108,17 @@ describe("Inputs:", () => {
       const input = screen.getByLabelText(labelText) as HTMLInputElement;
       expect(input.placeholder).toBe(placeholder);
     });
-    it.todo("Should show invalid message on invalid submit.");
+    it("Should show invalid message on invalid submit.", async () => {
+      await renderWithAct();
+
+      const submitButton = screen.getByRole("button");
+      fireEvent.click(submitButton);
+
+      const invalidMessage = i18next.t("form.inputMissingMessage", {
+        inputTitle: i18next.t("register.lastName.text"),
+      });
+      expect(screen.getByText(invalidMessage)).toBeDefined();
+    });
   });
   describe("Email:", () => {
     it("Should have id 'email' (should render, should be required).", async () => {
@@ -121,7 +141,17 @@ describe("Inputs:", () => {
       const input = screen.getByLabelText(labelText) as HTMLInputElement;
       expect(input.placeholder).toBe(placeholder);
     });
-    it.todo("Should show invalid message on invalid submit.");
+    it("Should show invalid message on invalid submit.", async () => {
+      await renderWithAct();
+
+      const submitButton = screen.getByRole("button");
+      fireEvent.click(submitButton);
+
+      const invalidMessage = i18next.t("form.inputMissingMessage", {
+        inputTitle: i18next.t("register.email.text"),
+      });
+      expect(screen.getByText(invalidMessage)).toBeDefined();
+    });
   });
   describe("Password:", () => {
     it("Should have id 'password' (should render, should be required).", async () => {
@@ -144,7 +174,36 @@ describe("Inputs:", () => {
       const input = screen.getByLabelText(labelText) as HTMLInputElement;
       expect(input.placeholder).toBe(placeholder);
     });
-    it.todo("Should show invalid message on invalid submit.");
+    it("Should show invalid message on invalid submit (no password).", async () => {
+      await renderWithAct();
+
+      const submitButton = screen.getByRole("button");
+      fireEvent.click(submitButton);
+
+      const invalidMessage = `${i18next.t("form.inputMissingMessage", {
+        inputTitle: i18next.t("register.password.text"),
+      })} (${i18next.t("form.passwordTooShort")})`;
+      expect(screen.getByText(invalidMessage)).toBeDefined();
+    });
+    it("Should show invalid message on invalid submit (password too short).", async () => {
+      await renderWithAct();
+
+      const passwordPlaceholder = i18next.t("register.password.placeholder");
+      const passwordInput = screen.getByPlaceholderText(
+        passwordPlaceholder
+      ) as HTMLInputElement;
+      fireEvent.change(passwordInput, { target: { value: "111" } });
+
+      expect(passwordInput.value).toBe("111");
+
+      const submitButton = screen.getByRole("button");
+      fireEvent.click(submitButton);
+
+      const invalidMessage = `${i18next.t("form.inputMissingMessage", {
+        inputTitle: i18next.t("register.password.text"),
+      })} (${i18next.t("form.passwordTooShort")})`;
+      expect(screen.getByText(invalidMessage)).toBeDefined();
+    });
   });
 });
 it("Should render register button.", async () => {

@@ -17,6 +17,9 @@ const formContents: IFormProps["contents"] = [
     inputType: "text",
     isRequired: true,
     inputPlaceholder: i18n.t("register.firstName.placeholder"),
+    invalidMessage: i18n.t("form.inputMissingMessage", {
+      inputTitle: i18n.t("register.firstName.text"),
+    }),
   },
   {
     inputId: "lastName",
@@ -24,6 +27,9 @@ const formContents: IFormProps["contents"] = [
     inputType: "text",
     isRequired: true,
     inputPlaceholder: i18n.t("register.lastName.placeholder"),
+    invalidMessage: i18n.t("form.inputMissingMessage", {
+      inputTitle: i18n.t("register.lastName.text"),
+    }),
   },
   {
     inputId: "email",
@@ -31,6 +37,9 @@ const formContents: IFormProps["contents"] = [
     inputType: "email",
     isRequired: true,
     inputPlaceholder: i18n.t("register.email.placeholder"),
+    invalidMessage: i18n.t("form.inputMissingMessage", {
+      inputTitle: i18n.t("register.email.text"),
+    }),
   },
   {
     inputId: "password",
@@ -38,6 +47,9 @@ const formContents: IFormProps["contents"] = [
     inputType: "password",
     isRequired: true,
     inputPlaceholder: i18n.t("register.password.placeholder"),
+    invalidMessage: `${i18n.t("form.inputMissingMessage", {
+      inputTitle: i18n.t("register.password.text"),
+    })} (${i18n.t("form.passwordTooShort")})`,
   },
 ];
 

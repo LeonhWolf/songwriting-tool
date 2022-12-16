@@ -1,23 +1,26 @@
 {
-  "inputMissingMessage": "Please provide a {{inputTitle}}",
   "register": {
     "title": "Create an Account",
     "subtitle": "Start shopping smart!",
     "firstName": {
       "labelText": "First name",
-      "placeholder": "Enter your first name"
+      "placeholder": "Enter your first name",
+      "text": "first name"
     },
     "lastName": {
       "labelText": "Last name",
-      "placeholder": "Enter your last name"
+      "placeholder": "Enter your last name",
+      "text": "last name"
     },
     "email": {
       "labelText": "Email",
-      "placeholder": "Enter your email"
+      "placeholder": "Enter your email",
+      "text": "email"
     },
     "password": {
       "labelText": "Password",
-      "placeholder": "Enter your password"
+      "placeholder": "Enter your password",
+      "text": "password"
     },
     "buttonText": "Sign Up",
     "accountAlready": "Already have an account?",
@@ -30,7 +33,9 @@
     "bodyText2": "Confirm your account by clicking the link in the email."
   },
   "form": {
-    "weakPassword": "You picked one of the 200 weakest passwords. It is strongly advised to chooses another password!"
+    "inputMissingMessage": "Please provide a {{inputTitle}}.",
+    "weakPassword": "You picked one of the 200 weakest passwords. It is strongly advised to chooses another password!",
+    "passwordTooShort": "at least 8 characters long"
   },
   "toast": {
     "serverError": "Your request did not go through. There was a server error."
