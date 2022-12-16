@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from "@storybook/react";
 import Toast from "./Toast";
 
 export default {
-  title: "Toast",
+  title: "Components/Toast",
   component: Toast,
 } as ComponentMeta<typeof Toast>;
 

@@ -5,7 +5,7 @@ import { ComponentStory, ComponentMeta } from "@storybook/react";
 import Popover from "./Popover";
 
 export default {
-  title: "Popover",
+  title: "Components/Popover",
   component: Popover,
 } as ComponentMeta<typeof Popover>;
 

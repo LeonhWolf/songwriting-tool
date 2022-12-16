@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import Register from "./Register";
 
 export default {
-  title: "Register",
+  title: "Pages/Register",
   component: Register,
 } as ComponentMeta<typeof Register>;
 

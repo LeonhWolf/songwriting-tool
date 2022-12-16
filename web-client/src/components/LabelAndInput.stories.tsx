@@ -5,7 +5,7 @@ import { ComponentStory, ComponentMeta } from "@storybook/react";
 import LabelAndInput from "./LabelAndInput";
 
 export default {
-  title: "LabelAndInput",
+  title: "Components/LabelAndInput",
   component: LabelAndInput,
 } as ComponentMeta<typeof LabelAndInput>;
 

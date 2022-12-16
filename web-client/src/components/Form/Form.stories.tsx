@@ -5,7 +5,7 @@ import { ComponentStory, ComponentMeta } from "@storybook/react";
 import Form from "./Form";
 
 export default {
-  title: "Form",
+  title: "Components/Form",
   component: Form,
 } as ComponentMeta<typeof Form>;
 
@@ -46,6 +46,7 @@ Main.args = {
 
 export const Invalid = Template.bind({});
 Invalid.args = {
+  doShowValidation: true,
   contents: [
     {
       inputId: "name",

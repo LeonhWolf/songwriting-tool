@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import RegistrationConfirmed from "./RegistrationConfirmed";
 
 export default {
-  title: "RegistrationConfirmed",
+  title: "Pages/RegistrationConfirmed",
   component: RegistrationConfirmed,
 } as ComponentMeta<typeof RegistrationConfirmed>;
 
