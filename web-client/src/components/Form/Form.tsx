@@ -36,6 +36,12 @@ export default function Form(props: IFormProps) {
       .then((textResult) => {
         const passwords = JSON.parse(textResult);
         setWeakPasswords(passwords);
+      })
+      .catch((error) => {
+        console.error(
+          "File '200-most-common-passwords.txt' could not be loaded.",
+          error
+        );
       });
   }, []);
   useEffect(() => {

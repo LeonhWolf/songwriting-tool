@@ -534,6 +534,27 @@ describe("Form validation:", () => {
       setInputValue("passwordPlaceholder", "Klsdw;Df2");
       expect(screen.queryByText("testPopoverContent")).toBe(null);
     });
+    it("Should catch if 'fetch' rejects.", async () => {
+      (
+        global.fetch as jest.MockedFunction<typeof global.fetch>
+      ).mockRejectedValueOnce(new Error("Some reason why fetch rejected."));
+
+      jest.spyOn(console, "error").mockImplementationOnce(() => {});
+
+      await getRerenderAndRender(
+        <Form
+          contents={formContents}
+          onValidSubmit={() => {}}
+          doShowValidation={false}
+          onValidationChange={() => {}}
+        />
+      );
+
+      expect(console.error).toHaveBeenCalledWith(
+        "File '200-most-common-passwords.txt' could not be loaded.",
+        new Error("Some reason why fetch rejected.")
+      );
+    });
   });
 
   it("Should not emit 'onValidSubmit' with invalid inputs even if not required.", async () => {
