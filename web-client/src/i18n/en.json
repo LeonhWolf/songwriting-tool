@@ -23,7 +23,16 @@
     "accountAlready": "Already have an account?",
     "logIn": "Log in"
   },
+  "registrationConfirmed": {
+    "title": "Registration Confirmed",
+    "subtitle": "You're close to getting started",
+    "bodyText1": "You should receive an email if you haven't registered already with this email address.",
+    "bodyText2": "Confirm your account by clicking the link in the email."
+  },
   "form": {
     "weakPassword": "You picked one of the 200 weakest passwords. It is strongly advised to chooses another password!"
+  },
+  "toast": {
+    "serverError": "Your request did not go through. There was a server error."
   }
 }

@@ -1,12 +1,18 @@
-import { render, screen, act } from "@testing-library/react";
+import { render, screen, act, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { BrowserRouter } from "react-router-dom";
 import "whatwg-fetch";
 
 import i18next from "../i18n/index";
 import Register from "./Register";
-import { setInputValue } from "../utils/testUtils";
+import { setInputValue, flushPendingPromises } from "../utils/testUtils";
 import { registerUser } from "../services/authenticationService";
+
+const navigateSpy = jest.fn();
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => navigateSpy,
+}));
 
 jest.mock("../services/authenticationService.ts", () => ({
   registerUser: jest.fn().mockResolvedValue(""),
@@ -273,5 +279,38 @@ describe("Calling register service:", () => {
     });
 
     expect(registerUser).toHaveBeenCalledTimes(0);
+  });
+  it("Should redirect to '/registration-confirmed' on success.", async () => {
+    await renderWithAct();
+    const buttonText = i18next.t("register.buttonText");
+    const registerButton = screen.getByText(buttonText);
+
+    enterValidInputContents();
+    fireEvent.click(registerButton);
+
+    await act(async () => {
+      await flushPendingPromises();
+    });
+    expect(navigateSpy).toHaveBeenCalledWith("/registration-confirmed");
+  });
+  it("Should catch when 'registerUser' rejects.", async () => {
+    (
+      registerUser as jest.MockedFunction<typeof registerUser>
+    ).mockRejectedValueOnce("Some reason for rejecting registering the user.");
+
+    await renderWithAct();
+
+    const buttonText = i18next.t("register.buttonText");
+    const registerButton = screen.getByText(buttonText);
+    enterValidInputContents();
+
+    fireEvent.click(registerButton);
+    await act(async () => {
+      await flushPendingPromises();
+    });
+
+    // Did not find a good way to test this behavior.
+    // But the test will fail if the error is not caught.
+    expect(1).toBe(1);
   });
 });

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import i18n from "../i18n/index";
 import AuthenticationTitleAndSubtitle from "../components/AuthenticationTitleAndSubtitle";
@@ -48,8 +48,10 @@ const getClientLanguage = (): SupportedLanguages => {
   return "en";
 };
 
-const Register = (props: any) => {
-  const { t, i18n } = useTranslation();
+const Register = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
   const [formState, setFormState] =
     useState<Parameters<IFormProps["onValidSubmit"]>[0]>();
   const [isRegisterPendingState, setIsRegisterPendingState] =
@@ -57,7 +59,7 @@ const Register = (props: any) => {
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [doValidateForm, setDoValidateForm] = useState<boolean>(false);
 
-  const handleSignUpClick = () => {
+  const handleSignUpClick = async () => {
     if (!doValidateForm) setDoValidateForm(true);
     if (!isFormValid) return;
     if (!isRegisterPendingState) setIsRegisterPendingState(true);
@@ -69,15 +71,17 @@ const Register = (props: any) => {
     const plainPassword = formState[3].inputValue;
     const clientLanguage = getClientLanguage();
 
-    registerUser({
-      first_name: firstName,
-      last_name: lastName,
-      email_address: emailAddress,
-      plainPassword: plainPassword,
-      client_language: clientLanguage,
-    }).then(() => {
+    try {
+      await registerUser({
+        first_name: firstName,
+        last_name: lastName,
+        email_address: emailAddress,
+        plainPassword: plainPassword,
+        client_language: clientLanguage,
+      });
       setIsRegisterPendingState(false);
-    });
+      navigate("/registration-confirmed");
+    } catch (error) {}
   };
 
   return (

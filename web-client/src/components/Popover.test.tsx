@@ -106,7 +106,7 @@ it("Should render the passed in component.", () => {
 it("Should position the popover on the passed in component.", () => {
   render(
     <Popover
-      doShow
+      doShow={true}
       content="testContent 123 lorem ipsum"
       targetComponent={<div>testComponentText</div>}
     />
@@ -114,7 +114,7 @@ it("Should position the popover on the passed in component.", () => {
 
   const passedInComponent = screen.getByText("testComponentText");
   expect(
-    passedInComponent.parentElement
+    passedInComponent.parentElement //eslint-disable-line
       ?.getAttribute("aria-describedby")
       ?.includes("popover")
   ).toBeTruthy();

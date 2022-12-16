@@ -1,33 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Provider } from "react-redux";
 import reportWebVitals from "./reportWebVitals";
 
 import "./index.scss";
-import "./styles/bootstrap.scss";
-import Register from "./pages/Register";
 import App from "./App";
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <div>Hello world!</div>,
-    errorElement: <div>not found</div>,
-    children: [],
-  },
-  {
-    path: "/register",
-    element: <Register />,
-  },
-]);
+import { store } from "./redux/store";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    {/* <App /> */}
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>
 );
 

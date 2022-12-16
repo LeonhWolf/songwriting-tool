@@ -13,16 +13,11 @@ export default function Popover(props: IProps): React.ReactElement {
 
   const togglePopover = () => {
     if (props.doShow) {
-      console.log(popover.current);
       popover.current?.show();
       return;
     }
     popover.current?.hide();
   };
-
-  useEffect(() => {
-    togglePopover();
-  }, [props.doShow]);
 
   useEffect(() => {
     popover.current = new BsPopover(popoverElement.current ?? "", {
@@ -34,6 +29,10 @@ export default function Popover(props: IProps): React.ReactElement {
       popover.current?.dispose();
     };
   }, []);
+
+  useEffect(() => {
+    togglePopover();
+  }, [props.doShow]);
 
   return (
     <div ref={popoverElement as React.RefObject<HTMLDivElement>}>

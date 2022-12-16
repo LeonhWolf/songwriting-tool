@@ -8,9 +8,9 @@ export default {
   component: Register,
 } as ComponentMeta<typeof Register>;
 
-const Template: ComponentStory<typeof Register> = (args) => (
+const Template: ComponentStory<typeof Register> = () => (
   <BrowserRouter>
-    <Register {...args} />
+    <Register />
   </BrowserRouter>
 );
 

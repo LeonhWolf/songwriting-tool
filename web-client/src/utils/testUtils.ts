@@ -1,5 +1,11 @@
 import { screen, fireEvent } from "@testing-library/react";
 
+export async function flushPendingPromises(): Promise<void> {
+  await new Promise((resolve) => {
+    process.nextTick(resolve);
+  });
+}
+
 export const setInputValue = (
   placeholderText: string,
   value: string
