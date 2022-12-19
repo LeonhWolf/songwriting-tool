@@ -5,3 +5,6 @@ export interface INewUser
   plainPassword: string;
   client_language: IUser["app_settings"]["app_language"];
 }
+export interface IConfirmRegistration {
+  confirmation_id: string;
+}

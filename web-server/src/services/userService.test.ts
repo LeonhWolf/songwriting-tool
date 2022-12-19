@@ -8,7 +8,13 @@ import fakeTimers from "@sinonjs/fake-timers";
 import mongoose from "mongoose";
 
 import { IUser, User } from "../models/userModel";
-import { create, findAll, deleteOne, deleteMany } from "./userService";
+import {
+  create,
+  findAll,
+  deleteOne,
+  deleteMany,
+  tryConfirmation,
+} from "./userService";
 import setupAndDropTestDB from "../utils/testUtils/setupAndDropTestDB";
 
 type IAppSettingsDb = IUser["app_settings"] & {
@@ -595,5 +601,75 @@ describe("Delete:", () => {
         "Some DB error on 'deleteMany'."
       );
     });
+  });
+});
+
+describe("'tryConfirmation':", () => {
+  const newUser1: Parameters<typeof create>[0] = {
+    email_address: "john@doe.com",
+    first_name: "John",
+    last_name: "Doe",
+    plainPassword: "123456",
+    client_language: "en",
+  };
+  it("Should delete 'account_confirmation' field with proper id.", async () => {
+    let createdUser = await create(newUser1);
+    const createdUserId = createdUser.get("_id") as mongoose.Types.ObjectId;
+    const createdUserConfirmationId = createdUser.get(
+      "account_confirmation._id"
+    ) as mongoose.Types.ObjectId;
+
+    await tryConfirmation(createdUserConfirmationId);
+
+    createdUser = (await findAll("id", [createdUserId]))[0];
+    const expectedUser = {
+      __v: 0,
+      _id: expect.any(mongoose.Types.ObjectId),
+      first_name: "John",
+      last_name: "Doe",
+      email_address: "john@doe.com",
+      password_hash_and_salt: "Hash and salt",
+      app_settings: {
+        _id: expect.any(mongoose.Types.ObjectId),
+        app_language: "en",
+      },
+      local_sessions: [],
+      last_user_edit_on: new Date("1970-01-01T00:00:00.000Z"),
+    };
+    expect(createdUser.toJSON()).toEqual(expectedUser);
+  });
+  it("Should return the confirmed user.", async () => {
+    let createdUser = await create(newUser1);
+    const createdUserId = createdUser.get("_id") as mongoose.Types.ObjectId;
+    const createdUserConfirmationId = createdUser.get(
+      "account_confirmation._id"
+    ) as mongoose.Types.ObjectId;
+
+    const confirmedUser = await tryConfirmation(createdUserConfirmationId);
+
+    const expectedUser = {
+      __v: 0,
+      _id: createdUserId,
+      first_name: "John",
+      last_name: "Doe",
+      email_address: "john@doe.com",
+      password_hash_and_salt: "Hash and salt",
+      app_settings: {
+        _id: expect.any(mongoose.Types.ObjectId),
+        app_language: "en",
+      },
+      local_sessions: [],
+      last_user_edit_on: new Date("1970-01-01T00:00:00.000Z"),
+    };
+
+    expect(confirmedUser.toJSON()).toEqual(expectedUser);
+  });
+  it("Should reject if confirmation id does not exist.", async () => {
+    await create(newUser1);
+
+    const randomObjectId = new mongoose.Types.ObjectId();
+    await expect(tryConfirmation(randomObjectId)).rejects.toThrow(
+      "User with confirmation id does not exist."
+    );
   });
 });

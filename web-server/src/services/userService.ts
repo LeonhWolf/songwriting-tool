@@ -5,15 +5,13 @@ import { IUser, User } from "../models/userModel";
 import { addDaysToDate } from "../utils/dateUtils";
 import { INewUser } from "../../../api-types/authentication.types";
 
+type UserDocument = mongoose.Document<unknown, any, IUser> &
+  IUser & { _id: mongoose.Types.ObjectId };
+
 export function getEmailTakenErrorMessage(emailAddress: string): string {
   return `User with email '${emailAddress}' already exists.`;
 }
-export async function create(
-  newUser: INewUser
-): Promise<
-  mongoose.Document<unknown, any, IUser> &
-    IUser & { _id: mongoose.Types.ObjectId }
-> {
+export async function create(newUser: INewUser): Promise<UserDocument> {
   const usersWithEmail = await User.aggregate([
     { $match: { email_address: newUser.email_address } },
   ]);
@@ -48,10 +46,7 @@ export async function create(
 export async function findAll(
   query: "isAccountConfirmationExpired" | "id",
   ids?: mongoose.Types.ObjectId[]
-): Promise<
-  (mongoose.Document<unknown, any, IUser> &
-    IUser & { _id: mongoose.Types.ObjectId })[]
-> {
+): Promise<UserDocument[]> {
   if (query === "isAccountConfirmationExpired") {
     const now = new Date();
     const users = User.find({
@@ -79,7 +74,29 @@ export async function deleteOne(
 export async function deleteMany(
   userIds: mongoose.Types.ObjectId[]
 ): Promise<void> {
-  const response = await User.deleteMany({
+  await User.deleteMany({
     $or: userIds?.map((userId) => ({ _id: userId })),
   });
+}
+
+export async function tryConfirmation(
+  confirmationId: mongoose.Types.ObjectId
+): Promise<UserDocument> {
+  const oldUser = await User.findOne({
+    "account_confirmation._id": confirmationId,
+  });
+  if (oldUser === null)
+    throw Error("User with confirmation id does not exist.");
+  const userId = oldUser.get("_id") as mongoose.Types.ObjectId | undefined;
+
+  const response = await User.updateOne(
+    { "account_confirmation._id": confirmationId },
+    { $unset: { account_confirmation: "" } }
+  );
+  const updatedUser = await User.findOne({ _id: userId });
+
+  if (response.matchedCount === 0 || updatedUser === null)
+    throw new Error("User with confirmation id does not exist.");
+
+  return updatedUser;
 }
