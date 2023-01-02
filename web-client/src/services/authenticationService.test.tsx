@@ -116,60 +116,98 @@ describe("'confirmRegistration()'", () => {
       }
     );
   });
-  it("Should show toast if status === 500.", async () => {
-    const response = new Response(undefined, { status: 500 });
-    (
-      global.fetch as jest.MockedFunction<typeof global.fetch>
-    ).mockResolvedValueOnce(response);
+  describe("status === 200:", () => {
+    it("Should not show toast.", async () => {
+      const response = new Response(undefined, { status: 200 });
+      (
+        global.fetch as jest.MockedFunction<typeof global.fetch>
+      ).mockResolvedValueOnce(response);
 
-    const serverErrorMessage = i18n.t("toast.serverError");
-    expect(store.getState().toasts).toEqual([]);
+      expect(store.getState().toasts).toEqual([]);
 
-    await confirmRegistration(confirmationId);
+      await confirmRegistration(confirmationId);
+      expect(store.getState().toasts).toEqual([]);
+    });
+    it("Should return the response.", async () => {
+      const response = new Response(undefined, { status: 200 });
+      (
+        global.fetch as jest.MockedFunction<typeof global.fetch>
+      ).mockResolvedValueOnce(response);
 
-    expect(store.getState().toasts).toEqual([
-      { id: "some id", bodyText: serverErrorMessage, severity: "error" },
-    ]);
-    store.dispatch(removeToast("some id"));
+      const returnValue = await confirmRegistration(confirmationId);
+      expect(returnValue).toEqual(response);
+    });
   });
-  it("Should not show toast if status === 200.", async () => {
-    const response = new Response(undefined, { status: 200 });
-    (
-      global.fetch as jest.MockedFunction<typeof global.fetch>
-    ).mockResolvedValueOnce(response);
+  describe("status === 400:", () => {
+    it("Should not show toast.", async () => {
+      const response = new Response(undefined, { status: 400 });
+      (
+        global.fetch as jest.MockedFunction<typeof global.fetch>
+      ).mockResolvedValueOnce(response);
 
-    expect(store.getState().toasts).toEqual([]);
+      expect(store.getState().toasts).toEqual([]);
 
-    await confirmRegistration(confirmationId);
-    expect(store.getState().toasts).toEqual([]);
+      await confirmRegistration(confirmationId);
+      expect(store.getState().toasts).toEqual([]);
+    });
+    it("Should return the response.", async () => {
+      const response = new Response(undefined, { status: 400 });
+      (
+        global.fetch as jest.MockedFunction<typeof global.fetch>
+      ).mockResolvedValueOnce(response);
+
+      const returnValue = await confirmRegistration(confirmationId);
+      expect(returnValue).toEqual(response);
+    });
   });
-  it("Should show toast if fetch rejects.", async () => {
-    (
-      global.fetch as jest.MockedFunction<typeof global.fetch>
-    ).mockRejectedValueOnce("Fetch rejected.");
+  describe("status === 500:", () => {
+    it("Should show toast.", async () => {
+      const response = new Response(undefined, { status: 500 });
+      (
+        global.fetch as jest.MockedFunction<typeof global.fetch>
+      ).mockResolvedValueOnce(response);
 
-    const serverErrorMessage = i18n.t("toast.serverError");
-    expect(store.getState().toasts).toEqual([]);
+      expect(store.getState().toasts).toEqual([]);
+      await confirmRegistration(confirmationId);
 
-    await expect(confirmRegistration).rejects.toBeTruthy();
-    expect(store.getState().toasts).toEqual([
-      { id: "some id", bodyText: serverErrorMessage, severity: "error" },
-    ]);
-    store.dispatch(removeToast("some id"));
+      const serverErrorMessage = i18n.t("toast.serverError");
+      expect(store.getState().toasts).toEqual([
+        { id: "some id", bodyText: serverErrorMessage, severity: "error" },
+      ]);
+      store.dispatch(removeToast("some id"));
+    });
+    it("Should return the response", async () => {
+      const response = new Response(undefined, { status: 500 });
+      (
+        global.fetch as jest.MockedFunction<typeof global.fetch>
+      ).mockResolvedValueOnce(response);
+
+      const returnValue = await confirmRegistration(confirmationId);
+      expect(returnValue).toEqual(response);
+      store.dispatch(removeToast("some id"));
+    });
   });
-  it("Should reject if status === 400", async () => {
-    const response = new Response(undefined, { status: 400 });
-    (
-      global.fetch as jest.MockedFunction<typeof global.fetch>
-    ).mockResolvedValueOnce(response);
+  describe("Fetch rejects:", () => {
+    it("Should show toast.", async () => {
+      (
+        global.fetch as jest.MockedFunction<typeof global.fetch>
+      ).mockRejectedValueOnce("Fetch rejected.");
 
-    await expect(confirmRegistration).rejects.toBeTruthy();
-  });
-  it("Should not catch if 'fetch' rejects.", async () => {
-    (
-      global.fetch as jest.MockedFunction<typeof global.fetch>
-    ).mockRejectedValueOnce(new Error("Fetch rejected here."));
+      expect(store.getState().toasts).toEqual([]);
 
-    await expect(confirmRegistration).rejects.toThrow("Fetch rejected here.");
+      await expect(confirmRegistration).rejects.toBeTruthy();
+      const serverErrorMessage = i18n.t("toast.serverError");
+      expect(store.getState().toasts).toEqual([
+        { id: "some id", bodyText: serverErrorMessage, severity: "error" },
+      ]);
+      store.dispatch(removeToast("some id"));
+    });
+    it("Should not catch.", async () => {
+      (
+        global.fetch as jest.MockedFunction<typeof global.fetch>
+      ).mockRejectedValueOnce(new Error("Fetch rejected here."));
+
+      await expect(confirmRegistration).rejects.toThrow("Fetch rejected here.");
+    });
   });
 });

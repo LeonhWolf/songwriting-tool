@@ -40,7 +40,7 @@ export class RegisterController extends Controller {
         "registerConfirmation",
         {
           name: `${requestBody.first_name} ${requestBody.last_name}`,
-          confirmationLink: `${process.env.BASE_URL}/accountConfirmation?id=${accountConfirmationId}`,
+          confirmationLink: `${process.env.BASE_URL}/confirm-registration?id=${accountConfirmationId}`,
           expiresOnDate: confirmationExpiresOn.toISOString(),
         }
       );

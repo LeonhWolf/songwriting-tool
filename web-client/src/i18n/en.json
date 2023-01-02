@@ -32,6 +32,14 @@
     "bodyText1": "You should receive an email if you haven't registered already with this email address.",
     "bodyText2": "Confirm your account by clicking the link in the email."
   },
+  "confirmRegistration": {
+    "title": "Confirm Registration",
+    "subtitle": "You're almost finished setting up",
+    "bodyText": "Your will be redirected as soon as your account registration is confirmed.",
+    "success": "Your registration is now confirmed. You will be redirected within 5 seconds.",
+    "idIsExpired": "The id for your confirmation has expired. Please register again.",
+    "urlIsInvalid": "Your confirmation link is invalid. Make sure you copy & paste it from the email."
+  },
   "form": {
     "inputMissingMessage": "Please provide a {{inputTitle}}.",
     "weakPassword": "You picked one of the 200 weakest passwords. It is strongly advised to chooses another password!",

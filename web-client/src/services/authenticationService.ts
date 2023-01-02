@@ -32,7 +32,7 @@ export const registerUser = async (userData: INewUser): Promise<void> => {
 };
 export const confirmRegistration = async (
   confirmationId: IConfirmRegistration
-): Promise<void> => {
+): Promise<Response> => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
 
   try {
@@ -45,10 +45,11 @@ export const confirmRegistration = async (
       body: JSON.stringify(confirmationId),
     });
 
-    if (response.status === 400) throw new Error("400");
     if (response.status === 500) addServerErrorToast();
+
+    return response;
   } catch (error) {
     addServerErrorToast();
-    throw new Error(`${error as Error}`);
+    throw error;
   }
 };

@@ -90,7 +90,7 @@ describe("Success:", () => {
     const expectedInterpolationDataArgument = {
       name: "John Doe",
       confirmationLink:
-        "https://base-url.com/accountConfirmation?id=someObjectId",
+        "https://base-url.com/confirm-registration?id=someObjectId",
       expiresOnDate: "1970-01-15T00:00:00.000Z",
     };
 
