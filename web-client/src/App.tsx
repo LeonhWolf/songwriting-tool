@@ -15,7 +15,7 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 
 function App(props: PropsFromRedux) {
   return (
-    <>
+    <div id="app-container" className="container">
       <div id="all-toasts" className="position-absolute top-0 end-0 m-3">
         {props.toasts.map((toast) => (
           <div key={toast.id} className="toast-wrapper mb-2">
@@ -28,7 +28,7 @@ function App(props: PropsFromRedux) {
         ))}
       </div>
       <RouterProvider router={router} />
-    </>
+    </div>
   );
 }
 

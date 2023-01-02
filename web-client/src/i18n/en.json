@@ -26,8 +26,8 @@
     "accountAlready": "Already have an account?",
     "logIn": "Log in"
   },
-  "registrationConfirmed": {
-    "title": "Registration Confirmed",
+  "registrationPending": {
+    "title": "Registration Pending",
     "subtitle": "You're close to getting started",
     "bodyText1": "You should receive an email if you haven't registered already with this email address.",
     "bodyText2": "Confirm your account by clicking the link in the email."

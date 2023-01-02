@@ -55,6 +55,7 @@ export default function Toast(props: IToastProps) {
       className={`toast ${getToastColorClasses(
         props.severity
       )} d-flex justify-content-between align-items-center`}
+      style={{ width: "300px" }}
     >
       <div className="toast-body">{props.bodyText}</div>
       <button

@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import AuthenticationTitleAndSubtitle from "../components/AuthenticationTitleAndSubtitle";
 import { confirmRegistration } from "../services/authenticationService";
 
+export const path = "/confirm-registration";
+
 export default function ConfirmRegistration() {
   const isRequestPending = useRef<boolean>(false);
   const [isRegistrationConfirmedState, setIsRegistrationConfirmedState] =

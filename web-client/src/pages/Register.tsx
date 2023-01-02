@@ -9,6 +9,9 @@ import { IFormProps } from "../components/Form/Form.types";
 import Button from "../components/Button";
 import { registerUser } from "../services/authenticationService";
 import { SupportedLanguages } from "../../../api-types/i18n.types";
+import { path as registrationPendingPath } from "./RegistrationPending";
+
+export const path = "/register";
 
 const formContents: IFormProps["contents"] = [
   {
@@ -92,7 +95,7 @@ const Register = () => {
         client_language: clientLanguage,
       });
       setIsRegisterPendingState(false);
-      navigate("/registration-confirmed");
+      navigate(registrationPendingPath);
     } catch (error) {}
   };
 
@@ -112,7 +115,13 @@ const Register = () => {
             setIsFormValid(isValid);
           }}
         />
-        <Button text={t("register.buttonText")} onClick={handleSignUpClick} />
+        <div className="mt-3 mb-3">
+          <Button
+            text={t("register.buttonText")}
+            isDisabled={false}
+            onClick={handleSignUpClick}
+          />
+        </div>
         <p>
           {t("register.accountAlready")}{" "}
           <Link to="/login">{t("register.logIn")}</Link>

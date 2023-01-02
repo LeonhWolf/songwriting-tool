@@ -1,8 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
 
-import Register from "../pages/Register";
-import RegistrationConfirmed from "../pages/RegistrationConfirmed";
-import ConfirmRegistration from "../pages/ConfirmRegistration";
+import Register, { path as registerPath } from "../pages/Register";
+import RegistrationPending, {
+  path as registrationPendingPath,
+} from "../pages/RegistrationPending";
+import ConfirmRegistration, {
+  path as confirmRegistrationPath,
+} from "../pages/ConfirmRegistration";
 
 export const router = createBrowserRouter([
   {
@@ -12,15 +16,15 @@ export const router = createBrowserRouter([
     children: [],
   },
   {
-    path: "/register",
+    path: registerPath,
     element: <Register />,
   },
   {
-    path: "/registration-confirmed",
-    element: <RegistrationConfirmed />,
+    path: registrationPendingPath,
+    element: <RegistrationPending />,
   },
   {
-    path: "/confirm-registration",
+    path: confirmRegistrationPath,
     element: <ConfirmRegistration />,
   },
 ]);

@@ -7,6 +7,7 @@ import i18next from "../i18n/index";
 import Register from "./Register";
 import { setInputValue, flushPendingPromises } from "../utils/testUtils";
 import { registerUser } from "../services/authenticationService";
+import { path as registrationPendingPath } from "./RegistrationPending";
 
 const navigateSpy = jest.fn();
 jest.mock("react-router-dom", () => ({
@@ -350,7 +351,8 @@ describe("Calling register service:", () => {
     await act(async () => {
       await flushPendingPromises();
     });
-    expect(navigateSpy).toHaveBeenCalledWith("/registration-confirmed");
+
+    expect(navigateSpy).toHaveBeenCalledWith(registrationPendingPath);
   });
   it("Should catch when 'registerUser' rejects.", async () => {
     (
