@@ -9,7 +9,7 @@ import { tryConfirmation } from "../services/userService";
 import { IConfirmRegistration } from "../../../api-types/authentication.types";
 import { logSpy } from "../utils/testUtils/mockWinston";
 
-jest.mock("../utils/handleMongoDBConnection", () => ({
+jest.mock("../setup/handleMongoDBConnection", () => ({
   __esModule: true,
   default: () => jest.fn(),
 }));

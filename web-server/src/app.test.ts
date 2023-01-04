@@ -58,7 +58,7 @@ const {
 jest.mock("winston", () => winstonMock);
 
 const handleMongoDBConnectionSpy = jest.fn();
-jest.mock("./utils/handleMongoDBConnection", () => ({
+jest.mock("./setup/handleMongoDBConnection", () => ({
   __esModule: true,
   default: handleMongoDBConnectionSpy,
 }));

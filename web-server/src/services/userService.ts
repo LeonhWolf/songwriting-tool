@@ -43,6 +43,20 @@ export async function create(newUser: INewUser): Promise<UserDocument> {
   return createdUser;
 }
 
+export async function findOne(
+  emailAddress: string
+): Promise<UserDocument | null> {
+  const users = await User.find({ email_address: emailAddress });
+  if (users.length > 1)
+    throw new Error(
+      `User with email address '${emailAddress}' exists multiple times.`
+    );
+  if (users.length === 0) return null;
+
+  const user = users[0];
+  return user;
+}
+
 export async function findAll(
   query: "isAccountConfirmationExpired" | "id",
   ids?: mongoose.Types.ObjectId[]

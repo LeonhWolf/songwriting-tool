@@ -18,7 +18,7 @@ const emailInterpolationMock = jest
 const getEmailTakenErrorMessageMock = jest.fn(() => "Email taken error msg.");
 const winstonMock = require("../utils/testUtils/mockWinston").winstonMock;
 
-jest.mock("../utils/handleMongoDBConnection", () => ({
+jest.mock("../setup/handleMongoDBConnection", () => ({
   __esModule: true,
   default: () => jest.fn(),
 }));

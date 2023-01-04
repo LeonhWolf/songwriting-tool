@@ -7,7 +7,7 @@ import swaggerUi from "swagger-ui-express";
 
 import { RegisterRoutes } from "../tsoa-build/routes";
 import tsoaValidation from "./utils/tsoaValidation";
-import handleMongoDBConnection from "./utils/handleMongoDBConnection";
+import handleMongoDBConnection from "./setup/handleMongoDBConnection";
 import { logger } from "./utils/logger";
 import tasksSchedulerService from "./services/tasksSchedulerService";
 

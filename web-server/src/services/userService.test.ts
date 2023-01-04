@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 import { IUser, User } from "../models/userModel";
 import {
   create,
+  findOne,
   findAll,
   deleteOne,
   deleteMany,
@@ -51,7 +52,7 @@ const expectedAccountConfirmation: IAccountConfirmationDb = {
   expires_on: new Date("1970-01-15T00:00:00.000Z"),
 };
 
-describe("Create:", () => {
+describe("'create()':", () => {
   it("Should create new user with given credentials.", async () => {
     const newUser: Parameters<typeof create>[0] = {
       email_address: "john@doe.com",
@@ -267,7 +268,94 @@ describe("Create:", () => {
   });
 });
 
-describe("FindAll:", () => {
+describe("'findOne()':", () => {
+  it("Should return the document.", async () => {
+    const user1 = new User({
+      email_address: "john@doe.com",
+      first_name: "John",
+      last_name: "Doe",
+      password_hash_and_salt: "123hashAndSalt",
+      last_user_edit_on: new Date("1970-01-01T00:00:00.000Z"),
+      app_settings: {
+        app_language: "en",
+      },
+      local_sessions: [],
+    });
+    const user2 = new User({
+      email_address: "jane@doe.com",
+      first_name: "Jane",
+      last_name: "Doe",
+      password_hash_and_salt: "123hashAndSalt",
+      last_user_edit_on: new Date("1970-01-01T00:00:00.000Z"),
+      app_settings: {
+        app_language: "de",
+      },
+      local_sessions: [],
+    });
+    await user2.save();
+    await user1.save();
+
+    const getExpectedUser = (): IUserDb => ({
+      __v: expect.any(Number),
+      _id: expect.any(mongoose.Types.ObjectId),
+      email_address: "john@doe.com",
+      first_name: "John",
+      last_name: "Doe",
+      last_user_edit_on: new Date("1970-01-01T00:00:00.000Z"),
+      app_settings: {
+        _id: expect.any(mongoose.Types.ObjectId),
+        app_language: "en",
+      },
+      local_sessions: [],
+      password_hash_and_salt: "123hashAndSalt",
+    });
+
+    const foundUser = await findOne("john@doe.com");
+    expect(foundUser?.toJSON()).toEqual(getExpectedUser());
+  });
+  it("Should reject if found users > 1.", async () => {
+    const user1 = new User({
+      email_address: "john@doe.com",
+      first_name: "John",
+      last_name: "Doe",
+      password_hash_and_salt: "123hashAndSalt",
+      last_user_edit_on: new Date("1970-01-01T00:00:00.000Z"),
+      app_settings: {
+        app_language: "en",
+      },
+      local_sessions: [],
+    });
+    const user1Duplicate = new User({
+      email_address: "john@doe.com",
+      first_name: "John",
+      last_name: "Doe",
+      password_hash_and_salt: "123hashAndSalt",
+      last_user_edit_on: new Date("1970-01-01T00:00:00.000Z"),
+      app_settings: {
+        app_language: "en",
+      },
+      local_sessions: [],
+    });
+    await user1.save();
+    await user1Duplicate.save();
+
+    await expect(findOne("john@doe.com")).rejects.toThrow(
+      "User with email address 'john@doe.com' exists multiple times."
+    );
+  });
+  it("Should return null if no user found.", async () => {
+    expect(await findOne("john@doe.com")).toBeNull();
+  });
+  it("Should reject if find rejects.", async () => {
+    jest.spyOn(User, "find").mockRejectedValueOnce("Some DB error on 'find'.");
+
+    await expect(findAll("isAccountConfirmationExpired")).rejects.toBe(
+      "Some DB error on 'find'."
+    );
+  });
+});
+
+describe("'findAll()':", () => {
   describe("Find by 'isAccountConfirmationExpired':", () => {
     it("Should return all documents.", async () => {
       const newUser1: Parameters<typeof create>[0] = {
@@ -604,7 +692,7 @@ describe("Delete:", () => {
   });
 });
 
-describe("'tryConfirmation':", () => {
+describe("'tryConfirmation()':", () => {
   const newUser1: Parameters<typeof create>[0] = {
     email_address: "john@doe.com",
     first_name: "John",

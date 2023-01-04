@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { logger } from "./logger";
+import { logger } from "../utils/logger";
 
 export default function init(): void {
   if (!process.env.MONGODB_URI) {

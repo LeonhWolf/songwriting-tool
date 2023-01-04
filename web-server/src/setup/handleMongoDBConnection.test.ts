@@ -1,9 +1,9 @@
-const { winstonMock, logSpy } = require("./testUtils/mockWinston");
+const { winstonMock, logSpy } = require("../utils/testUtils/mockWinston");
 const mongooseConnectSpy = jest.fn().mockResolvedValue("");
 const mongooseConnectionOnSpy = jest.fn();
 
 import handleMongoDb from "./handleMongoDBConnection";
-import resolvePendingPromises from "./testUtils/resolvePendingPromises";
+import resolvePendingPromises from "../utils/testUtils/resolvePendingPromises";
 
 jest.mock("mongoose", () => ({
   connect: mongooseConnectSpy,
