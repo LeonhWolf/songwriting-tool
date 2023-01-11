@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes --basePath /api\"",
-    "test": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" node_modules/jest/bin/jest.js --watch"
+    "test": "jest --watch"
   },
   "author": "",
   "license": "ISC",

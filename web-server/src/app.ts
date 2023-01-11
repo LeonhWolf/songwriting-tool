@@ -10,6 +10,7 @@ import tsoaValidation from "./utils/tsoaValidation";
 import handleMongoDBConnection from "./setup/handleMongoDBConnection";
 import { logger } from "./utils/logger";
 import tasksSchedulerService from "./services/tasksSchedulerService";
+import { registerPassport } from "./setup/passport";
 
 export const app = express();
 const port = process.env.PORT || 5000;
@@ -28,6 +29,8 @@ app.use(
 );
 
 handleMongoDBConnection();
+
+registerPassport(app);
 
 app.use("/api-docs", swaggerUi.serve, async (_req: any, res: any) => {
   return res.send(

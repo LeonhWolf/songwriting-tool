@@ -43,18 +43,37 @@ export async function create(newUser: INewUser): Promise<UserDocument> {
   return createdUser;
 }
 
-export async function findOne(
-  emailAddress: string
-): Promise<UserDocument | null> {
-  const users = await User.find({ email_address: emailAddress });
-  if (users.length > 1)
-    throw new Error(
-      `User with email address '${emailAddress}' exists multiple times.`
-    );
-  if (users.length === 0) return null;
+interface IFindOneParameters {
+  id: mongoose.Types.ObjectId;
+  emailAddress: string;
+}
 
-  const user = users[0];
-  return user;
+export async function findOne<
+  QueryType extends keyof IFindOneParameters,
+  Query extends IFindOneParameters[QueryType]
+>(queryType: QueryType, query: Query): Promise<UserDocument | null> {
+  if (queryType === "emailAddress") {
+    const users = await User.find({ email_address: query });
+    if (users.length > 1)
+      throw new Error(
+        `User with email address '${query}' exists multiple times.`
+      );
+    if (users.length === 0) return null;
+
+    const user = users[0];
+    return user;
+  }
+
+  if (queryType === "id") {
+    const users = await User.find({ _id: query });
+
+    if (users.length === 0) return null;
+
+    const user = users[0];
+    return user;
+  }
+
+  return null;
 }
 
 export async function findAll(

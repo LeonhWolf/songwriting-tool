@@ -1,7 +1,8 @@
 const expressUseSpy = jest.fn();
+const expressPostSpy = jest.fn();
 jest.mock("express", () => ({
   __esModule: true,
-  default: () => ({ use: expressUseSpy }),
+  default: () => ({ use: expressUseSpy, post: expressPostSpy }),
 }));
 
 const expressSessionMock = jest
@@ -41,10 +42,12 @@ import passport from "passport";
 import { Strategy } from "passport-local";
 import argon2 from "argon2";
 import { createClient } from "redis";
+import mongoose from "mongoose";
 
 import {
   verify,
   registerLocalStrategy,
+  registerSerializeAndDeserialize,
   getRedisClient,
   registerPassport,
 } from "./passport";
@@ -54,7 +57,14 @@ import { findOne } from "../services/userService";
 import { logSpy } from "../utils/testUtils/mockWinston";
 import resolvePendingPromises from "../utils/testUtils/resolvePendingPromises";
 
-jest.mock("passport", () => ({ use: jest.fn() }));
+jest.mock("passport", () => ({
+  use: jest.fn(),
+  initialize: jest.fn(),
+  session: jest.fn(),
+  authenticate: jest.fn().mockReturnValue("Authenticate return value."),
+  serializeUser: jest.fn(),
+  deserializeUser: jest.fn(),
+}));
 const StrategyMock = { test: "Some property value." };
 jest.mock("passport-local", () => ({
   Strategy: jest.fn().mockImplementation(() => StrategyMock),
@@ -116,7 +126,7 @@ describe("'verify()':", () => {
     const callbackSpy = jest.fn();
     await verify("john@doe.com", "123", callbackSpy);
     expect(findOne).toHaveBeenCalledTimes(1);
-    expect(findOne).toHaveBeenCalledWith("john@doe.com");
+    expect(findOne).toHaveBeenCalledWith("emailAddress", "john@doe.com");
   });
   it("Should call callback with message when user does not exist.", async () => {
     (findOne as jest.MockedFunction<typeof findOne>).mockResolvedValueOnce(
@@ -184,9 +194,58 @@ describe("'registerLocalStrategy()':", () => {
   it("Should register using 'verify()'.", () => {
     registerLocalStrategy();
     expect(Strategy).toHaveBeenCalledTimes(1);
-    expect(Strategy).toHaveBeenCalledWith(verify);
+    expect(Strategy).toHaveBeenCalledWith(
+      { usernameField: "email_address" },
+      verify
+    );
     expect(passport.use).toHaveBeenCalledTimes(1);
     expect(passport.use).toHaveBeenCalledWith(StrategyMock);
+  });
+});
+
+describe("'registerSerializeAndDeserialize()':", () => {
+  it("Should call 'passport.serialize()' with proper arguments.", () => {
+    registerSerializeAndDeserialize();
+    expect(passport.serializeUser).toHaveBeenCalledTimes(1);
+
+    const callback = (
+      passport.serializeUser as jest.MockedFunction<
+        typeof passport.serializeUser
+      >
+    ).mock.calls[0][0];
+
+    const doneFunctionMock = jest.fn();
+    //@ts-ignore
+    callback({ first_name: "John", _id: "1234" }, doneFunctionMock);
+    expect(doneFunctionMock).toHaveBeenCalledWith(null, "1234");
+  });
+  it("Should call 'passport.deserialize()' with proper arguments.", async () => {
+    findOneMock.mockResolvedValueOnce("Requested user document.");
+
+    registerSerializeAndDeserialize();
+    expect(passport.deserializeUser).toHaveBeenCalledTimes(1);
+
+    const callback = (
+      passport.deserializeUser as jest.MockedFunction<
+        typeof passport.deserializeUser
+      >
+    ).mock.calls[0][0];
+
+    const doneFunctionMock = jest.fn();
+    //@ts-ignore
+    callback("000000000000000000000000", doneFunctionMock);
+    expect(findOneMock).toHaveBeenCalledWith(
+      "id",
+      new mongoose.Types.ObjectId("000000000000000000000000")
+    );
+
+    await resolvePendingPromises();
+
+    expect(doneFunctionMock).toHaveBeenCalledTimes(1);
+    expect(doneFunctionMock).toHaveBeenCalledWith(
+      null,
+      "Requested user document."
+    );
   });
 });
 
@@ -208,6 +267,17 @@ describe("'getRedisClient()':", () => {
     });
 
     expect(redisConnectMock).toHaveBeenCalledTimes(1);
+  });
+  it("Should log 'info' when redis connected.", async () => {
+    getRedisClient();
+
+    await resolvePendingPromises();
+
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledWith(
+      "info",
+      "Redis successfully connected."
+    );
   });
   it("Should log error if redis connect rejects.", async () => {
     redisConnectMock.mockRejectedValueOnce(
@@ -256,6 +326,55 @@ describe("'registerPassport()':", () => {
       secret: "123",
       saveUninitialized: false,
       resave: false,
+      cookie: {
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      },
     });
+  });
+  it("Should call 'registerSerializeAndDeserialize()'.", () => {
+    const passportModule = require("./passport");
+    const serializeAndDeserializeSpy = jest
+      .spyOn(passportModule, "registerSerializeAndDeserialize")
+      .mockImplementationOnce(() => {});
+
+    const app = express();
+    passportModule.registerPassport(app);
+
+    expect(serializeAndDeserializeSpy).toHaveBeenCalledTimes(1);
+  });
+  it("Should use 'passport.initialize()'.", () => {
+    const app = express();
+    registerPassport(app);
+
+    expect(passport.initialize).toHaveBeenCalledTimes(1);
+  });
+  it("Should use 'passport.session()'.", () => {
+    const app = express();
+    registerPassport(app);
+
+    expect(passport.session).toHaveBeenCalledTimes(1);
+  });
+  it("Should register authenticate middleware on '/api/login'.", () => {
+    const app = express();
+    registerPassport(app);
+
+    expect(expressPostSpy).toHaveBeenCalledTimes(1);
+    expect(expressPostSpy).toHaveBeenCalledWith(
+      "/api/login",
+      "Authenticate return value.",
+      expect.any(Function)
+    );
+
+    expect(passport.authenticate).toHaveBeenCalledTimes(1);
+    expect(passport.authenticate).toHaveBeenCalledWith("local", {
+      failureRedirect: "/register",
+    });
+
+    const redirectFunction = expressPostSpy.mock.calls[0][2];
+    const responseMock = { redirect: jest.fn() };
+    redirectFunction(null, responseMock);
+
+    expect(responseMock.redirect).toHaveBeenCalledTimes(1);
+    expect(responseMock.redirect).toHaveBeenCalledWith("/");
   });
 });

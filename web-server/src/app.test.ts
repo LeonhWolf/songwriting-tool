@@ -69,6 +69,11 @@ jest.mock("./services/tasksSchedulerService.ts", () => ({
   default: tasksSchedulerServiceMock,
 }));
 
+const registerPassportMock = jest.fn();
+jest.mock("./setup/passport.ts", () => ({
+  registerPassport: registerPassportMock,
+}));
+
 const setEnvVariables = (): void => {
   process.env.PORT = "5500";
 };
@@ -154,6 +159,11 @@ describe("Register middleware:", () => {
   it("Should use 'tsoaValidation'.", () => {
     const server = require("./app");
     expect(expressUseSpy).toHaveBeenCalledWith(tsoaValidationSpy);
+  });
+  it("Should register passport.", () => {
+    const server = require("./app");
+    expect(registerPassportMock).toHaveBeenCalledTimes(1);
+    expect(registerPassportMock).toHaveBeenCalledWith(expressDefaultSpy);
   });
 });
 
