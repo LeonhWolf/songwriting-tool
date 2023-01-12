@@ -53,6 +53,7 @@ const formContents: IFormProps["contents"] = [
     invalidMessage: `${i18n.t("form.inputMissingMessage", {
       inputTitle: i18n.t("register.password.text"),
     })} (${i18n.t("form.passwordTooShort")})`,
+    doShowIsInsecure: true,
   },
 ];
 

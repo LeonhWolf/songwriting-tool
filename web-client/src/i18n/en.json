@@ -40,6 +40,25 @@
     "idIsExpired": "The id for your confirmation has expired. Please register again.",
     "urlIsInvalid": "Your confirmation link is invalid. Make sure you copy & paste it from the email."
   },
+  "login": {
+    "title": "Login to Your Account",
+    "subtitle": "Welcome back! Please enter your details",
+    "email": {
+      "labelText": "Email",
+      "placeholder": "Enter your email",
+      "text": "email"
+    },
+    "password": {
+      "labelText": "Password",
+      "placeholder": "Enter your password",
+      "text": "password"
+    },
+    "rememberMeText": "Remember me",
+    "forgotPasswordText": "Forgot password",
+    "loginButtonText": "Login",
+    "noAccountText": "Don't have an account?",
+    "signUpText": "Sign up"
+  },
   "form": {
     "inputMissingMessage": "Please provide a {{inputTitle}}.",
     "weakPassword": "You picked one of the 200 weakest passwords. It is strongly advised to chooses another password!",

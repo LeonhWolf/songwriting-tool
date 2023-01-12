@@ -1,24 +1,28 @@
 import { ILabelAndInputProps } from "../LabelAndInput";
 
-type Contents = Omit<ILabelAndInputProps, "onValueChange" | "inputType"> & {
-  inputType: Extract<
-    ILabelAndInputProps["inputType"],
-    "text" | "email" | "password"
-  >;
+type ContentBase = Omit<ILabelAndInputProps, "onValueChange" | "inputType">;
+type PasswordContent = ContentBase & {
+  inputType: Extract<ILabelAndInputProps["inputType"], "password">;
+  doShowIsInsecure: boolean;
 };
+type DefaultContent = ContentBase & {
+  inputType: Extract<ILabelAndInputProps["inputType"], "text" | "email">;
+};
+
+type Content = DefaultContent | PasswordContent;
 
 interface IEmitValue extends Pick<ILabelAndInputProps, "inputId"> {
   inputValue: Parameters<ILabelAndInputProps["onValueChange"]>[0];
 }
 
 export interface IFormProps {
-  contents: Contents[];
+  contents: Content[];
   doShowValidation: boolean;
   onValidSubmit: (inputs: IEmitValue[]) => void;
   onValidationChange: (isValid: boolean) => void;
 }
-export interface IInputState extends Contents {
+export type IInputState = Content & {
   value: string;
   isValid: boolean;
   isWeakPassword?: boolean;
-}
+};

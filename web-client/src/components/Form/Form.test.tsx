@@ -61,6 +61,7 @@ describe("Passing props to label & input:", () => {
       inputPlaceholder: "passwordPlaceholder",
       isRequired: true,
       invalidMessage: "passwordInvalid",
+      doShowIsInsecure: true,
     },
   ];
   it("Should have proper inputId.", async () => {
@@ -433,7 +434,7 @@ describe("Form validation:", () => {
     });
   });
   describe("Password:", () => {
-    const formContents: IFormProps["contents"] = [
+    const formContentsSecureTrue: IFormProps["contents"] = [
       {
         inputId: "textId",
         labelText: "textLabel",
@@ -457,13 +458,41 @@ describe("Form validation:", () => {
         inputPlaceholder: "passwordPlaceholder",
         isRequired: true,
         invalidMessage: "passwordInvalid",
+        doShowIsInsecure: true,
+      },
+    ];
+    const formContentsSecureFalse: IFormProps["contents"] = [
+      {
+        inputId: "textId",
+        labelText: "textLabel",
+        inputType: "text",
+        inputPlaceholder: "textPlaceholder",
+        isRequired: false,
+        invalidMessage: "textInvalid",
+      },
+      {
+        inputId: "emailId",
+        labelText: "emailLabel",
+        inputType: "email",
+        inputPlaceholder: "emailPlaceholder",
+        isRequired: false,
+        invalidMessage: "invalidEmail",
+      },
+      {
+        inputId: "passwordId",
+        labelText: "passwordLabel",
+        inputType: "password",
+        inputPlaceholder: "passwordPlaceholder",
+        isRequired: true,
+        invalidMessage: "passwordInvalid",
+        doShowIsInsecure: false,
       },
     ];
     it("Should invalidate when length < 8.", async () => {
       /*eslint-disable*/
       const rerender = await getRerenderAndRender(
         <Form
-          contents={formContents}
+          contents={formContentsSecureTrue}
           onValidSubmit={() => {}}
           doShowValidation={false}
           onValidationChange={() => {}}
@@ -474,7 +503,7 @@ describe("Form validation:", () => {
       expect(screen.queryByText("passwordInvalid")).toBeNull();
       rerender(
         <Form
-          contents={formContents}
+          contents={formContentsSecureTrue}
           onValidSubmit={() => {}}
           doShowValidation={true}
           onValidationChange={() => {}}
@@ -486,7 +515,7 @@ describe("Form validation:", () => {
       /*eslint-disable*/
       const rerender = await getRerenderAndRender(
         <Form
-          contents={formContents}
+          contents={formContentsSecureTrue}
           onValidSubmit={() => {}}
           doShowValidation={false}
           onValidationChange={() => {}}
@@ -497,7 +526,7 @@ describe("Form validation:", () => {
       expect(screen.queryByText("passwordInvalid")).toBeNull();
       rerender(
         <Form
-          contents={formContents}
+          contents={formContentsSecureTrue}
           onValidSubmit={() => {}}
           doShowValidation={true}
           onValidationChange={() => {}}
@@ -505,11 +534,11 @@ describe("Form validation:", () => {
       );
       expect(screen.queryByText("passwordInvalid")).toBeNull();
     });
-    it("Should show popover when password is insecure.", async () => {
+    it("Should show popover when password is insecure && 'doShowIsInsecure === true'.", async () => {
       /*eslint-disable*/
       const rerender = await getRerenderAndRender(
         <Form
-          contents={formContents}
+          contents={formContentsSecureTrue}
           onValidSubmit={() => {}}
           doShowValidation={false}
           onValidationChange={() => {}}
@@ -519,13 +548,42 @@ describe("Form validation:", () => {
       setInputValue("passwordPlaceholder", "123456");
       expect(await screen.findByText("testPopoverContent")).toBeDefined();
     });
-    it("Should not show popover when password is secure.", async () => {
+    it("Should not show popover when password is insecure && 'doShowIsInsecure === false'.", async () => {
+      /*eslint-disable*/
+      const rerender = await getRerenderAndRender(
+        <Form
+          contents={formContentsSecureFalse}
+          onValidSubmit={() => {}}
+          doShowValidation={false}
+          onValidationChange={() => {}}
+        />
+      );
+
+      setInputValue("passwordPlaceholder", "123456");
+      expect(screen.queryByText("testPopoverContent")).toBeNull();
+    });
+    it("Should not show popover when password is secure && 'doShowIsInsecure === true'.", async () => {
       jest.spyOn(i18n, "t").mockImplementation(() => "testPopoverContent");
 
       /*eslint-disable*/
       const rerender = await getRerenderAndRender(
         <Form
-          contents={formContents}
+          contents={formContentsSecureTrue}
+          onValidSubmit={() => {}}
+          doShowValidation={false}
+          onValidationChange={() => {}}
+        />
+      );
+      setInputValue("passwordPlaceholder", "Klsdw;Df2");
+      expect(screen.queryByText("testPopoverContent")).toBe(null);
+    });
+    it("Should not show popover when password is secure && 'doShowIsInsecure === false'.", async () => {
+      jest.spyOn(i18n, "t").mockImplementation(() => "testPopoverContent");
+
+      /*eslint-disable*/
+      const rerender = await getRerenderAndRender(
+        <Form
+          contents={formContentsSecureFalse}
           onValidSubmit={() => {}}
           doShowValidation={false}
           onValidationChange={() => {}}
@@ -543,7 +601,7 @@ describe("Form validation:", () => {
 
       await getRerenderAndRender(
         <Form
-          contents={formContents}
+          contents={formContentsSecureTrue}
           onValidSubmit={() => {}}
           doShowValidation={false}
           onValidationChange={() => {}}
@@ -583,6 +641,7 @@ describe("Form validation:", () => {
         inputPlaceholder: "passwordPlaceholder",
         isRequired: true,
         invalidMessage: "passwordInvalid",
+        doShowIsInsecure: true,
       },
     ];
 
@@ -627,6 +686,7 @@ describe("Form validation:", () => {
         inputPlaceholder: "passwordPlaceholder",
         isRequired: true,
         invalidMessage: "passwordInvalid",
+        doShowIsInsecure: true,
       },
     ];
 
@@ -697,6 +757,7 @@ describe("Form validation:", () => {
         inputPlaceholder: "passwordPlaceholder",
         isRequired: true,
         invalidMessage: "passwordInvalid",
+        doShowIsInsecure: true,
       },
     ];
 
@@ -776,6 +837,7 @@ describe("Form validation:", () => {
         inputPlaceholder: "passwordPlaceholder",
         isRequired: true,
         invalidMessage: "passwordInvalid",
+        doShowIsInsecure: true,
       },
     ];
     const onValidationChangeSpy = jest.fn();

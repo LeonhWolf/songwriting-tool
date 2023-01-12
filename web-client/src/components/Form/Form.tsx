@@ -123,7 +123,9 @@ export default function Form(props: IFormProps) {
           return (
             <Popover
               key={inputState.inputId}
-              doShow={isWeakPassword(inputState.value)}
+              doShow={
+                isWeakPassword(inputState.value) && inputState.doShowIsInsecure
+              }
               content={t("form.weakPassword")}
               targetComponent={
                 <LabelAndInput
