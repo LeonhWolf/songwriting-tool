@@ -2,19 +2,30 @@ import { createClient } from "redis";
 
 import { logger } from "../utils/logger";
 
+let isReconnectScheduled = false;
+
 const client = createClient({
-  url: "redis://redis-url.com:123",
+  url: process.env.REDIS_URL,
 });
+
+const connectRedis = (): void => {
+  client
+    .connect()
+    .then(() => {
+      logger.log("info", "Redis connected.");
+    })
+    .catch((error) => {
+      logger.log("error", `Redis could not connect: '${error}'`);
+    });
+  isReconnectScheduled = false;
+};
 
 client.on("error", (error) => {
   logger.log("error", `Redis client error: '${error}'`);
+  if (!isReconnectScheduled) {
+    setTimeout(connectRedis, 5000);
+    isReconnectScheduled = true;
+  }
 });
 
-client
-  .connect()
-  .then(() => {
-    logger.log("info", "Redis connected.");
-  })
-  .catch((error) => {
-    logger.log("error", `Redis could not connect: '${error}'`);
-  });
+export default connectRedis;

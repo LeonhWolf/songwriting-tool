@@ -63,6 +63,12 @@ jest.mock("./setup/handleMongoDBConnection", () => ({
   default: handleMongoDBConnectionSpy,
 }));
 
+const connectRedisMock = jest.fn();
+jest.mock("./setup/handleRedisConnection.ts", () => ({
+  __esModule: true,
+  default: connectRedisMock,
+}));
+
 const tasksSchedulerServiceMock = jest.fn();
 jest.mock("./services/tasksSchedulerService.ts", () => ({
   __esModule: true,
@@ -172,8 +178,12 @@ it("Should import the logger.", () => {
   expect(createLoggerSpy).toHaveBeenCalled();
 });
 it("Should import 'handleMongoDBConnection'.", () => {
-  const server = require("./app");
+  require("./app");
   expect(handleMongoDBConnectionSpy).toHaveBeenCalled();
+});
+it("Should call 'connectRedis()'.", () => {
+  require("./app");
+  expect(connectRedisMock).toHaveBeenCalled();
 });
 it("Should import 'tasksSchedulerService'.", () => {
   const server = require("./app");
