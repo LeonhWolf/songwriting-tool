@@ -5,11 +5,19 @@
   "spec": {
     "outputDirectory": "tsoa-build",
     "specVersion": 3,
-    "description": "API for Smart Grocery List."
+    "description": "API for Smart Grocery List.",
+    "securityDefinitions": {
+      "local_session": {
+        "type": "localSession",
+        "name": "local_session"
+      }
+    },
+    "rootSecurity": [{ "local_session": [""] }]
   },
   "routes": {
     "basePath": "/api",
-    "routesDir": "tsoa-build"
+    "routesDir": "tsoa-build",
+    "authenticationModule": "./src/utils/tsoaAuthentication.ts"
   },
   "swagger": {
     "info": {
