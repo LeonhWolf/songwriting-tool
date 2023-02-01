@@ -17,5 +17,5 @@ export function expressAuthentication(
   if (request.session.user) return Promise.resolve();
 
   request.res?.redirect("/login");
-  return Promise.reject();
+  return Promise.reject({});
 }

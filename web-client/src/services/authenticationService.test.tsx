@@ -211,3 +211,15 @@ describe("'confirmRegistration()'", () => {
     });
   });
 });
+
+describe("'login()':", () => {
+  it.todo("Should send 'post' to '/login'.");
+  describe("status === 200.", () => {
+    it.todo("Should not show toast.");
+    it.todo("Should return the response.");
+  });
+  describe("status === 400.", () => {
+    it.todo("Should not show toast.");
+    it.todo("Should return the response.");
+  });
+});

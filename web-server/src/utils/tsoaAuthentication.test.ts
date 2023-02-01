@@ -1,10 +1,6 @@
 import express from "express";
 import { expressAuthentication } from "./tsoaAuthentication";
 
-jest.mock("express", () => ({
-  Request: jest.fn().mockReturnValue({}),
-}));
-
 describe("If authenticated:", () => {
   it("Should resolve.", () => {
     const request = {
@@ -20,16 +16,16 @@ describe("If authenticated:", () => {
 });
 
 describe("If not authenticated:", () => {
-  it("Should reject.", () => {
+  it("Should reject.", async () => {
     const request = {
       session: {},
     } as unknown as express.Request;
 
-    expect(
+    await expect(
       expressAuthentication(request, "local_session")
-    ).rejects.toBeUndefined();
+    ).rejects.toStrictEqual({});
   });
-  it("Should redirect to '/login' if not authenticated.", () => {
+  it("Should redirect to '/login' if not authenticated.", async () => {
     const request = {
       res: {
         redirect: jest.fn(),
@@ -37,9 +33,9 @@ describe("If not authenticated:", () => {
       session: {},
     } as unknown as express.Request;
 
-    expect(
+    await expect(
       expressAuthentication(request, "local_session")
-    ).rejects.toBeUndefined();
+    ).rejects.toBeDefined();
     expect(request.res?.redirect).toHaveBeenCalledWith("/login");
   });
 });

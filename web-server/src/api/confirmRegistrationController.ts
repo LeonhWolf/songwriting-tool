@@ -12,7 +12,7 @@ export class ConfirmRegisterController extends Controller {
    */
   @SuccessResponse("200", "User registration has been successfully confirmed.")
   @Post()
-  public async createUser(
+  public async confirmRegistration(
     @Body() requestBody: IConfirmRegistration
   ): Promise<string> {
     try {

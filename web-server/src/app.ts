@@ -1,4 +1,5 @@
 import express, { json, urlencoded } from "express";
+import session from "express-session";
 import cors from "cors";
 import process from "process";
 import * as dotenv from "dotenv";
@@ -12,6 +13,7 @@ import connectRedis from "./setup/handleRedisConnection";
 import { logger } from "./utils/logger";
 import tasksSchedulerService from "./services/tasksSchedulerService";
 import { registerPassport } from "./setup/passport";
+import { registerSession } from "./services/authorizationService";
 
 export const app = express();
 const port = process.env.PORT || 5000;
@@ -32,7 +34,8 @@ app.use(
 handleMongoDBConnection();
 connectRedis();
 
-registerPassport(app);
+// registerPassport(app);
+registerSession(app);
 
 app.use("/api-docs", swaggerUi.serve, async (_req: any, res: any) => {
   return res.send(

@@ -5,7 +5,7 @@ import { IUser, User } from "../models/userModel";
 import { addDaysToDate } from "../utils/dateUtils";
 import { INewUser } from "../../../api-types/authentication.types";
 
-type UserDocument = mongoose.Document<unknown, any, IUser> &
+export type UserDocument = mongoose.Document<unknown, any, IUser> &
   IUser & { _id: mongoose.Types.ObjectId };
 
 export function getEmailTakenErrorMessage(emailAddress: string): string {

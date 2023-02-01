@@ -4,7 +4,7 @@ import { logger } from "../utils/logger";
 
 let isReconnectScheduled = false;
 
-const client = createClient({
+export const client = createClient({
   url: process.env.REDIS_URL,
 });
 
