@@ -1,4 +1,8 @@
-import { Express } from "express";
+import {
+  Express,
+  Request as ExpressRequest,
+  Response as ExpressResponse,
+} from "express";
 import expressSession from "express-session";
 import connectRedis from "connect-redis";
 import argon2 from "argon2";
@@ -12,7 +16,7 @@ export const registerSession = (app: Express): void => {
 
   app.use(
     expressSession({
-      // store: new RedisStore({ client: redisClient }),
+      store: new RedisStore({ client: redisClient }),
       saveUninitialized: false,
       resave: false,
       secret: process.env.REDIS_SESSION_SECRET ?? "",
@@ -45,4 +49,25 @@ export const verifyCredentials = async (
   if (!isPasswordCorrect) return null;
 
   return user;
+};
+
+export const loginUserAndRedirect = async (
+  request: ExpressRequest,
+  userId: any
+): Promise<void> => {
+  await new Promise<void>((resolve, reject) => {
+    request.session.regenerate((error) => {
+      if (error) return reject(error);
+
+      request.session.user = { userId };
+
+      request.session.save((error) => {
+        if (error) return reject(error);
+
+        const response = (<any>request).res as ExpressResponse;
+        response.redirect("/");
+        resolve();
+      });
+    });
+  });
 };

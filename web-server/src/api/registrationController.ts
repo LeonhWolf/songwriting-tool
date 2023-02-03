@@ -8,7 +8,7 @@ import { getInterpolatedEmailString } from "../services/emailTemplateService";
 import { logger } from "../utils/logger";
 
 @Route("register")
-export class RegisterController extends Controller {
+export class RegistrationController extends Controller {
   /**
    * Attempts to register a new user.
    */

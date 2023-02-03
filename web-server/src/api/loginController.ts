@@ -7,15 +7,16 @@ import {
   Request,
   NoSecurity,
 } from "tsoa";
-import mongoose from "mongoose";
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,
 } from "express";
 
 import { ILogin } from "../../../api-types/authentication.types";
-import { verifyCredentials } from "../services/authorizationService";
-import { tryConfirmation } from "../services/userService";
+import {
+  verifyCredentials,
+  loginUserAndRedirect,
+} from "../services/authorizationService";
 import { logger } from "../utils/logger";
 
 @Route("login")
@@ -30,21 +31,31 @@ export class LoginController extends Controller {
     @Body() requestBody: ILogin,
     @Request() request: ExpressRequest
   ): Promise<string> {
-    const user = await verifyCredentials(
-      requestBody.email_address,
-      requestBody.password
-    );
-    const userId = user?.get("_id");
+    try {
+      const user = await verifyCredentials(
+        requestBody.email_address,
+        requestBody.password
+      );
+      if (user === null) {
+        this.setStatus(400);
+        logger.log(
+          "warn",
+          `User with email address: '${requestBody.email_address}' could not be logged in: Wrong credentials were used.`
+        );
+        return "The credentials provided don't match any user.";
+      }
+      const userId = user?.get("_id");
 
-    request.session.regenerate((error) => {
-      request.session.user = { userId };
+      await loginUserAndRedirect(request, userId);
+    } catch (error) {
+      this.setStatus(500);
+      logger.log(
+        "error",
+        `User with email address: '${requestBody.email_address}' could not be logged in: ${error}`
+      );
+      return "There was an internal server error.";
+    }
 
-      request.session.save((error) => {
-        const response = (<any>request).res as ExpressResponse;
-        response.redirect("/");
-      });
-    });
-
-    return "";
+    return "User is logged in.";
   }
 }

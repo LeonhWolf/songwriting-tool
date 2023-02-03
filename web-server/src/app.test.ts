@@ -75,9 +75,9 @@ jest.mock("./services/tasksSchedulerService.ts", () => ({
   default: tasksSchedulerServiceMock,
 }));
 
-const registerPassportMock = jest.fn();
-jest.mock("./setup/passport.ts", () => ({
-  registerPassport: registerPassportMock,
+const registerSessionMock = jest.fn();
+jest.mock("./services/authorizationService.ts", () => ({
+  registerSession: registerSessionMock,
 }));
 
 const setEnvVariables = (): void => {
@@ -166,10 +166,10 @@ describe("Register middleware:", () => {
     const server = require("./app");
     expect(expressUseSpy).toHaveBeenCalledWith(tsoaValidationSpy);
   });
-  it("Should register passport.", () => {
+  it("Should register session.", () => {
     const server = require("./app");
-    expect(registerPassportMock).toHaveBeenCalledTimes(1);
-    expect(registerPassportMock).toHaveBeenCalledWith(expressDefaultSpy);
+    expect(registerSessionMock).toHaveBeenCalledTimes(1);
+    expect(registerSessionMock).toHaveBeenCalledWith(expressDefaultSpy);
   });
 });
 

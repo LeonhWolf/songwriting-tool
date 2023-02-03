@@ -4,40 +4,29 @@ const userDocumentMock = {
 };
 jest.mock("../services/authorizationService.ts", () => ({
   verifyCredentials: jest.fn().mockResolvedValue(userDocumentMock),
+  loginUserAndRedirect: jest.fn().mockResolvedValue(""),
 }));
 
-import express, { json } from "express";
-import expressSession from "express-session";
-import request from "supertest";
+jest.mock("../utils/logger.ts", () => ({
+  logger: { log: jest.fn() },
+}));
 
 import { LoginController } from "./loginController";
-import { RegisterRoutes } from "../../tsoa-build/routes";
-import tsoaValidation from "../utils/tsoaValidation";
 import { ILogin } from "../../../api-types/authentication.types";
+import { logger } from "../utils/logger";
+import {
+  verifyCredentials,
+  loginUserAndRedirect,
+} from "../services/authorizationService";
 
-// const app = express();
-// beforeAll(() => {
-//   app.use(json());
-//   const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
-//   app.use(
-//     expressSession({
-//       // store: new RedisStore({ client: redisClient }),
-//       saveUninitialized: false,
-//       resave: false,
-//       secret: "Some secret",
-//       cookie: {
-//         maxAge: sevenDaysInMilliseconds,
-//       },
-//     })
-//   );
-
-//   RegisterRoutes(app);
-//   app.use(tsoaValidation);
-// });
 const requestMock = {
   session: {
-    regenerate: jest.fn(),
-    save: jest.fn(),
+    regenerate: jest.fn((callback) => {
+      callback();
+    }),
+    save: jest.fn((callback) => {
+      callback();
+    }),
     user: null,
   },
   res: {
@@ -49,95 +38,152 @@ beforeEach(() => {
   requestMock.session.user = null;
 });
 
+const correctLoginData: ILogin = {
+  email_address: "john@doe.com",
+  password: "123",
+};
+
 describe("Success:", () => {
-  const correctLoginData: ILogin = {
-    email_address: "john@doe.com",
-    password: "123",
-  };
-
-  it.skip("Should send a '201' and a message.", async () => {
-    // const response = await request(app)
-    //   .post("/api/login")
-    //   .set("Accept", "application/json")
-    //   .send(correctLoginData);
-  });
-  it("Should store user information in session.", async () => {
+  it("Should send a message.", async () => {
     const loginController = new LoginController();
-    //@ts-ignore
-    await loginController.logInUser(correctLoginData, requestMock);
 
-    // expect(request.session.regenerate).toHaveBeenCalledTimes(1);
-    // expect(request.session.user).toBeNull();
-    // expect(request.session.regenerate).toHaveBeenCalledWith(
-    //   expect.any(Function)
-    // );
-    // expect(request.session.save).toHaveBeenCalledTimes(0);
-
-    // const regenerateCallback = requestMock.session.regenerate.mock.calls[0][0];
-    // regenerateCallback();
-    // // It should log error
-    // expect(userDocumentMock.get).toHaveBeenCalledTimes(1);
-    // expect(userDocumentMock.get).toHaveBeenCalledWith("_id");
-    // expect(requestMock.session.user).toStrictEqual({ userId: mockUserId });
-
-    // expect(requestMock.session.save).toHaveBeenCalledTimes(1);
-    // expect(requestMock.session.save).toHaveBeenCalledWith(expect.any(Function));
-
-    // const saveCallback = requestMock.session.save.mock.calls[0][0];
-    // saveCallback();
-    // // It should log error
-    // expect(requestMock.res.redirect).toHaveBeenCalledTimes(1);
-    // expect(requestMock.res.redirect).toHaveBeenCalledWith("/");
-
-    // expect(request.session.save).toHaveBeenCalledTimes(1);
-
-    // expect(app.request.session?.user).toBe(123);
-  });
-  it("Should call 'session.regenerate()'.", async () => {
-    const loginController = new LoginController();
-    //@ts-ignore
-    await loginController.logInUser(correctLoginData, requestMock);
-
-    expect(requestMock.session.regenerate).toHaveBeenCalledTimes(1);
-    expect(requestMock.session.user).toBeNull();
-    expect(requestMock.session.regenerate).toHaveBeenCalledWith(
-      expect.any(Function)
+    const message = await loginController.logInUser(
+      correctLoginData,
+      //@ts-ignore
+      requestMock
     );
-    expect(requestMock.session.save).toHaveBeenCalledTimes(0);
+    expect(message).toBe("User is logged in.");
   });
-  it("Should set 'user' and call 'session.save()'.", async () => {
+  it("Should call 'loginUserAndRedirect()'.", async () => {
     const loginController = new LoginController();
     //@ts-ignore
     await loginController.logInUser(correctLoginData, requestMock);
 
-    const regenerateCallback = requestMock.session.regenerate.mock.calls[0][0];
-    regenerateCallback();
-    // It should log error
-    expect(userDocumentMock.get).toHaveBeenCalledTimes(1);
-    expect(userDocumentMock.get).toHaveBeenCalledWith("_id");
-    expect(requestMock.session.user).toStrictEqual({ userId: mockUserId });
-
-    expect(requestMock.session.save).toHaveBeenCalledTimes(1);
-    expect(requestMock.session.save).toHaveBeenCalledWith(expect.any(Function));
+    expect(loginUserAndRedirect).toHaveBeenCalledTimes(1);
+    expect(loginUserAndRedirect).toHaveBeenCalledWith(requestMock, mockUserId);
   });
-  it("Should redirect to '/'.", async () => {
+  it("Should not log anything.", async () => {
     const loginController = new LoginController();
     //@ts-ignore
     await loginController.logInUser(correctLoginData, requestMock);
 
-    const regenerateCallback = requestMock.session.regenerate.mock.calls[0][0];
-    regenerateCallback();
-
-    const saveCallback = requestMock.session.save.mock.calls[0][0];
-    saveCallback();
-    // It should log error
-    expect(requestMock.res.redirect).toHaveBeenCalledTimes(1);
-    expect(requestMock.res.redirect).toHaveBeenCalledWith("/");
+    expect(logger.log).toHaveBeenCalledTimes(0);
   });
-  it.todo("Should not store user if 'regenerate' throws.");
-  it.todo("Should redirect to '/'.");
 });
 
-// expect(request.session.regenerate).toHaveBeenCalledTimes(0);
-it.todo("Should send a '500' on server error.");
-it.todo("Should send a '400' on wrong credentials.");
+describe("Server Failure:", () => {
+  describe("'loginUserAndRedirect()' rejects:", () => {
+    it("Should send '500' and message.", async () => {
+      const loginController = new LoginController();
+      jest.spyOn(loginController, "setStatus");
+      (
+        loginUserAndRedirect as jest.MockedFunction<typeof loginUserAndRedirect>
+      ).mockRejectedValueOnce(new Error("'regenerate()' rejected."));
+
+      const message = await loginController.logInUser(
+        correctLoginData,
+        //@ts-ignore
+        requestMock
+      );
+
+      expect(loginController.setStatus).toHaveBeenCalledTimes(1);
+      expect(loginController.setStatus).toHaveBeenCalledWith(500);
+      expect(message).toBe("There was an internal server error.");
+    });
+    it("Should log 'error' with email address.", async () => {
+      const loginController = new LoginController();
+      jest.spyOn(loginController, "setStatus");
+      (
+        loginUserAndRedirect as jest.MockedFunction<typeof loginUserAndRedirect>
+      ).mockRejectedValueOnce(new Error("'regenerate()' rejected."));
+
+      const message = await loginController.logInUser(
+        correctLoginData,
+        //@ts-ignore
+        requestMock
+      );
+
+      expect(logger.log).toHaveBeenCalledTimes(1);
+      expect(logger.log).toHaveBeenCalledWith(
+        "error",
+        `User with email address: '${correctLoginData.email_address}' could not be logged in: Error: 'regenerate()' rejected.`
+      );
+    });
+  });
+
+  describe("'verifyCredentials()' rejects:", () => {
+    it("Should send '500' and message.", async () => {
+      const loginController = new LoginController();
+      jest.spyOn(loginController, "setStatus");
+      (
+        verifyCredentials as jest.MockedFunction<typeof verifyCredentials>
+      ).mockRejectedValueOnce(new Error("'verifyCredentials()' rejected."));
+
+      const message = await loginController.logInUser(
+        correctLoginData,
+        //@ts-ignore
+        requestMock
+      );
+
+      expect(loginController.setStatus).toHaveBeenCalledTimes(1);
+      expect(loginController.setStatus).toHaveBeenCalledWith(500);
+      expect(message).toBe("There was an internal server error.");
+    });
+    it("Should log 'error' with email address.", async () => {
+      const loginController = new LoginController();
+      (
+        verifyCredentials as jest.MockedFunction<typeof verifyCredentials>
+      ).mockRejectedValueOnce(new Error("'verifyCredentials()' rejected."));
+
+      await loginController.logInUser(
+        correctLoginData,
+        //@ts-ignore
+        requestMock
+      );
+
+      expect(logger.log).toHaveBeenCalledTimes(1);
+      expect(logger.log).toHaveBeenCalledWith(
+        "error",
+        `User with email address: '${correctLoginData.email_address}' could not be logged in: Error: 'verifyCredentials()' rejected.`
+      );
+    });
+  });
+});
+
+describe("Wrong Credentials:", () => {
+  it("Should send a '400'.", async () => {
+    const loginController = new LoginController();
+    jest.spyOn(loginController, "setStatus");
+    (
+      verifyCredentials as jest.MockedFunction<typeof verifyCredentials>
+    ).mockResolvedValueOnce(null);
+
+    const message = await loginController.logInUser(
+      correctLoginData,
+      //@ts-ignore
+      requestMock
+    );
+
+    expect(loginController.setStatus).toHaveBeenCalledTimes(1);
+    expect(loginController.setStatus).toHaveBeenCalledWith(400);
+    expect(message).toBe("The credentials provided don't match any user.");
+  });
+  it("Should log 'warn' with email address.", async () => {
+    const loginController = new LoginController();
+    (
+      verifyCredentials as jest.MockedFunction<typeof verifyCredentials>
+    ).mockResolvedValueOnce(null);
+
+    await loginController.logInUser(
+      correctLoginData,
+      //@ts-ignore
+      requestMock
+    );
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenCalledWith(
+      "warn",
+      `User with email address: '${correctLoginData.email_address}' could not be logged in: Wrong credentials were used.`
+    );
+  });
+});

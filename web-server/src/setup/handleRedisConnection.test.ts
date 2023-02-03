@@ -28,7 +28,7 @@ afterAll(() => {
 });
 
 describe("Connect:", () => {
-  it("Should connect on the URL from env variable.", () => {
+  it("Should connect on the URL from env variable + legacyMode.", () => {
     process.env.REDIS_URL = "redis://redis-url.com:123";
     require("./handleRedisConnection");
     connectRedis();
@@ -36,6 +36,7 @@ describe("Connect:", () => {
     expect(redisCreateClientMock).toHaveBeenCalledTimes(1);
     expect(redisCreateClientMock).toHaveBeenCalledWith({
       url: "redis://redis-url.com:123",
+      legacyMode: true,
     });
   });
   it("Should log 'info' when connected.", async () => {

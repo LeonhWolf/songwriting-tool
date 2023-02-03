@@ -6,6 +6,7 @@ let isReconnectScheduled = false;
 
 export const client = createClient({
   url: process.env.REDIS_URL,
+  legacyMode: true,
 });
 
 const connectRedis = (): void => {
