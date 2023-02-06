@@ -1,6 +1,7 @@
 import {
   INewUser,
   IConfirmRegistration,
+  ILogin,
 } from "../../../api-types/authentication.types";
 import { store } from "../redux/store";
 import { addToast } from "../redux/toastsSlice";
@@ -30,6 +31,7 @@ export const registerUser = async (userData: INewUser): Promise<void> => {
     throw new Error(`${error as Error}`);
   }
 };
+
 export const confirmRegistration = async (
   confirmationId: IConfirmRegistration
 ): Promise<Response> => {
@@ -52,4 +54,12 @@ export const confirmRegistration = async (
     addServerErrorToast();
     throw error;
   }
+};
+
+export const loginUser = async (
+  emailAddress: ILogin["email_address"],
+  plainPassword: ILogin["password"]
+): Promise<Response> => {
+  const response = await fetch("");
+  return response;
 };

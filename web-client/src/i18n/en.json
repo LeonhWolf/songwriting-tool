@@ -42,7 +42,7 @@
   },
   "login": {
     "title": "Login to Your Account",
-    "subtitle": "Welcome back! Please enter your details",
+    "subtitle": "Welcome back! Please enter your details.",
     "email": {
       "labelText": "Email",
       "placeholder": "Enter your email",

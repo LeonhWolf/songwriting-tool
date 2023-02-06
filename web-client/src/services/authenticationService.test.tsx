@@ -212,14 +212,22 @@ describe("'confirmRegistration()'", () => {
   });
 });
 
-describe("'login()':", () => {
+describe("'loginUser()':", () => {
   it.todo("Should send 'post' to '/login'.");
-  describe("status === 200.", () => {
+  describe("status === 200:", () => {
     it.todo("Should not show toast.");
     it.todo("Should return the response.");
   });
-  describe("status === 400.", () => {
+  describe("status === 400:", () => {
     it.todo("Should not show toast.");
     it.todo("Should return the response.");
+  });
+  describe("status === 500:", () => {
+    it.todo("Should show toast.");
+    it.todo("Should return the response.");
+  });
+  describe("Fetch rejects:", () => {
+    it.todo("Should show toast.");
+    it.todo("Should not catch.");
   });
 });
