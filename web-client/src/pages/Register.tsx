@@ -116,7 +116,7 @@ const Register = () => {
             setIsFormValid(isValid);
           }}
         />
-        <div className="mt-3 mb-3">
+        <div className="w-100 mt-3 mb-3">
           <Button
             text={t("register.buttonText")}
             isDisabled={false}

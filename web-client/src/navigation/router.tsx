@@ -7,6 +7,7 @@ import RegistrationPending, {
 import ConfirmRegistration, {
   path as confirmRegistrationPath,
 } from "../pages/ConfirmRegistration";
+import Login, { path as loginPath } from "../pages/Login";
 
 export const router = createBrowserRouter([
   {
@@ -26,5 +27,9 @@ export const router = createBrowserRouter([
   {
     path: confirmRegistrationPath,
     element: <ConfirmRegistration />,
+  },
+  {
+    path: loginPath,
+    element: <Login />,
   },
 ]);

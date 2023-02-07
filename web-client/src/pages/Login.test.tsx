@@ -258,9 +258,142 @@ describe("Login service:", () => {
       "User could not be logged in: Reason why 'loginUser()' rejected."
     );
   });
-  it.todo("Should show message on wrong credentials.");
 });
+describe("Wrong credentials:", () => {
+  const wrongCredentialsText = i18next.t("login.wrongCredentials");
+  it("Should not show message without request.", async () => {
+    await renderWithAct();
+    expect(screen.queryByText(wrongCredentialsText)).toBeNull();
+  });
+  it("Should show message after request.", async () => {
+    const wrongCredentialsResponse = new Response(undefined, { status: 400 });
+    (loginUser as jest.MockedFunction<typeof loginUser>).mockResolvedValueOnce(
+      wrongCredentialsResponse
+    );
 
+    await renderWithAct();
+
+    const emailLabelText = i18next.t("login.email.placeholder");
+    setInputValue(emailLabelText, "jane@doe.com");
+
+    const passwordLabelText = i18next.t("login.password.placeholder");
+    setInputValue(passwordLabelText, "11223344");
+
+    const loginButtonText = i18next.t("login.loginButtonText");
+    const loginButton = screen.getByText(loginButtonText);
+
+    act(() => {
+      loginButton.click();
+    });
+    await act(async () => {
+      await flushPendingPromises();
+    });
+
+    expect(screen.getByText(wrongCredentialsText)).toBeDefined();
+  });
+  it("Should not show error message if credentials are correct.", async () => {
+    const properCredentialsResponse = new Response(undefined, { status: 200 });
+    (loginUser as jest.MockedFunction<typeof loginUser>).mockResolvedValueOnce(
+      properCredentialsResponse
+    );
+
+    await renderWithAct();
+
+    const emailLabelText = i18next.t("login.email.placeholder");
+    setInputValue(emailLabelText, "jane@doe.com");
+
+    const passwordLabelText = i18next.t("login.password.placeholder");
+    setInputValue(passwordLabelText, "11223344");
+
+    const loginButtonText = i18next.t("login.loginButtonText");
+    const loginButton = screen.getByText(loginButtonText);
+
+    act(() => {
+      loginButton.click();
+    });
+    await act(async () => {
+      await flushPendingPromises();
+    });
+
+    expect(screen.queryByText(wrongCredentialsText)).toBeNull();
+  });
+  it("Should show error message and hide it on second proper request.", async () => {
+    const wrongCredentialsResponse = new Response(undefined, { status: 400 });
+    (loginUser as jest.MockedFunction<typeof loginUser>).mockResolvedValueOnce(
+      wrongCredentialsResponse
+    );
+
+    await renderWithAct();
+
+    const emailLabelText = i18next.t("login.email.placeholder");
+    setInputValue(emailLabelText, "jane@doe.com");
+
+    const passwordLabelText = i18next.t("login.password.placeholder");
+    setInputValue(passwordLabelText, "11223344");
+
+    const loginButtonText = i18next.t("login.loginButtonText");
+    const loginButton = screen.getByText(loginButtonText);
+
+    act(() => {
+      loginButton.click();
+    });
+    await act(async () => {
+      await flushPendingPromises();
+    });
+
+    expect(screen.getByText(wrongCredentialsText)).toBeDefined();
+
+    const properCredentialsResponse = new Response(undefined, { status: 200 });
+    (loginUser as jest.MockedFunction<typeof loginUser>).mockResolvedValueOnce(
+      properCredentialsResponse
+    );
+
+    act(() => {
+      loginButton.click();
+    });
+    await act(async () => {
+      await flushPendingPromises();
+    });
+
+    expect(screen.queryByText(wrongCredentialsText)).toBeNull();
+  });
+  it("Should show error message and still show it on second wrong request.", async () => {
+    const wrongCredentialsResponse = new Response(undefined, { status: 400 });
+    (loginUser as jest.MockedFunction<typeof loginUser>).mockResolvedValueOnce(
+      wrongCredentialsResponse
+    );
+
+    await renderWithAct();
+
+    const emailLabelText = i18next.t("login.email.placeholder");
+    setInputValue(emailLabelText, "jane@doe.com");
+
+    const passwordLabelText = i18next.t("login.password.placeholder");
+    setInputValue(passwordLabelText, "11223344");
+
+    const loginButtonText = i18next.t("login.loginButtonText");
+    const loginButton = screen.getByText(loginButtonText);
+
+    act(() => {
+      loginButton.click();
+    });
+    await act(async () => {
+      await flushPendingPromises();
+    });
+    expect(screen.getByText(wrongCredentialsText)).toBeDefined();
+
+    (loginUser as jest.MockedFunction<typeof loginUser>).mockResolvedValueOnce(
+      wrongCredentialsResponse
+    );
+    act(() => {
+      loginButton.click();
+    });
+    await act(async () => {
+      await flushPendingPromises();
+    });
+    expect(screen.getByText(wrongCredentialsText)).toBeDefined();
+  });
+});
 it("Should navigate to sign up page on click.", async () => {
   await renderWithAct();
 
@@ -268,7 +401,6 @@ it("Should navigate to sign up page on click.", async () => {
   const signUpLink = screen.getByText(signUpText) as HTMLLinkElement;
 
   expect(history.push).toHaveBeenCalledTimes(0);
-  // fireEvent.click(signUpLink);
   signUpLink.click();
   expect(history.push).toHaveBeenCalledTimes(1);
 

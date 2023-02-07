@@ -1,4 +1,5 @@
 import React from "react";
+import "./AuthenticationTitleAndSubtitle.scss";
 
 interface IProps {
   title: string;
@@ -8,10 +9,12 @@ interface IProps {
 
 export default function AuthenticationTitleAndSubtitle(props: IProps) {
   return (
-    <div className="d-flex flex-column align-items-center h-100 pt-4">
+    <div className="h-100 w-100 d-flex flex-column align-items-center pt-4">
       <h2>{props.title}</h2>
       <p className="text-muted mb-5">{props.subtitle}</p>
-      <div className="mt-auto mb-auto">{props.children}</div>
+      <div id="content-wrapper" className="mt-auto mb-auto">
+        {props.children}
+      </div>
     </div>
   );
 }

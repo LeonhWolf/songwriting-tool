@@ -10,9 +10,11 @@ export default {
 const Template: ComponentStory<typeof AuthenticationTitleAndSubtitle> = (
   args
 ) => (
-  <AuthenticationTitleAndSubtitle {...args}>
-    <div>This is some content that is rendered here</div>
-  </AuthenticationTitleAndSubtitle>
+  <div className="w-100 d-flex justify-content-center">
+    <AuthenticationTitleAndSubtitle {...args}>
+      <div>This is some content that is rendered here</div>
+    </AuthenticationTitleAndSubtitle>
+  </div>
 );
 
 export const Main = Template.bind({});

@@ -9,9 +9,11 @@ export default {
 } as ComponentMeta<typeof Register>;
 
 const Template: ComponentStory<typeof Register> = () => (
-  <BrowserRouter>
-    <Register />
-  </BrowserRouter>
+  <div className="w-100 d-flex justify-content-center">
+    <BrowserRouter>
+      <Register />
+    </BrowserRouter>
+  </div>
 );
 
 export const Main = Template.bind({});

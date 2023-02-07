@@ -57,7 +57,8 @@
     "forgotPasswordText": "Forgot password",
     "loginButtonText": "Login",
     "noAccountText": "Don't have an account?",
-    "signUpText": "Sign up"
+    "signUpText": "Sign up",
+    "wrongCredentials": "The email and/or password you provided is wrong."
   },
   "form": {
     "inputMissingMessage": "Please provide a {{inputTitle}}.",

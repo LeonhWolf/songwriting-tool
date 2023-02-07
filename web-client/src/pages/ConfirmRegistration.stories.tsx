@@ -10,9 +10,11 @@ export default {
 } as ComponentMeta<typeof ConfirmRegistration>;
 
 const Template: ComponentStory<typeof ConfirmRegistration> = () => (
-  <BrowserRouter>
-    <ConfirmRegistration />
-  </BrowserRouter>
+  <div className="w-100 d-flex justify-content-center">
+    <BrowserRouter>
+      <ConfirmRegistration />
+    </BrowserRouter>
+  </div>
 );
 
 export const Pending = Template.bind({});

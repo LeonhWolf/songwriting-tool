@@ -13,7 +13,7 @@ export default function Button(props: IButtonProps) {
     <>
       <button
         type="button"
-        className="btn btn-primary"
+        className="btn btn-primary w-100"
         disabled={props.isDisabled}
         onClick={handleClick}
       >

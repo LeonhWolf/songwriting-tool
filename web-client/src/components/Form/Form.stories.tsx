@@ -40,6 +40,7 @@ Main.args = {
       labelText: "Password",
       inputType: "password",
       isRequired: true,
+      doShowIsInsecure: true,
     },
   ],
 };
@@ -73,6 +74,7 @@ Invalid.args = {
       inputType: "password",
       isRequired: true,
       invalidMessage: "Please provide a password",
+      doShowIsInsecure: true,
     },
   ],
 };

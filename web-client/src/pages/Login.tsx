@@ -9,6 +9,8 @@ import i18n from "../i18n/index";
 import { loginUser } from "../services/authenticationService";
 import { path as registrationPath } from "./Register";
 
+export const path = "/login";
+
 const formContents: IFormProps["contents"] = [
   {
     inputId: "email",
@@ -41,6 +43,8 @@ export default function Login() {
     useState<boolean>(false);
   const [formDataState, setFormDataState] =
     useState<Parameters<IFormProps["onValidSubmit"]>[0]>();
+  const [areCredentialsWrongState, setAreCredentialsWrongState] =
+    useState<boolean>(false);
 
   const handleLoginClick = (): void => {
     if (!isFormValidState) return;
@@ -57,7 +61,12 @@ export default function Login() {
         "Login request cannot be sent. 'emailAddress' or 'password' input value is undefined."
       );
     loginUser(emailAddress, password)
-      .then()
+      .then((response) => {
+        if (response.status !== 400 && areCredentialsWrongState)
+          setAreCredentialsWrongState(false);
+
+        if (response.status === 400) setAreCredentialsWrongState(true);
+      })
       .catch((error) => {
         console.error(`User could not be logged in: ${error}`);
       });
@@ -68,7 +77,13 @@ export default function Login() {
       title={t("login.title")}
       subtitle={t("login.subtitle")}
     >
-      <div>
+      <div id="wrapper" className="w-100">
+        {areCredentialsWrongState && (
+          <p id="wrong-credentials" className="text-danger w-100">
+            {t("login.wrongCredentials")}
+          </p>
+        )}
+
         <Form
           contents={formContents}
           doShowValidation={doShowValidationState}
@@ -81,7 +96,7 @@ export default function Login() {
         />
         <button
           id="login-button"
-          className="btn btn-primary w-100"
+          className="btn btn-primary w-100 mt-3"
           onClick={() => {
             setDoShowValidationState(!doShowValidationState);
             handleLoginClick();
@@ -89,18 +104,20 @@ export default function Login() {
         >
           {t("login.loginButtonText")}
         </button>
-        <div className="d-flex justify-content-center">
-          <div className="form-check">
-            <input className="form-check-input" type="checkbox" />
-            <label className="form-check-label">
-              {t("login.rememberMeText")}
-            </label>
-          </div>
+
+        <div
+          id="forgot-password-and-sign-up"
+          className="d-flex flex-column align-items-start mt-3"
+        >
           <a href="">{t("login.forgotPasswordText")}</a>
-        </div>
-        <div className="d-flex justify-content-start">
-          <p className="text-muted me-2">{t("login.noAccountText")}</p>
-          <Link to={registrationPath}>{t("login.signUpText")}</Link>
+
+          <div
+            id="sign-up-text-and-link"
+            className="d-flex justify-content-start"
+          >
+            <p className="text-muted me-2 mb-0">{t("login.noAccountText")}</p>
+            <Link to={registrationPath}>{t("login.signUpText")}</Link>
+          </div>
         </div>
       </div>
     </AuthenticationTitleAndSubtitle>
