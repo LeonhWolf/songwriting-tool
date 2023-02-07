@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import AuthenticationTitleAndSubtitle from "../components/AuthenticationTitleAndSubtitle";
+import AuthenticationTemplate from "../templates/Authentication";
 import Form from "../components/Form/Form";
 import { IFormProps } from "../components/Form/Form.types";
 import i18n from "../i18n/index";
@@ -73,7 +73,7 @@ export default function Login() {
   };
 
   return (
-    <AuthenticationTitleAndSubtitle
+    <AuthenticationTemplate
       title={t("login.title")}
       subtitle={t("login.subtitle")}
     >
@@ -120,6 +120,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-    </AuthenticationTitleAndSubtitle>
+    </AuthenticationTemplate>
   );
 }

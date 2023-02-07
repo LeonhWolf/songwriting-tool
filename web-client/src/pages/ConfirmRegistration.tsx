@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import AuthenticationTitleAndSubtitle from "../components/AuthenticationTitleAndSubtitle";
+import AuthenticationTemplate from "../templates/Authentication";
 import { confirmRegistration } from "../services/authenticationService";
 
 export const path = "/confirm-registration";
@@ -56,12 +56,12 @@ export default function ConfirmRegistration() {
 
   return (
     <>
-      <AuthenticationTitleAndSubtitle
+      <AuthenticationTemplate
         title={t("confirmRegistration.title")}
         subtitle={t("confirmRegistration.subtitle")}
       >
         <p>{getBodyText()}</p>
-      </AuthenticationTitleAndSubtitle>
+      </AuthenticationTemplate>
     </>
   );
 }

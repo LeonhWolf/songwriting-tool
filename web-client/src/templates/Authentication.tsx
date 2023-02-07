@@ -1,5 +1,5 @@
 import React from "react";
-import "./AuthenticationTitleAndSubtitle.scss";
+import "./Authentication.scss";
 
 interface IProps {
   title: string;
@@ -7,7 +7,7 @@ interface IProps {
   children: React.ReactElement;
 }
 
-export default function AuthenticationTitleAndSubtitle(props: IProps) {
+export default function AuthenticationTemplate(props: IProps) {
   return (
     <div className="h-100 w-100 d-flex flex-column align-items-center pt-4">
       <h2>{props.title}</h2>

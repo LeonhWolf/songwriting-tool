@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
 import i18n from "../i18n/index";
-import AuthenticationTitleAndSubtitle from "../components/AuthenticationTitleAndSubtitle";
+import AuthenticationTemplate from "../templates/Authentication";
 import Form from "../components/Form/Form";
 import { IFormProps } from "../components/Form/Form.types";
 import Button from "../components/Button";
@@ -101,7 +101,7 @@ const Register = () => {
   };
 
   return (
-    <AuthenticationTitleAndSubtitle
+    <AuthenticationTemplate
       title={t("register.title")}
       subtitle={t("register.subtitle")}
     >
@@ -128,7 +128,7 @@ const Register = () => {
           <Link to="/login">{t("register.logIn")}</Link>
         </p>
       </>
-    </AuthenticationTitleAndSubtitle>
+    </AuthenticationTemplate>
   );
 };
 

@@ -1,9 +1,9 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 
-import AuthenticationTitleAndSubtitle from "./AuthenticationTitleAndSubtitle";
+import AuthenticationTitleAndSubtitle from "./Authentication";
 
 export default {
-  title: "Components/AuthenticationTitleAndSubtitle",
+  title: "Templates/Authentication",
   component: AuthenticationTitleAndSubtitle,
 } as ComponentMeta<typeof AuthenticationTitleAndSubtitle>;
 
