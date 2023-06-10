@@ -3,18 +3,18 @@ import fakeTimers from "@sinonjs/fake-timers";
 import "whatwg-fetch";
 
 import ConfirmRegistration from "./ConfirmRegistration";
-import i18next from "../i18n/index";
-import { confirmRegistration } from "../services/authenticationService";
-import { flushPendingPromises } from "../utils/testUtils";
+import i18next from "../../i18n/index";
+import { confirmRegistration } from "../../services/authenticationService";
+import { flushPendingPromises } from "../../utils/testUtils";
 
-jest.mock("../services/authenticationService", () => ({
+jest.mock("../../services/authenticationService", () => ({
   confirmRegistration: jest.fn().mockResolvedValue(""),
 }));
 
-const navigateSpy = jest.fn();
+const mockUseNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
-  useNavigate: () => navigateSpy,
+  useNavigate: () => mockUseNavigate,
 }));
 
 let clock: fakeTimers.InstalledClock;
@@ -24,15 +24,14 @@ beforeAll(() => {
 });
 beforeEach(() => {
   jest.clearAllMocks();
+  jest
+    .spyOn(document, "URL", "get")
+    .mockImplementation(() => "https://mock-url.com/some-route?id=112233");
 });
 
 afterAll(() => {
   clock.uninstall();
 });
-
-jest
-  .spyOn(document, "URL", "get")
-  .mockImplementation(() => "https://mock-url.com/some-route?id=112233");
 
 describe("Render:", () => {
   it("Should render title.", () => {
@@ -73,18 +72,18 @@ describe("'confirmRegistration()' resolves:", () => {
   });
   it("Should redirect to '/' after 5 seconds.", async () => {
     clock.reset();
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
     render(<ConfirmRegistration />);
     await act(async () => {
       await flushPendingPromises();
     });
 
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
     clock.tick(4999);
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
     clock.tick(1);
-    expect(navigateSpy).toHaveBeenCalledTimes(1);
-    expect(navigateSpy).toHaveBeenCalledWith("/");
+    expect(mockUseNavigate).toHaveBeenCalledTimes(1);
+    expect(mockUseNavigate).toHaveBeenCalledWith("/");
   });
 });
 
@@ -110,11 +109,11 @@ describe("Confirmation id URL variable is 'null':", () => {
       .mockImplementationOnce(
         () => "https://mock-url.com/some-route?somevariable=456"
       );
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
 
     render(<ConfirmRegistration />);
     clock.tick(100000);
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
   });
 });
 
@@ -143,14 +142,14 @@ describe("'confirmRegistration()' fetch (status === 400):", () => {
     (
       confirmRegistration as jest.MockedFunction<typeof confirmRegistration>
     ).mockResolvedValueOnce(response);
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
 
     render(<ConfirmRegistration />);
     await act(async () => {
       await flushPendingPromises();
     });
     clock.tick(50000);
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
   });
 });
 describe("'confirmRegistration()' fetch (status === 500):", () => {
@@ -176,14 +175,14 @@ describe("'confirmRegistration()' fetch (status === 500):", () => {
     (
       confirmRegistration as jest.MockedFunction<typeof confirmRegistration>
     ).mockResolvedValueOnce(response);
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
 
     render(<ConfirmRegistration />);
     await act(async () => {
       await flushPendingPromises();
     });
     clock.tick(50000);
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
   });
 });
 describe("'confirmRegistration()' rejects:", () => {
@@ -207,13 +206,13 @@ describe("'confirmRegistration()' rejects:", () => {
     (
       confirmRegistration as jest.MockedFunction<typeof confirmRegistration>
     ).mockRejectedValueOnce("Some reason why fetch rejected.");
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
 
     render(<ConfirmRegistration />);
     await act(async () => {
       await flushPendingPromises();
     });
     clock.tick(50000);
-    expect(navigateSpy).toHaveBeenCalledTimes(0);
+    expect(mockUseNavigate).toHaveBeenCalledTimes(0);
   });
 });

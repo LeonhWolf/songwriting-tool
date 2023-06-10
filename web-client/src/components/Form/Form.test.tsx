@@ -28,9 +28,9 @@ mockResponse.text = () =>
   new Promise<string>((resolve) => {
     resolve(JSON.stringify(["123456", "123"]));
   });
-global.fetch = jest.fn(() => Promise.resolve(mockResponse));
 
 jest.spyOn(i18n, "t").mockImplementation(() => "testPopoverContent");
+jest.spyOn(global, "fetch").mockResolvedValue(mockResponse);
 
 beforeEach(() => {
   jest.clearAllMocks();

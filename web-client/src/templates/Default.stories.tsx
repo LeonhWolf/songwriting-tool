@@ -1,23 +1,56 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 
 import DefaultTemplate from "./Default";
 
-export default {
+const meta: Meta<typeof DefaultTemplate> = {
   title: "Templates/Default",
   component: DefaultTemplate,
-} as ComponentMeta<typeof DefaultTemplate>;
+};
 
-const Template: ComponentStory<typeof DefaultTemplate> = (args) => (
-  <div className="w-100 d-flex justify-content-center">
-    <DefaultTemplate {...args}>
-      <div>This is some content that is rendered here</div>
-    </DefaultTemplate>
-  </div>
-);
+export default meta;
+type Story = StoryObj<typeof DefaultTemplate>;
 
-export const Main = Template.bind({});
+export const ContentCenter: Story = {
+  render: () => (
+    <div className="w-100">
+      <DefaultTemplate
+        title="This is a title"
+        subtitle="This is a Subtitle"
+        contentPosition="center"
+        onSubtitleChange={() => {}}
+      >
+        <div>This is some content that is centered.</div>
+      </DefaultTemplate>
+    </div>
+  ),
+};
 
-Main.args = {
-  title: "This is a Title",
-  subtitle: "This is a Subtitle",
+export const ContentLeft: Story = {
+  render: () => (
+    <div className="w-100">
+      <DefaultTemplate
+        title="This is a title"
+        subtitle="This is a Subtitle"
+        contentPosition="left"
+        onSubtitleChange={() => {}}
+      >
+        <div>This is some content that is left.</div>
+      </DefaultTemplate>
+    </div>
+  ),
+};
+
+export const NoSubtitle: Story = {
+  render: () => (
+    <div className="w-100">
+      <DefaultTemplate
+        title="This is a title"
+        subtitle=""
+        contentPosition="left"
+        onSubtitleChange={() => {}}
+      >
+        <div>This is some content that is left.</div>
+      </DefaultTemplate>
+    </div>
+  ),
 };

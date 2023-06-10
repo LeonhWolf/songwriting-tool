@@ -1,35 +1,109 @@
 import { createBrowserRouter } from "react-router-dom";
 
-import Register, { path as registerPath } from "../pages/Register";
+import Register, {
+  name as registerName,
+} from "../pages/authentication/Register";
 import RegistrationPending, {
-  path as registrationPendingPath,
-} from "../pages/RegistrationPending";
+  name as registrationPendingName,
+} from "../pages/authentication/RegistrationPending";
 import ConfirmRegistration, {
-  path as confirmRegistrationPath,
-} from "../pages/ConfirmRegistration";
-import Login, { path as loginPath } from "../pages/Login";
+  name as confirmRegistrationName,
+} from "../pages/authentication/ConfirmRegistration";
+import Login, { name as loginName } from "../pages/authentication/Login";
+
+export interface Path {
+  path: string;
+  element: React.ReactElement;
+  handle: {
+    translationKeys: string[];
+  };
+}
+export interface Paths<ValueType> {
+  register: ValueType;
+  registrationPending: ValueType;
+  confirmRegistration: ValueType;
+  login: ValueType;
+  home: ValueType;
+  dailyExercise: ValueType;
+  archive: ValueType;
+  exerciseSettings: ValueType;
+  userSettings: ValueType;
+}
+export interface RouterPaths extends Paths<Path> {}
+export const paths: RouterPaths = {
+  register: {
+    path: `/${registerName}`,
+    element: <Register />,
+    handle: {
+      translationKeys: ["register"],
+    },
+  },
+  registrationPending: {
+    path: `/${registrationPendingName}`,
+    element: <RegistrationPending />,
+    handle: {
+      translationKeys: ["registrationPending"],
+    },
+  },
+  confirmRegistration: {
+    path: `/${confirmRegistrationName}`,
+    element: <ConfirmRegistration />,
+    handle: {
+      translationKeys: ["confirmRegistration"],
+    },
+  },
+  login: {
+    path: `/${loginName}`,
+    element: <Login />,
+    handle: {
+      translationKeys: ["login"],
+    },
+  },
+  home: {
+    path: "/",
+    element: <div>Hello home!</div>,
+    handle: {
+      translationKeys: [],
+    },
+  },
+  dailyExercise: {
+    path: "/daily-exercise",
+    element: <div>Hello daily exercise!</div>,
+    handle: {
+      translationKeys: ["dailyExercise"],
+    },
+  },
+  archive: {
+    path: "/archive",
+    element: <div>Hello archive!</div>,
+    handle: {
+      translationKeys: ["archive"],
+    },
+  },
+  exerciseSettings: {
+    path: "/settings/exercises",
+    element: <div>Hello exercise settings!</div>,
+    handle: {
+      translationKeys: ["settings.root", "settings.exercises"],
+    },
+  },
+  userSettings: {
+    path: "/settings/user",
+    element: <div>Hello user settings!</div>,
+    handle: {
+      translationKeys: ["settings.root", "settings.user"],
+    },
+  },
+};
 
 export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <div>Hello world!</div>,
-    errorElement: <div>not found</div>,
-    children: [],
-  },
-  {
-    path: registerPath,
-    element: <Register />,
-  },
-  {
-    path: registrationPendingPath,
-    element: <RegistrationPending />,
-  },
-  {
-    path: confirmRegistrationPath,
-    element: <ConfirmRegistration />,
-  },
-  {
-    path: loginPath,
-    element: <Login />,
-  },
+  { ...paths.register },
+  { ...paths.registrationPending },
+  { ...paths.confirmRegistration },
+  { ...paths.login },
+  { ...paths.home },
+  { ...paths.dailyExercise },
+  { ...paths.archive },
+  { ...paths.exerciseSettings },
+  { ...paths.userSettings },
 ]);

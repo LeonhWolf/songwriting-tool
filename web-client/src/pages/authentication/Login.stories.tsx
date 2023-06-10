@@ -3,7 +3,7 @@ import { within, userEvent } from "@storybook/testing-library";
 import { BrowserRouter } from "react-router-dom";
 import { rest } from "msw";
 
-import i18next from "../i18n/";
+import i18next from "../../i18n";
 
 import Login from "./Login";
 

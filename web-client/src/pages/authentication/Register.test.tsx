@@ -3,19 +3,19 @@ import "@testing-library/jest-dom";
 import { BrowserRouter } from "react-router-dom";
 import "whatwg-fetch";
 
-import i18next from "../i18n/index";
+import i18next from "../../i18n/index";
 import Register from "./Register";
-import { setInputValue, flushPendingPromises } from "../utils/testUtils";
-import { registerUser } from "../services/authenticationService";
-import { path as registrationPendingPath } from "./RegistrationPending";
+import { setInputValue, flushPendingPromises } from "../../utils/testUtils";
+import { registerUser } from "../../services/authenticationService";
+import { paths } from "../../navigation/router";
 
-const navigateSpy = jest.fn();
+const mockUseNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
-  useNavigate: () => navigateSpy,
+  useNavigate: () => mockUseNavigate,
 }));
 
-jest.mock("../services/authenticationService.ts", () => ({
+jest.mock("../../services/authenticationService.ts", () => ({
   registerUser: jest.fn().mockResolvedValue(""),
 }));
 
@@ -352,7 +352,9 @@ describe("Calling register service:", () => {
       await flushPendingPromises();
     });
 
-    expect(navigateSpy).toHaveBeenCalledWith(registrationPendingPath);
+    expect(mockUseNavigate).toHaveBeenCalledWith(
+      paths.confirmRegistration.path
+    );
   });
   it("Should catch when 'registerUser' rejects.", async () => {
     (

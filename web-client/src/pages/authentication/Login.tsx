@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import AuthenticationTemplate from "../templates/Authentication";
-import Form from "../components/Form/Form";
-import { IFormProps } from "../components/Form/Form.types";
-import i18n from "../i18n/index";
-import { loginUser } from "../services/authenticationService";
-import { path as registrationPath } from "./Register";
+import AuthenticationTemplate from "../../templates/Authentication";
+import Form from "../../components/Form/Form";
+import { IFormProps } from "../../components/Form/Form.types";
+import i18n from "../../i18n";
+import { loginUser } from "../../services/authenticationService";
+import { paths } from "../../navigation/router";
 
-export const path = "/login";
+export const name = "login";
 
 const formContents: IFormProps["contents"] = [
   {
@@ -17,20 +17,22 @@ const formContents: IFormProps["contents"] = [
     labelText: i18n.t("login.email.labelText"),
     inputType: "email",
     isRequired: true,
-    inputPlaceholder: i18n.t("login.email.placeholder"),
-    invalidMessage: i18n.t("form.inputMissingMessage", {
-      inputTitle: i18n.t("login.email.text"),
-    }),
+    inputPlaceholder: i18n.t("login.email.placeholder") ?? "",
+    invalidMessage:
+      i18n.t("form.inputMissingMessage", {
+        inputTitle: i18n.t("login.email.text"),
+      }) ?? "",
   },
   {
     inputId: "password",
     labelText: i18n.t("login.password.labelText"),
     inputType: "password",
     isRequired: true,
-    inputPlaceholder: i18n.t("login.password.placeholder"),
-    invalidMessage: i18n.t("form.inputMissingMessage", {
-      inputTitle: i18n.t("login.password.text"),
-    }),
+    inputPlaceholder: i18n.t("login.password.placeholder") ?? "",
+    invalidMessage:
+      i18n.t("form.inputMissingMessage", {
+        inputTitle: i18n.t("login.password.text"),
+      }) ?? "",
     doShowIsInsecure: false,
   },
 ];
@@ -116,7 +118,7 @@ export default function Login() {
             className="d-flex justify-content-start"
           >
             <p className="text-muted me-2 mb-0">{t("login.noAccountText")}</p>
-            <Link to={registrationPath}>{t("login.signUpText")}</Link>
+            <Link to={paths.register.path}>{t("login.signUpText")}</Link>
           </div>
         </div>
       </div>

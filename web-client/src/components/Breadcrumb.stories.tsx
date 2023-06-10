@@ -1,27 +1,33 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { RouterProvider } from "react-router-dom";
 
 import Breadcrumb from "./Breadcrumb";
+import { getRouter, additionalPaths } from "./Breadcrumb.test.helper";
+import { paths } from "../navigation/router";
 
-export default {
+import type { Meta, StoryObj } from "@storybook/react";
+
+const meta: Meta<typeof Breadcrumb> = {
   title: "Components/Breadcrumb",
   component: Breadcrumb,
-} as ComponentMeta<typeof Breadcrumb>;
-
-const Template: ComponentStory<typeof Breadcrumb> = (args) => (
-  <Breadcrumb {...args} />
-);
-
-export const Main = Template.bind({});
-export const Disabled = Template.bind({});
-
-Main.args = {
-  text: "BreadcrumbText",
-  isDisabled: false,
-  onClick: () => {},
 };
 
-Disabled.args = {
-  text: "BreadcrumbText",
-  isDisabled: true,
-  onClick: () => {},
+export default meta;
+type Story = StoryObj<typeof Breadcrumb>;
+
+export const Home: Story = {
+  render: () => <RouterProvider router={getRouter(paths.home.path)} />,
+};
+
+export const OneLayerNesting: Story = {
+  render: () => (
+    <RouterProvider router={getRouter(additionalPaths.nestedFirstLevel.path)} />
+  ),
+};
+
+export const TwoLayerNesting: Story = {
+  render: () => (
+    <RouterProvider
+      router={getRouter(additionalPaths.nestedSecondLevel.path)}
+    />
+  ),
 };

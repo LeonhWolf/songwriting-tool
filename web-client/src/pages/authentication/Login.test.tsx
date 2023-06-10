@@ -5,18 +5,12 @@ import "@testing-library/jest-dom";
 import "whatwg-fetch";
 
 import Login from "./Login";
-import i18next from "../i18n/index";
-import { loginUser } from "../services/authenticationService";
-import { flushPendingPromises, setInputValue } from "../utils/testUtils";
-import { path as registrationPath } from "./Register";
+import i18next from "../../i18n/index";
+import { loginUser } from "../../services/authenticationService";
+import { flushPendingPromises, setInputValue } from "../../utils/testUtils";
+import { paths } from "../../navigation/router";
 
-const navigateSpy = jest.fn();
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"),
-  useNavigate: () => navigateSpy,
-}));
-
-jest.mock("../services/authenticationService.ts", () => ({
+jest.mock("../../services/authenticationService.ts", () => ({
   loginUser: jest.fn().mockResolvedValue("loginUser resolved."),
 }));
 
@@ -125,6 +119,7 @@ describe("Inputs:", () => {
     });
   });
 });
+// Skipped to implement later when web session work properly
 it.skip("Should render 'remember me' checkbox.", async () => {
   await renderWithAct();
 
@@ -409,5 +404,5 @@ it("Should navigate to sign up page on click.", async () => {
     (history.push as jest.MockedFunction<typeof history.push>).mock.calls[0][0][
       "pathname"
     ]
-  ).toBe(registrationPath);
+  ).toBe(paths.register.path);
 });

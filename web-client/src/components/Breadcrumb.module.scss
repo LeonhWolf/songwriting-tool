@@ -1,0 +1,13 @@
+@import "../styles/bootstrap.scss";
+@import "/node_modules/bootstrap/scss/breadcrumb";
+
+.breadcrumb-item {
+  &.active a {
+    color: inherit;
+    text-decoration: none;
+    cursor: initial;
+  }
+  &:not(.active) {
+    text-decoration: underline;
+  }
+}

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import RegistrationPending from "./RegistrationPending";
-import i18next from "../i18n/index";
+import i18next from "../../i18n/index";
 
 describe("Titles:", () => {
   it("Should render proper title.", () => {

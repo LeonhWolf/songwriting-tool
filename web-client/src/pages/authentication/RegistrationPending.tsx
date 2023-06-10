@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 
-import "../i18n/index";
-import AuthenticationTemplate from "../templates/Authentication";
+import i18n from "../../i18n";
+import AuthenticationTemplate from "../../templates/Authentication";
 
-export const path = "/registration-pending";
+export const name = "registration-pending";
 
 export default function RegistrationPending() {
   const { t } = useTranslation();

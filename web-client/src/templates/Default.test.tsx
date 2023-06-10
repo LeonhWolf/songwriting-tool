@@ -6,7 +6,7 @@ import DefaultTemplate from "./Default";
 describe("Title and subtitle:", () => {
   it("Should render the title.", () => {
     render(
-      <DefaultTemplate title="Page Title">
+      <DefaultTemplate title="Page Title" contentPosition="center">
         <div>123</div>
       </DefaultTemplate>
     );
@@ -14,12 +14,18 @@ describe("Title and subtitle:", () => {
   });
   it("Should render the subtitle.", () => {
     render(
-      <DefaultTemplate title="Page Title" subtitle="Page Subtitle">
+      <DefaultTemplate
+        title="Page Title"
+        subtitle="Page Subtitle"
+        contentPosition="center"
+        onSubtitleChange={() => {}}
+      >
         <div>123</div>
       </DefaultTemplate>
     );
     expect(screen.getByText("Page Subtitle")).toBeDefined();
   });
+  it.todo("Should emit 'onSubtitleChange'.");
 });
 
 describe("Breadcrumbs:", () => {
@@ -30,7 +36,12 @@ describe("Breadcrumbs:", () => {
 
 it("Should display the children element.", () => {
   render(
-    <DefaultTemplate title="Page Title" subtitle="Page Subtitle">
+    <DefaultTemplate
+      title="Page Title"
+      subtitle="Page Subtitle"
+      contentPosition="center"
+      onSubtitleChange={() => {}}
+    >
       <div>
         <p>123</p>
         <p>456</p>

@@ -2,10 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import AuthenticationTemplate from "../templates/Authentication";
-import { confirmRegistration } from "../services/authenticationService";
+import AuthenticationTemplate from "../../templates/Authentication";
+import { confirmRegistration } from "../../services/authenticationService";
 
-export const path = "/confirm-registration";
+export const name = "confirm-registration";
 
 export default function ConfirmRegistration() {
   const isRequestPending = useRef<boolean>(false);

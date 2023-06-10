@@ -2,16 +2,16 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
-import i18n from "../i18n/index";
-import AuthenticationTemplate from "../templates/Authentication";
-import Form from "../components/Form/Form";
-import { IFormProps } from "../components/Form/Form.types";
-import Button from "../components/Button";
-import { registerUser } from "../services/authenticationService";
-import { SupportedLanguages } from "../../../api-types/i18n.types";
-import { path as registrationPendingPath } from "./RegistrationPending";
+import i18n from "../../i18n";
+import AuthenticationTemplate from "../../templates/Authentication";
+import Form from "../../components/Form/Form";
+import { IFormProps } from "../../components/Form/Form.types";
+import Button from "../../components/Button";
+import { registerUser } from "../../services/authenticationService";
+import { SupportedLanguages } from "../../../../api-types/i18n.types";
+import { paths } from "../../navigation/router";
 
-export const path = "/register";
+export const name = "register";
 
 const formContents: IFormProps["contents"] = [
   {
@@ -19,37 +19,40 @@ const formContents: IFormProps["contents"] = [
     labelText: i18n.t("register.firstName.labelText"),
     inputType: "text",
     isRequired: true,
-    inputPlaceholder: i18n.t("register.firstName.placeholder"),
-    invalidMessage: i18n.t("form.inputMissingMessage", {
-      inputTitle: i18n.t("register.firstName.text"),
-    }),
+    inputPlaceholder: i18n.t("register.firstName.placeholder") ?? "",
+    invalidMessage:
+      i18n.t("form.inputMissingMessage", {
+        inputTitle: i18n.t("register.firstName.text"),
+      }) ?? "",
   },
   {
     inputId: "lastName",
     labelText: i18n.t("register.lastName.labelText"),
     inputType: "text",
     isRequired: true,
-    inputPlaceholder: i18n.t("register.lastName.placeholder"),
-    invalidMessage: i18n.t("form.inputMissingMessage", {
-      inputTitle: i18n.t("register.lastName.text"),
-    }),
+    inputPlaceholder: i18n.t("register.lastName.placeholder") ?? "",
+    invalidMessage:
+      i18n.t("form.inputMissingMessage", {
+        inputTitle: i18n.t("register.lastName.text"),
+      }) ?? "",
   },
   {
     inputId: "email",
     labelText: i18n.t("register.email.labelText"),
     inputType: "email",
     isRequired: true,
-    inputPlaceholder: i18n.t("register.email.placeholder"),
-    invalidMessage: i18n.t("form.inputMissingMessage", {
-      inputTitle: i18n.t("register.email.text"),
-    }),
+    inputPlaceholder: i18n.t("register.email.placeholder") ?? "",
+    invalidMessage:
+      i18n.t("form.inputMissingMessage", {
+        inputTitle: i18n.t("register.email.text"),
+      }) ?? "",
   },
   {
     inputId: "password",
     labelText: i18n.t("register.password.labelText"),
     inputType: "password",
     isRequired: true,
-    inputPlaceholder: i18n.t("register.password.placeholder"),
+    inputPlaceholder: i18n.t("register.password.placeholder") ?? "",
     invalidMessage: `${i18n.t("form.inputMissingMessage", {
       inputTitle: i18n.t("register.password.text"),
     })} (${i18n.t("form.passwordTooShort")})`,
@@ -96,7 +99,7 @@ const Register = () => {
         client_language: clientLanguage,
       });
       setIsRegisterPendingState(false);
-      navigate(registrationPendingPath);
+      navigate(paths.confirmRegistration.path);
     } catch (error) {}
   };
 
