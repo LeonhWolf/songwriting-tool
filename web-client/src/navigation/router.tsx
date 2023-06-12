@@ -32,28 +32,28 @@ export interface Paths<ValueType> {
 export interface RouterPaths extends Paths<Path> {}
 export const paths: RouterPaths = {
   register: {
-    path: `/${registerName}`,
+    path: `/register`,
     element: <Register />,
     handle: {
       translationKeys: ["register"],
     },
   },
   registrationPending: {
-    path: `/${registrationPendingName}`,
+    path: `/registration-pending`,
     element: <RegistrationPending />,
     handle: {
       translationKeys: ["registrationPending"],
     },
   },
   confirmRegistration: {
-    path: `/${confirmRegistrationName}`,
+    path: `/confirm-registration`,
     element: <ConfirmRegistration />,
     handle: {
       translationKeys: ["confirmRegistration"],
     },
   },
   login: {
-    path: `/${loginName}`,
+    path: `/login`,
     element: <Login />,
     handle: {
       translationKeys: ["login"],

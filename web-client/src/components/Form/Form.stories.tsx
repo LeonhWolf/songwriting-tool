@@ -1,80 +1,86 @@
-import React from "react";
-
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-
 import Form from "./Form";
 
-export default {
+import type { Meta, StoryObj } from "@storybook/react";
+
+const meta: Meta<typeof Form> = {
   title: "Components/Form",
   component: Form,
-} as ComponentMeta<typeof Form>;
-
-const Template: ComponentStory<typeof Form> = (args) => (
-  <form className="needs-validation" noValidate>
-    <Form {...args} />
-  </form>
-);
-
-export const Main = Template.bind({});
-Main.args = {
-  contents: [
-    {
-      inputId: "name",
-      labelText: "Name",
-      inputType: "text",
-      isRequired: true,
-    },
-    {
-      inputId: "email",
-      labelText: "Email",
-      inputType: "text",
-      isRequired: true,
-    },
-    {
-      inputId: "test",
-      labelText: "Test",
-      inputType: "text",
-    },
-    {
-      inputId: "password",
-      labelText: "Password",
-      inputType: "password",
-      isRequired: true,
-      doShowIsInsecure: true,
-    },
-  ],
 };
 
-export const Invalid = Template.bind({});
-Invalid.args = {
-  doShowValidation: true,
-  contents: [
-    {
-      inputId: "name",
-      labelText: "Name",
-      inputType: "text",
-      isRequired: true,
-      invalidMessage: "Please provide a name",
-    },
-    {
-      inputId: "email",
-      labelText: "Email",
-      inputType: "email",
-      isRequired: true,
-      invalidMessage: "Please provide an email",
-    },
-    {
-      inputId: "test",
-      labelText: "Test",
-      inputType: "text",
-    },
-    {
-      inputId: "password",
-      labelText: "Password",
-      inputType: "password",
-      isRequired: true,
-      invalidMessage: "Please provide a password",
-      doShowIsInsecure: true,
-    },
-  ],
+export default meta;
+type Story = StoryObj<typeof Form>;
+
+export const Main: Story = {
+  render: () => (
+    <Form
+      doShowValidation={false}
+      onValidSubmit={() => {}}
+      onValidationChange={() => {}}
+      contents={[
+        {
+          inputId: "name",
+          labelText: "Name",
+          inputType: "text",
+          isRequired: true,
+        },
+        {
+          inputId: "email",
+          labelText: "Email",
+          inputType: "text",
+          isRequired: true,
+        },
+        {
+          inputId: "test",
+          labelText: "Test",
+          inputType: "text",
+        },
+        {
+          inputId: "password",
+          labelText: "Password",
+          inputType: "password",
+          isRequired: true,
+          doShowIsInsecure: true,
+        },
+      ]}
+    />
+  ),
+};
+
+export const Invalid: Story = {
+  render: () => (
+    <Form
+      doShowValidation={true}
+      onValidSubmit={() => {}}
+      onValidationChange={() => {}}
+      contents={[
+        {
+          inputId: "name",
+          labelText: "Name",
+          inputType: "text",
+          isRequired: true,
+          invalidMessage: "Please provide a name",
+        },
+        {
+          inputId: "email",
+          labelText: "Email",
+          inputType: "email",
+          isRequired: true,
+          invalidMessage: "Please provide an email",
+        },
+        {
+          inputId: "test",
+          labelText: "Test",
+          inputType: "text",
+        },
+        {
+          inputId: "password",
+          labelText: "Password",
+          inputType: "password",
+          isRequired: true,
+          invalidMessage: "Please provide a password",
+          doShowIsInsecure: true,
+        },
+      ]}
+    />
+  ),
 };
