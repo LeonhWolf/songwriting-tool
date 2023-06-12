@@ -1,20 +1,10 @@
-import { createMemoryRouter } from "react-router-dom";
-import type { RouteObject } from "react-router-dom";
+import { useRef } from "react";
+import { RouterProvider } from "react-router-dom";
 
 import Breadcrumb from "./Breadcrumb";
-import { paths } from "../navigation/router";
-import type { RouterPaths, Path } from "../navigation/router";
+import { getRouter as getTestRouter } from "../utils/testUtils";
+import type { Path } from "../navigation/router";
 
-const testPaths: Pick<RouterPaths, "home" | "dailyExercise"> = {
-  home: {
-    ...paths.home,
-    element: <Breadcrumb />,
-  },
-  dailyExercise: {
-    ...paths.dailyExercise,
-    element: <Breadcrumb />,
-  },
-};
 interface AdditionalPaths {
   nestedFirstLevel: Path;
   nestedSecondLevel: Path;
@@ -47,28 +37,20 @@ export const additionalPaths: AdditionalPaths = {
     },
   },
 };
-export const testRoutes: RouteObject[] = [
-  testPaths.home,
-  testPaths.dailyExercise,
-  additionalPaths.nestedFirstLevel,
-  additionalPaths.nestedSecondLevel,
-  additionalPaths.nestedThirdLevel,
-];
 
-export const getRouter = (
-  initialPath: string
-): ReturnType<typeof createMemoryRouter> => {
-  const initialRouteIndex = testRoutes.findIndex(
-    (route) => route.path === initialPath
+export const getRouter = (initialPath: string) => {
+  return getTestRouter(
+    initialPath,
+    [
+      additionalPaths.nestedFirstLevel,
+      additionalPaths.nestedSecondLevel,
+      additionalPaths.nestedThirdLevel,
+    ],
+    <Breadcrumb />
   );
-  if (initialRouteIndex === -1)
-    throw new Error(
-      `The path "${initialPath}" could not be found on the routes array.`
-    );
+};
 
-  const testRouter = createMemoryRouter(testRoutes, {
-    initialEntries: testRoutes.map((route) => route.path ?? ""),
-    initialIndex: initialRouteIndex,
-  });
-  return testRouter;
+export const TestRouter = (props: { initialPath: string }) => {
+  const router = useRef(getRouter(props.initialPath));
+  return <RouterProvider router={router.current} />;
 };

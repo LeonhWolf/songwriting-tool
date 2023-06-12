@@ -1,9 +1,38 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import "../i18n/index";
 import Default from "../templates/Default";
 import { paths } from "../navigation/router";
+import css from "./Home.module.scss";
+import Breadcrumb from "../components/Breadcrumb";
+import { ReactComponent as EditSVG } from "../assets/SVGs/pencil-square.svg";
+import { ReactComponent as ArchiveSVG } from "../assets/SVGs/archive.svg";
+
+interface TileNavigationProps {
+  text: string;
+  link: string;
+  SvgElement: React.FunctionComponent<
+    React.SVGProps<SVGSVGElement> & { title?: string | undefined }
+  >;
+}
+const TileNavigation = (props: TileNavigationProps) => {
+  const navigate = useNavigate();
+
+  return (
+    <div
+      className={css["tile-navigation"]}
+      onClick={() => {
+        navigate(props.link);
+      }}
+    >
+      <div className="d-flex flex-column align-items-center justify-content-between h-100">
+        {props.text}
+        <props.SvgElement />
+      </div>
+    </div>
+  );
+};
 
 const Home = () => {
   const { t } = useTranslation();
@@ -20,10 +49,24 @@ const Home = () => {
         >
           breadcrumb
         </div>
-        <Link to={paths.dailyExercise.path}>
-          {t("home.tiles.dailyExercise")}
-        </Link>
-        <Link to={paths.archive.path}>{t("home.tiles.archive")}</Link>
+        {/* TODO */}
+        {/* <Breadcrumb/> */}
+        <div
+          id="tiles-navigation"
+          className="d-flex"
+          style={{ columnGap: "25px" }}
+        >
+          <TileNavigation
+            text={t("home.tiles.dailyExercise")}
+            link={paths.dailyExercise.path}
+            SvgElement={EditSVG}
+          />
+          <TileNavigation
+            text={t("home.tiles.archive")}
+            link={paths.archive.path}
+            SvgElement={ArchiveSVG}
+          />
+        </div>
       </div>
     </Default>
   );

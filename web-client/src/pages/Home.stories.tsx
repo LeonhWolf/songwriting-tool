@@ -1,19 +1,18 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { BrowserRouter } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
+import type { Meta, StoryObj } from "@storybook/react";
 
-import Home from "./Home";
+import { paths } from "../navigation/router";
+import { getRouter } from "../utils/testUtils";
 
-export default {
+const meta: Meta<typeof paths.home.element> = {
   title: "Pages/Home",
-  component: Home,
-} as ComponentMeta<typeof Home>;
+  //@ts-ignore
+  component: paths.home.element,
+};
 
-const Template: ComponentStory<typeof Home> = () => (
-  <BrowserRouter>
-    <Home />
-  </BrowserRouter>
-);
+export default meta;
+type Story = StoryObj<typeof paths.home.element>;
 
-export const Main = Template.bind({});
-
-Main.args = {};
+export const Main: Story = {
+  render: () => <RouterProvider router={getRouter(paths.home.path)} />,
+};

@@ -10,6 +10,7 @@ import ConfirmRegistration, {
   name as confirmRegistrationName,
 } from "../pages/authentication/ConfirmRegistration";
 import Login, { name as loginName } from "../pages/authentication/Login";
+import Home from "../pages/Home";
 
 export interface Path {
   path: string;
@@ -61,7 +62,7 @@ export const paths: RouterPaths = {
   },
   home: {
     path: "/",
-    element: <div>Hello home!</div>,
+    element: <Home />,
     handle: {
       translationKeys: [],
     },

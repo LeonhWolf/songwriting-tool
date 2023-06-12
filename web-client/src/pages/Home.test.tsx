@@ -1,25 +1,19 @@
-import { render, screen, act } from "@testing-library/react";
-import { Router } from "react-router-dom";
-import { createMemoryHistory } from "history";
+import { render, screen } from "@testing-library/react";
+import { RouterProvider } from "react-router-dom";
 
-import Home from "./Home";
 import i18next from "../i18n";
 import { paths } from "../navigation/router";
+import { getRouter } from "../utils/testUtils";
 
 const mockUseNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useNavigate: () => mockUseNavigate,
 }));
-const history = createMemoryHistory();
-history.push = jest.fn();
 
 const renderComponent = (): void => {
-  render(
-    <Router location={history.location} navigator={history}>
-      <Home />
-    </Router>
-  );
+  const router = getRouter(paths.home.path);
+  render(<RouterProvider router={router} />);
 };
 
 beforeEach(() => {
@@ -58,18 +52,11 @@ describe("Tiles:", () => {
       renderComponent();
       const dailyExerciseTitle = i18next.t("home.tiles.dailyExercise");
       const dailyExerciseTile = screen.getByText(dailyExerciseTitle);
-      expect(history.push).toHaveBeenCalledTimes(0);
 
-      act(() => {
-        dailyExerciseTile.click();
-      });
-      expect(history.push).toHaveBeenCalledTimes(1);
-      const historyPushArguments = (
-        history.push as jest.MockedFunction<typeof history.push>
-      ).mock.calls[0][0];
-      //@ts-ignore
-      const pathname = historyPushArguments.pathname;
-      expect(pathname).toBe(`${paths.dailyExercise.path}`);
+      expect(mockUseNavigate).toHaveBeenCalledTimes(0);
+      dailyExerciseTile.click();
+      expect(mockUseNavigate).toHaveBeenCalledTimes(1);
+      expect(mockUseNavigate).toHaveBeenCalledWith(paths.dailyExercise.path);
     });
   });
   describe("Archive:", () => {
@@ -82,18 +69,11 @@ describe("Tiles:", () => {
       renderComponent();
       const archiveTitle = i18next.t("home.tiles.archive");
       const archiveTile = screen.getByText(archiveTitle);
-      expect(history.push).toHaveBeenCalledTimes(0);
 
-      act(() => {
-        archiveTile.click();
-      });
-      expect(history.push).toHaveBeenCalledTimes(1);
-      const historyPushArguments = (
-        history.push as jest.MockedFunction<typeof history.push>
-      ).mock.calls[0][0];
-      //@ts-ignore
-      const pathname = historyPushArguments.pathname;
-      expect(pathname).toBe(`${paths.archive.path}`);
+      expect(mockUseNavigate).toHaveBeenCalledTimes(0);
+      archiveTile.click();
+      expect(mockUseNavigate).toHaveBeenCalledTimes(1);
+      expect(mockUseNavigate).toHaveBeenCalledWith(paths.archive.path);
     });
   });
 });

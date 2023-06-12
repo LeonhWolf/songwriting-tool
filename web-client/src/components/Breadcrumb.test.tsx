@@ -1,13 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { RouterProvider } from "react-router-dom";
 
 import { paths, router } from "../navigation/router";
 import i18next from "../i18n/index";
 import {
   getRouter,
+  TestRouter,
   additionalPaths,
-  testRoutes,
 } from "./Breadcrumb.test.helper";
 
 const mockUseNavigate = jest.fn();
@@ -24,21 +23,18 @@ beforeEach(() => {
 
 describe("Render:", () => {
   it("Should render home.", () => {
-    const router = getRouter(paths.home.path);
-    render(<RouterProvider router={router} />);
+    render(<TestRouter initialPath={paths.home.path} />);
     expect(screen.getByTestId("home-breadcrumb")).toBeDefined();
   });
   it("Should render child route.", () => {
-    const router = getRouter(paths.dailyExercise.path);
-    render(<RouterProvider router={router} />);
+    render(<TestRouter initialPath={paths.dailyExercise.path} />);
     expect(screen.getByTestId("home-breadcrumb")).toBeDefined();
 
     const dailyExerciseBreadcrumbText = i18next.t("navItems.dailyExercise");
     expect(screen.getByText(dailyExerciseBreadcrumbText)).toBeDefined();
   });
   it("Should render nested child route.", () => {
-    const router = getRouter(additionalPaths.nestedSecondLevel.path);
-    render(<RouterProvider router={router} />);
+    render(<TestRouter initialPath={additionalPaths.nestedSecondLevel.path} />);
     expect(screen.getByTestId("home-breadcrumb")).toBeDefined();
 
     const nestedFirstLevelBreadcrumbText = i18next.t(
@@ -55,11 +51,12 @@ describe("Render:", () => {
 
 describe("Navigate on click:", () => {
   //@ts-ignore
-  jest.spyOn(router, "routes", "get").mockReturnValue(testRoutes);
+  jest
+    .spyOn(router, "routes", "get")
+    .mockReturnValue(getRouter(paths.home.path).routes);
 
   it("Should not navigate to active route.", () => {
-    const testRouter = getRouter(additionalPaths.nestedFirstLevel.path);
-    render(<RouterProvider router={testRouter} />);
+    render(<TestRouter initialPath={additionalPaths.nestedFirstLevel.path} />);
     const nestedFirstLevelBreadcrumbText = i18next.t(
       "navItems.nestedFirstLevel"
     );
@@ -72,8 +69,7 @@ describe("Navigate on click:", () => {
     expect(mockUseNavigate).toHaveBeenCalledTimes(0);
   });
   it("Should not navigate 'home' when already on 'home'.", () => {
-    const testRouter = getRouter(paths.home.path);
-    render(<RouterProvider router={testRouter} />);
+    render(<TestRouter initialPath={paths.home.path} />);
     const homeBreadcrumb = screen.getByTestId("home-breadcrumb");
     expect(homeBreadcrumb).toBeDefined();
 
@@ -82,8 +78,8 @@ describe("Navigate on click:", () => {
     expect(mockUseNavigate).toHaveBeenCalledTimes(0);
   });
   it("Should navigate to parent route.", () => {
-    const testRouter = getRouter(additionalPaths.nestedSecondLevel.path);
-    render(<RouterProvider router={testRouter} />);
+    render(<TestRouter initialPath={additionalPaths.nestedSecondLevel.path} />);
+
     const nestedSecondLevelBreadcrumb = screen.getByText(
       "navItems.nestedSecondLevel"
     );
@@ -100,8 +96,7 @@ describe("Navigate on click:", () => {
     );
   });
   it("Should navigate to route above parent route.", () => {
-    const testRouter = getRouter(additionalPaths.nestedThirdLevel.path);
-    render(<RouterProvider router={testRouter} />);
+    render(<TestRouter initialPath={additionalPaths.nestedThirdLevel.path} />);
     const nestedThirdLevelBreadcrumb = screen.getByText(
       "navItems.nestedThirdLevel"
     );
@@ -118,8 +113,7 @@ describe("Navigate on click:", () => {
     );
   });
   it("Should navigate to home.", () => {
-    const testRouter = getRouter(additionalPaths.nestedThirdLevel.path);
-    render(<RouterProvider router={testRouter} />);
+    render(<TestRouter initialPath={additionalPaths.nestedThirdLevel.path} />);
     const nestedThirdLevelBreadcrumb = screen.getByText(
       "navItems.nestedThirdLevel"
     );

@@ -1,0 +1,42 @@
+@import "../styles/bootstrap.scss";
+
+@mixin set-transition($property) {
+  transition: $property 150ms ease-in-out;
+}
+
+.tile-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 130px;
+  height: 130px;
+  padding: 25px 0;
+  border: solid $border-width $primary;
+  border-radius: $border-radius;
+  @include set-transition(background-color);
+
+  &:hover {
+    cursor: pointer;
+    background-color: $primary;
+  }
+
+  div {
+    color: $primary;
+    font-weight: 500;
+    text-align: center;
+    user-select: none;
+    @include set-transition(color);
+  }
+
+  &:hover {
+    div {
+      color: white;
+    }
+  }
+
+  svg {
+    $width-and-height: 20px;
+    width: $width-and-height;
+    height: $width-and-height;
+  }
+}

@@ -1,7 +1,5 @@
-import { RouterProvider } from "react-router-dom";
-
 import Breadcrumb from "./Breadcrumb";
-import { getRouter, additionalPaths } from "./Breadcrumb.test.helper";
+import { TestRouter, additionalPaths } from "./Breadcrumb.test.helper";
 import { paths } from "../navigation/router";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -15,19 +13,17 @@ export default meta;
 type Story = StoryObj<typeof Breadcrumb>;
 
 export const Home: Story = {
-  render: () => <RouterProvider router={getRouter(paths.home.path)} />,
+  render: () => <TestRouter initialPath={paths.home.path} />,
 };
 
 export const OneLayerNesting: Story = {
   render: () => (
-    <RouterProvider router={getRouter(additionalPaths.nestedFirstLevel.path)} />
+    <TestRouter initialPath={additionalPaths.nestedFirstLevel.path} />
   ),
 };
 
 export const TwoLayerNesting: Story = {
   render: () => (
-    <RouterProvider
-      router={getRouter(additionalPaths.nestedSecondLevel.path)}
-    />
+    <TestRouter initialPath={additionalPaths.nestedSecondLevel.path} />
   ),
 };
