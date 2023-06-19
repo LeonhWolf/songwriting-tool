@@ -61,3 +61,7 @@ it("Should display the children element.", () => {
 //     it.todo("Should navigate on click.");
 //   });
 // });
+describe("Sidebar:", () => {
+  // https://stackoverflow.com/questions/45868042/figuring-out-how-to-mock-the-window-size-changing-for-a-react-component-test
+  it.todo("Should render everything on mobile.");
+});

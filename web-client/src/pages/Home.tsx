@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import "../i18n/index";
 import Default from "../templates/Default";
-import { paths } from "../navigation/router";
+import { paths } from "../router";
 import css from "./Home.module.scss";
 import Breadcrumb from "../components/Breadcrumb";
 import { ReactComponent as EditSVG } from "../assets/SVGs/pencil-square.svg";
@@ -15,6 +15,7 @@ interface TileNavigationProps {
   SvgElement: React.FunctionComponent<
     React.SVGProps<SVGSVGElement> & { title?: string | undefined }
   >;
+  dataTestId: string;
 }
 const TileNavigation = (props: TileNavigationProps) => {
   const navigate = useNavigate();
@@ -27,7 +28,8 @@ const TileNavigation = (props: TileNavigationProps) => {
       }}
     >
       <div className="d-flex flex-column align-items-center justify-content-between h-100">
-        {props.text}
+        <div data-testid={props.dataTestId}>{props.text}</div>
+
         <props.SvgElement />
       </div>
     </div>
@@ -60,11 +62,13 @@ const Home = () => {
             text={t("home.tiles.dailyExercise")}
             link={paths.dailyExercise.path}
             SvgElement={EditSVG}
+            dataTestId="tile-daily-exercise"
           />
           <TileNavigation
             text={t("home.tiles.archive")}
             link={paths.archive.path}
             SvgElement={ArchiveSVG}
+            dataTestId="tile-archive"
           />
         </div>
       </div>

@@ -1,8 +1,8 @@
 import { RouterProvider } from "react-router-dom";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { paths } from "../navigation/router";
-import { getRouter } from "../utils/testUtils";
+import { paths } from "../router";
+import { getRouter } from "../utilities/testUtils";
 
 const meta: Meta<typeof paths.home.element> = {
   title: "Pages/Home",

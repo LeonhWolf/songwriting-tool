@@ -1,18 +1,43 @@
+import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { RouterProvider } from "react-router-dom";
 
 import DefaultTemplate from "./Default";
+import { paths } from "../router";
+import { getRouter } from "../utilities/testUtils";
 
 const meta: Meta<typeof DefaultTemplate> = {
   title: "Templates/Default",
   component: DefaultTemplate,
+  parameters: {
+    layout: "fullscreen",
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof DefaultTemplate>;
 
+interface Props {
+  children: React.ReactElement;
+}
+
+const RouterWrapper = (props: Props) => {
+  const [router, setRouter] = useState<ReturnType<typeof getRouter>>(
+    getRouter(
+      paths.home.path,
+      [],
+      <div className="w-100" style={{ height: "100vh" }}>
+        {props.children}
+      </div>
+    )
+  );
+
+  return <RouterProvider router={router} />;
+};
+
 export const ContentCenter: Story = {
   render: () => (
-    <div className="w-100">
+    <RouterWrapper>
       <DefaultTemplate
         title="This is a title"
         subtitle="This is a Subtitle"
@@ -21,13 +46,13 @@ export const ContentCenter: Story = {
       >
         <div>This is some content that is centered.</div>
       </DefaultTemplate>
-    </div>
+    </RouterWrapper>
   ),
 };
 
 export const ContentLeft: Story = {
   render: () => (
-    <div className="w-100">
+    <RouterWrapper>
       <DefaultTemplate
         title="This is a title"
         subtitle="This is a Subtitle"
@@ -36,13 +61,13 @@ export const ContentLeft: Story = {
       >
         <div>This is some content that is left.</div>
       </DefaultTemplate>
-    </div>
+    </RouterWrapper>
   ),
 };
 
 export const NoSubtitle: Story = {
   render: () => (
-    <div className="w-100">
+    <RouterWrapper>
       <DefaultTemplate
         title="This is a title"
         subtitle=""
@@ -51,6 +76,6 @@ export const NoSubtitle: Story = {
       >
         <div>This is some content that is left.</div>
       </DefaultTemplate>
-    </div>
+    </RouterWrapper>
   ),
 };
