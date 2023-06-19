@@ -2,8 +2,8 @@ import { useRef } from "react";
 import { RouterProvider } from "react-router-dom";
 
 import Breadcrumb from "./Breadcrumb";
-import { getRouter as getTestRouter } from "../utils/testUtils";
-import type { Path } from "../navigation/router";
+import { getRouter as getTestRouter } from "../utilities/testUtils";
+import type { Path } from "../router";
 
 interface AdditionalPaths {
   nestedFirstLevel: Path;

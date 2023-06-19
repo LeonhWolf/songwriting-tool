@@ -1,6 +1,6 @@
 import Breadcrumb from "./Breadcrumb";
 import { TestRouter, additionalPaths } from "./Breadcrumb.test.helper";
-import { paths } from "../navigation/router";
+import { paths } from "../router";
 
 import type { Meta, StoryObj } from "@storybook/react";
 

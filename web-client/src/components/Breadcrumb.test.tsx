@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { paths, router } from "../navigation/router";
+import { paths, router } from "../router";
 import i18next from "../i18n/index";
 import {
   getRouter,

@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useMatches, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { paths, router } from "../navigation/router";
-import type { Path } from "../navigation/router";
+import { paths, router } from "../router";
+import type { Path } from "../router";
 import { ReactComponent as HouseSVG } from "../assets/SVGs/house-door.svg";
 import css from "./Breadcrumb.module.scss";
 
