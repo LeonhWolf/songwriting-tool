@@ -9,7 +9,7 @@ import { IFormProps } from "../../components/Form/Form.types";
 import Button from "../../components/Button";
 import { registerUser } from "../../services/authenticationService";
 import { SupportedLanguages } from "../../../../api-types/i18n.types";
-import { paths } from "../../navigation/router";
+import { paths } from "../../router";
 
 export const name = "register";
 

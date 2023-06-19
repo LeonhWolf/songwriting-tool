@@ -7,7 +7,7 @@ import Form from "../../components/Form/Form";
 import { IFormProps } from "../../components/Form/Form.types";
 import i18n from "../../i18n";
 import { loginUser } from "../../services/authenticationService";
-import { paths } from "../../navigation/router";
+import { paths } from "../../router";
 
 export const name = "login";
 

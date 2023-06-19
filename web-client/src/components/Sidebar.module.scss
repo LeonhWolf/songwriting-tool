@@ -1,0 +1,46 @@
+@import "../styles/bootstrap.scss";
+
+.nav-item {
+  color: $dark;
+  list-style-type: none;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color $transition-duration-standard ease-in-out;
+
+    &:hover {
+      color: $primary;
+    }
+  }
+}
+
+.nav-item-group {
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+  user-select: none;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  .collapse-indicator {
+    transition: $transition-collapse;
+    transition-property: transform;
+  }
+
+  &.is-open {
+    .collapse-indicator {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.nav-text {
+  font-weight: 500;
+}
+
+a.is-active {
+  color: $primary;
+}

@@ -5,7 +5,7 @@ import "whatwg-fetch";
 import ConfirmRegistration from "./ConfirmRegistration";
 import i18next from "../../i18n/index";
 import { confirmRegistration } from "../../services/authenticationService";
-import { flushPendingPromises } from "../../utils/testUtils";
+import { flushPendingPromises } from "../../utilities/testUtils";
 
 jest.mock("../../services/authenticationService", () => ({
   confirmRegistration: jest.fn().mockResolvedValue(""),

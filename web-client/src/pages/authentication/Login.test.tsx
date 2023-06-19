@@ -7,8 +7,8 @@ import "whatwg-fetch";
 import Login from "./Login";
 import i18next from "../../i18n/index";
 import { loginUser } from "../../services/authenticationService";
-import { flushPendingPromises, setInputValue } from "../../utils/testUtils";
-import { paths } from "../../navigation/router";
+import { flushPendingPromises, setInputValue } from "../../utilities/testUtils";
+import { paths } from "../../router";
 
 jest.mock("../../services/authenticationService.ts", () => ({
   loginUser: jest.fn().mockResolvedValue("loginUser resolved."),

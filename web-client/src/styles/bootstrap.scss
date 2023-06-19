@@ -21,6 +21,8 @@
 @import "/node_modules/bootstrap/scss/popover";
 @import "/node_modules/bootstrap/scss/close";
 @import "/node_modules/bootstrap/scss/toasts";
-// @import "/node_modules/bootstrap/scss/breadcrumb";
+@import "/node_modules/bootstrap/scss/transitions";
+@import "/node_modules/bootstrap/scss/offcanvas";
 
 // 5. Add additional custom code here
+$transition-duration-standard: 150ms;

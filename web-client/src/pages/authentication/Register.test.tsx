@@ -5,9 +5,9 @@ import "whatwg-fetch";
 
 import i18next from "../../i18n/index";
 import Register from "./Register";
-import { setInputValue, flushPendingPromises } from "../../utils/testUtils";
+import { setInputValue, flushPendingPromises } from "../../utilities/testUtils";
 import { registerUser } from "../../services/authenticationService";
-import { paths } from "../../navigation/router";
+import { paths } from "../../router";
 
 const mockUseNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({

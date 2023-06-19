@@ -2,7 +2,7 @@ import { RouterProvider } from "react-router-dom";
 import { connect, ConnectedProps } from "react-redux";
 
 import "./styles/bootstrap.scss";
-import { router } from "./navigation/router";
+import { router } from "./router";
 import { RootState } from "./redux/store";
 import Toast from "./components/Toast";
 

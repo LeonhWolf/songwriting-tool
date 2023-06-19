@@ -1,8 +1,8 @@
 import { screen, fireEvent } from "@testing-library/react";
 import { createMemoryRouter } from "react-router";
 
-import { paths } from "../navigation/router";
-import type { Path } from "../navigation/router";
+import { paths } from "../router";
+import type { Path } from "../router";
 
 export async function flushPendingPromises(): Promise<void> {
   await new Promise((resolve) => {

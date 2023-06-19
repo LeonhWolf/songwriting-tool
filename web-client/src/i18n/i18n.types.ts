@@ -1,29 +1,32 @@
-import type { Paths } from "../navigation/router";
+import type { Paths } from "../router";
 
-interface IInput {
+export interface Global {
+  appTitle: string;
+}
+interface Input {
   labelText: string;
   placeholder: string;
   text: string;
 }
 
-export interface IRegister {
+export interface Register {
   title: string;
   subtitle: string;
-  firstName: IInput;
-  lastName: IInput;
-  email: IInput;
-  password: IInput;
+  firstName: Input;
+  lastName: Input;
+  email: Input;
+  password: Input;
   buttonText: string;
   accountAlready: string;
   logIn: string;
 }
-export interface IRegistrationPending {
+export interface RegistrationPending {
   title: string;
   subtitle: string;
   bodyText1: string;
   bodyText2: string;
 }
-export interface IConfirmRegistration {
+export interface ConfirmRegistration {
   title: string;
   subtitle: string;
   bodyText: string;
@@ -31,11 +34,11 @@ export interface IConfirmRegistration {
   idIsExpired: string;
   urlIsInvalid: string;
 }
-export interface ILogin {
+export interface Login {
   title: string;
   subtitle: string;
-  email: IInput;
-  password: IInput;
+  email: Input;
+  password: Input;
   rememberMeText: string;
   forgotPasswordText: string;
   loginButtonText: string;
@@ -43,7 +46,7 @@ export interface ILogin {
   signUpText: string;
   wrongCredentials: string;
 }
-export interface IHome {
+export interface Home {
   title: string;
   tiles: {
     dailyExercise: string;
@@ -51,23 +54,32 @@ export interface IHome {
   };
 }
 
-export interface INavItems extends Paths<string> {}
-export interface IForm {
+export interface NavItems extends Paths<string> {}
+export interface Sidebar {
+  settings: {
+    parent: string;
+    exercise: string;
+    user: string;
+  };
+}
+export interface Form {
   inputMissingMessage: string;
   weakPassword: string;
   passwordTooShort: string;
 }
-export interface IToast {
+export interface Toast {
   serverError: string;
 }
 
-export interface IExportData {
-  register: IRegister;
-  registrationPending: IRegistrationPending;
-  confirmRegistration: IConfirmRegistration;
-  login: ILogin;
-  home: IHome;
-  navItems: INavItems;
-  form: IForm;
-  toast: IToast;
+export interface ExportData {
+  global: Global;
+  register: Register;
+  registrationPending: RegistrationPending;
+  confirmRegistration: ConfirmRegistration;
+  login: Login;
+  home: Home;
+  navItems: NavItems;
+  sidebar: Sidebar;
+  form: Form;
+  toast: Toast;
 }

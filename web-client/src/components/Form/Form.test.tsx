@@ -7,7 +7,7 @@ import "whatwg-fetch";
 import Form from "./Form";
 import { IFormProps } from "./Form.types";
 import i18n from "../../i18n/index";
-import { setInputValue } from "../../utils/testUtils";
+import { setInputValue } from "../../utilities/testUtils";
 
 const getRerenderAndRender = async (initialElement: React.ReactElement) => {
   let rerenderOutside: (
