@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useRef } from "react";
 import { render, screen, act } from "@testing-library/react";
 import { RouterProvider } from "react-router-dom";
 import { getRouter } from "../utilities/testUtils";
@@ -7,175 +6,178 @@ import { getRouter } from "../utilities/testUtils";
 import i18next from "../i18n";
 import { paths } from "../router";
 
-const SidebarWrapper = (props: {
-  ElementToTest: React.ReactElement;
-  onRouteChange: (newRoute: string) => void;
-}) => {
-  const location = useLocation();
-
-  useEffect(() => {
-    props.onRouteChange(location.pathname);
-  }, [location]);
-
-  return props.ElementToTest;
-};
-
 interface RouterWrapperProps {
   initialPath: string;
-  ElementToTest: React.ReactElement;
-  locationSpy: (argument: string) => void;
+  locationSpy?: (argument: string) => void;
 }
 const RouterWrapper = (props: RouterWrapperProps) => {
-  return (
-    <RouterProvider
-      router={getRouter(
-        props.initialPath,
-        [],
-        <SidebarWrapper
-          ElementToTest={props.ElementToTest}
-          onRouteChange={(newRoute) => {
-            props.locationSpy(newRoute);
-          }}
-        />
-      )}
-    />
+  const router = useRef(
+    getRouter(props.initialPath, [], undefined, props.locationSpy)
   );
+
+  return <RouterProvider router={router.current} />;
 };
 
-export const runTests = (ElementToTest: React.ReactElement) => {
-  it.only("Should render app title.", () => {
+export const runTests = (pathToTest: string) => {
+  it("Should render app title.", () => {
     const appTitle = i18next.t("global.appTitle");
-    render(
-      <RouterWrapper
-        ElementToTest={ElementToTest}
-        initialPath={paths.dailyExercise.path}
-        locationSpy={() => {}}
-      />
-    );
+    render(<RouterWrapper initialPath={pathToTest} />);
     expect(screen.getByText(appTitle)).toBeDefined();
+    // expect(screen.getByTestId("sidebar-item-app-title")).toBeDefined();
   });
-  it("Should navigate to '/' on app title click.", () => {
-    const locationSpy = jest.fn();
-    render(
-      <RouterWrapper
-        ElementToTest={ElementToTest}
-        initialPath={paths.dailyExercise.path}
-        locationSpy={locationSpy}
-      />
-    );
+  if (pathToTest !== paths.home.path) {
+    it("Should navigate to '/' on app title click.", () => {
+      const locationSpy = jest.fn();
+      render(
+        <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+      );
 
-    const appTitleText = i18next.t("global.appTitle");
-    const appTitleElement = screen.getByText(appTitleText);
+      const appTitleText = i18next.t("global.appTitle");
+      const appTitleElement = screen.getByText(appTitleText);
 
-    expect(locationSpy).toHaveBeenCalledTimes(1);
-    expect(locationSpy).toHaveBeenCalledWith(paths.dailyExercise.path);
-    locationSpy.mockClear();
+      expect(locationSpy).toHaveBeenCalledTimes(1);
+      expect(locationSpy).toHaveBeenCalledWith(pathToTest);
+      locationSpy.mockClear();
 
-    act(() => {
-      appTitleElement.click();
+      act(() => {
+        appTitleElement.click();
+      });
+      expect(locationSpy).toHaveBeenCalledTimes(1);
+      expect(locationSpy).toHaveBeenCalledWith(paths.home.path);
     });
-    expect(locationSpy).toHaveBeenCalledTimes(1);
-    expect(locationSpy).toHaveBeenCalledWith(paths.home.path);
-  });
+  }
+  if (pathToTest === paths.home.path) {
+    it("Should not navigate to already active route.", () => {
+      const locationSpy = jest.fn();
+      render(
+        <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+      );
+
+      const appTitleText = i18next.t("global.appTitle");
+      const appTitleElement = screen.getByText(appTitleText);
+
+      expect(locationSpy).toHaveBeenCalledTimes(1);
+      expect(locationSpy).toHaveBeenCalledWith(paths.home.path);
+      locationSpy.mockClear();
+
+      act(() => {
+        appTitleElement.click();
+      });
+      expect(locationSpy).toHaveBeenCalledTimes(0);
+    });
+  }
+
   describe("Daily Exercise:", () => {
     it("Should render.", () => {
       const dailyExerciseText = i18next.t("navItems.dailyExercise");
-      render(
-        <RouterWrapper
-          ElementToTest={ElementToTest}
-          initialPath={paths.dailyExercise.path}
-          locationSpy={() => {}}
-        />
-      );
+      render(<RouterWrapper initialPath={pathToTest} />);
       const navItemDailyExercise = screen.getByTestId(
         "sidebar-item-daily-exercise"
       );
       expect(navItemDailyExercise).toBeDefined();
       expect(navItemDailyExercise.textContent).toBe(dailyExerciseText);
     });
-    it("Should navigate to proper route on click.", () => {
-      const locationSpy = jest.fn();
-      render(
-        <RouterWrapper
-          ElementToTest={ElementToTest}
-          initialPath={paths.home.path}
-          locationSpy={locationSpy}
-        />
-      );
+    if (pathToTest !== paths.dailyExercise.path) {
+      it("Should navigate to proper route on click.", () => {
+        const locationSpy = jest.fn();
+        render(
+          <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+        );
 
-      const navItemDailyExercise = screen.getByTestId(
-        "sidebar-item-daily-exercise"
-      );
+        const navItemDailyExercise = screen.getByTestId(
+          "sidebar-item-daily-exercise"
+        );
 
-      expect(locationSpy).toHaveBeenCalledTimes(1);
-      expect(locationSpy).toHaveBeenCalledWith(paths.home.path);
-      locationSpy.mockClear();
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(pathToTest);
+        locationSpy.mockClear();
 
-      act(() => {
-        navItemDailyExercise.click();
+        act(() => {
+          navItemDailyExercise.click();
+        });
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(paths.dailyExercise.path);
       });
-      expect(locationSpy).toHaveBeenCalledTimes(1);
-      expect(locationSpy).toHaveBeenCalledWith(paths.dailyExercise.path);
-    });
+    }
+    if (pathToTest === paths.dailyExercise.path) {
+      it("Should not navigate to already active route.", () => {
+        const locationSpy = jest.fn();
+        render(
+          <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+        );
+
+        const navItemDailyExercise = screen.getByTestId(
+          "sidebar-item-daily-exercise"
+        );
+
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(paths.dailyExercise.path);
+        locationSpy.mockClear();
+
+        act(() => {
+          navItemDailyExercise.click();
+        });
+        expect(locationSpy).toHaveBeenCalledTimes(0);
+      });
+    }
   });
   describe("Archive:", () => {
     it("Should render.", () => {
       const archiveText = i18next.t("navItems.archive");
-      render(
-        <RouterWrapper
-          ElementToTest={ElementToTest}
-          initialPath={paths.dailyExercise.path}
-          locationSpy={() => {}}
-        />
-      );
+      render(<RouterWrapper initialPath={pathToTest} />);
       const navItemArchive = screen.getByTestId("sidebar-item-archive");
       expect(navItemArchive).toBeDefined();
       expect(navItemArchive.textContent).toBe(archiveText);
     });
-    it("Should navigate to proper route on click.", () => {
-      const locationSpy = jest.fn();
-      render(
-        <RouterWrapper
-          ElementToTest={ElementToTest}
-          initialPath={paths.home.path}
-          locationSpy={locationSpy}
-        />
-      );
+    if (pathToTest !== paths.archive.path) {
+      it("Should navigate to proper route on click.", () => {
+        const locationSpy = jest.fn();
+        render(
+          <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+        );
 
-      const navItemArchive = screen.getByTestId("sidebar-item-archive");
+        const navItemArchive = screen.getByTestId("sidebar-item-archive");
 
-      expect(locationSpy).toHaveBeenCalledTimes(1);
-      expect(locationSpy).toHaveBeenCalledWith(paths.home.path);
-      locationSpy.mockClear();
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(pathToTest);
+        locationSpy.mockClear();
 
-      act(() => {
-        navItemArchive.click();
+        act(() => {
+          navItemArchive.click();
+        });
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(paths.archive.path);
       });
-      expect(locationSpy).toHaveBeenCalledTimes(1);
-      expect(locationSpy).toHaveBeenCalledWith(paths.archive.path);
-    });
+    }
+    if (pathToTest === paths.archive.path) {
+      it("Should not navigate to already active route.", () => {
+        const locationSpy = jest.fn();
+        render(
+          <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+        );
+
+        const navItemArchive = screen.getByTestId("sidebar-item-archive");
+
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(paths.archive.path);
+        locationSpy.mockClear();
+
+        act(() => {
+          navItemArchive.click();
+        });
+        expect(locationSpy).toHaveBeenCalledTimes(0);
+      });
+    }
   });
   describe("Settings:", () => {
     it("Should render parent 'Settings'.", () => {
       const parentSettingsText = i18next.t("sidebar.settings.parent");
-      render(
-        <RouterWrapper
-          ElementToTest={ElementToTest}
-          initialPath={paths.dailyExercise.path}
-          locationSpy={() => {}}
-        />
-      );
+      render(<RouterWrapper initialPath={pathToTest} />);
       expect(screen.getByText(parentSettingsText)).toBeDefined();
     });
     it("Should render child 'Exercises'.", () => {
       const exerciseSettingsText = i18next.t("sidebar.settings.exercise");
-      render(
-        <RouterWrapper
-          ElementToTest={ElementToTest}
-          initialPath={paths.dailyExercise.path}
-          locationSpy={() => {}}
-        />
-      );
+      render(<RouterWrapper initialPath={pathToTest} />);
       const navItemExerciseSettings = screen.getByTestId(
         "sidebar-item-exercise-settings"
       );
@@ -184,90 +186,99 @@ export const runTests = (ElementToTest: React.ReactElement) => {
     });
     it("Should render child 'User'.", () => {
       const userSettingsText = i18next.t("sidebar.settings.user");
-      render(
-        <RouterWrapper
-          ElementToTest={ElementToTest}
-          initialPath={paths.dailyExercise.path}
-          locationSpy={() => {}}
-        />
-      );
+      render(<RouterWrapper initialPath={pathToTest} />);
       const navItemUserSettings = screen.getByTestId(
         "sidebar-item-user-settings"
       );
       expect(navItemUserSettings).toBeDefined();
       expect(navItemUserSettings.textContent).toBe(userSettingsText);
     });
-    it("Should navigate to 'exercise settings' on click.", () => {
-      const locationSpy = jest.fn();
-      render(
-        <RouterWrapper
-          ElementToTest={ElementToTest}
-          initialPath={paths.home.path}
-          locationSpy={locationSpy}
-        />
-      );
+    if (pathToTest !== paths.exerciseSettings.path) {
+      it("Should navigate to 'exercise settings' on click.", () => {
+        const locationSpy = jest.fn();
+        render(
+          <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+        );
 
-      const navItemExerciseSettings = screen.getByTestId(
-        "sidebar-item-exercise-settings"
-      );
+        const navItemExerciseSettings = screen.getByTestId(
+          "sidebar-item-exercise-settings"
+        );
 
-      expect(locationSpy).toHaveBeenCalledTimes(1);
-      expect(locationSpy).toHaveBeenCalledWith(paths.home.path);
-      locationSpy.mockClear();
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(pathToTest);
+        locationSpy.mockClear();
 
-      act(() => {
-        navItemExerciseSettings.click();
+        act(() => {
+          navItemExerciseSettings.click();
+        });
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(paths.exerciseSettings.path);
       });
-      expect(locationSpy).toHaveBeenCalledTimes(1);
-      expect(locationSpy).toHaveBeenCalledWith(paths.exerciseSettings.path);
-    });
-    it("Should navigate to 'user settings' on click.", () => {
-      const locationSpy = jest.fn();
-      render(
-        <RouterWrapper
-          ElementToTest={ElementToTest}
-          initialPath={paths.home.path}
-          locationSpy={locationSpy}
-        />
-      );
+    }
+    if (pathToTest === paths.exerciseSettings.path) {
+      it("Should not navigate to already active route 'exercise settings'.", () => {
+        const locationSpy = jest.fn();
+        render(
+          <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+        );
 
-      const navItemUserSettings = screen.getByTestId(
-        "sidebar-item-user-settings"
-      );
+        const navItemExerciseSettings = screen.getByTestId(
+          "sidebar-item-exercise-settings"
+        );
 
-      expect(locationSpy).toHaveBeenCalledTimes(1);
-      expect(locationSpy).toHaveBeenCalledWith(paths.home.path);
-      locationSpy.mockClear();
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(paths.exerciseSettings.path);
+        locationSpy.mockClear();
 
-      act(() => {
-        navItemUserSettings.click();
+        act(() => {
+          navItemExerciseSettings.click();
+        });
+        expect(locationSpy).toHaveBeenCalledTimes(0);
       });
-      expect(locationSpy).toHaveBeenCalledTimes(1);
-      expect(locationSpy).toHaveBeenCalledWith(paths.userSettings.path);
-    });
-  });
+    }
 
-  it("Should not navigate to already active route.", () => {
-    const locationSpy = jest.fn();
-    render(
-      <RouterWrapper
-        ElementToTest={ElementToTest}
-        initialPath={paths.userSettings.path}
-        locationSpy={locationSpy}
-      />
-    );
+    if (pathToTest !== paths.userSettings.path) {
+      it("Should navigate to 'user settings' on click.", () => {
+        const locationSpy = jest.fn();
+        render(
+          <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+        );
 
-    const navItemUserSettings = screen.getByTestId(
-      "sidebar-item-user-settings"
-    );
+        const navItemUserSettings = screen.getByTestId(
+          "sidebar-item-user-settings"
+        );
 
-    expect(locationSpy).toHaveBeenCalledTimes(1);
-    expect(locationSpy).toHaveBeenCalledWith(paths.userSettings.path);
-    locationSpy.mockClear();
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(pathToTest);
+        locationSpy.mockClear();
 
-    act(() => {
-      navItemUserSettings.click();
-    });
-    expect(locationSpy).toHaveBeenCalledTimes(0);
+        act(() => {
+          navItemUserSettings.click();
+        });
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(paths.userSettings.path);
+      });
+    }
+    if (pathToTest === paths.userSettings.path) {
+      it("Should not navigate to already active route 'user settings'.", () => {
+        const locationSpy = jest.fn();
+        render(
+          <RouterWrapper initialPath={pathToTest} locationSpy={locationSpy} />
+        );
+
+        const navItemUserSettings = screen.getByTestId(
+          "sidebar-item-user-settings"
+        );
+
+        expect(locationSpy).toHaveBeenCalledTimes(1);
+        expect(locationSpy).toHaveBeenCalledWith(paths.userSettings.path);
+        locationSpy.mockClear();
+
+        act(() => {
+          navItemUserSettings.click();
+        });
+        expect(locationSpy).toHaveBeenCalledTimes(0);
+      });
+    }
   });
 };

@@ -1,5 +1,8 @@
 import { screen, fireEvent } from "@testing-library/react";
 import { createMemoryRouter } from "react-router";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { cloneDeep } from "lodash";
 
 import { paths } from "../router";
 import type { Path } from "../router";
@@ -24,19 +27,45 @@ export const setInputValue = (
   return inputElement;
 };
 
+const ElementWrapper = (props: {
+  children: React.ReactElement;
+  onRouteChange: (newRoute: string) => void;
+}) => {
+  const location = useLocation();
+
+  useEffect(() => {
+    props.onRouteChange(location.pathname);
+  }, [location]);
+
+  return props.children;
+};
 export const getRouter = (
   initialPath: string,
   additionalPaths?: Path[],
-  replaceRouteElements?: React.ReactElement
+  elementToReplaceInRoutes?: React.ReactElement,
+  onRouteChange?: (newRoute: string) => void
 ): ReturnType<typeof createMemoryRouter> => {
   let testRoutes = (Object.keys(paths) as Array<keyof typeof paths>).map(
-    (key) => paths[key]
+    (key) => cloneDeep(paths[key])
   );
 
   if (additionalPaths !== undefined) testRoutes.push(...additionalPaths);
-  if (replaceRouteElements !== undefined)
+  if (elementToReplaceInRoutes !== undefined)
     testRoutes.forEach((route, index) => {
-      testRoutes[index].element = replaceRouteElements;
+      testRoutes[index].element = elementToReplaceInRoutes;
+    });
+
+  if (onRouteChange !== undefined)
+    testRoutes.forEach((route, index) => {
+      testRoutes[index].element = (
+        <ElementWrapper
+          onRouteChange={(newRoute) => {
+            onRouteChange(newRoute);
+          }}
+        >
+          {testRoutes[index].element}
+        </ElementWrapper>
+      );
     });
 
   const initialRouteIndex = testRoutes.findIndex(

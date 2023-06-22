@@ -23,7 +23,7 @@
     "uuid": "^9.0.0"
   },
   "scripts": {
-    "dev": "react-scripts start",
+    "dev": "set BROWSER=none&& react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --watch",
     "eject": "react-scripts eject",

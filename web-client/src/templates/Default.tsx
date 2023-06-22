@@ -37,7 +37,7 @@ function Default(props: IProps) {
           setIsOffcanvasOpen(isOpenUpdate);
         }}
       >
-        <div className={css["sidebar"]}>
+        <div id={css["mobile-sidebar"]} className={css["sidebar"]}>
           <Sidebar />
         </div>
       </Offcanvas>

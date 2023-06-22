@@ -11,6 +11,7 @@ import ConfirmRegistration, {
 } from "../pages/authentication/ConfirmRegistration";
 import Login, { name as loginName } from "../pages/authentication/Login";
 import Home from "../pages/Home";
+import DailyExercise from "../pages/DailyExercise";
 
 export interface Path {
   path: string;
@@ -69,7 +70,7 @@ export const paths: RouterPaths = {
   },
   dailyExercise: {
     path: "/daily-exercise",
-    element: <div>Hello daily exercise!</div>,
+    element: <DailyExercise />,
     handle: {
       translationKeys: ["dailyExercise"],
     },

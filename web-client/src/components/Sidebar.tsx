@@ -101,9 +101,10 @@ const Sidebar = () => {
   return (
     <nav>
       <NavItem
-        className={css["nav-text"]}
+        className={`${css["nav-text"]} mb-4 d-block text-uppercase`}
         text={t("global.appTitle")}
         url={paths.home.path}
+        dataTestId="sidebar-item-app-title"
         onItemClick={(event, url) => handleLinkClick(event, url)}
       />
       <ul className="ps-0">

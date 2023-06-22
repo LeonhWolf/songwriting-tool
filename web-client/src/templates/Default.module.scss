@@ -19,12 +19,12 @@ $mobile-breakpoint: sm;
     display: none;
   }
 }
-// #mobile-sidebar {
-//   width: 200px;
-//   @include media-breakpoint-up($mobile-breakpoint) {
-//     display: none;
-//   }
-// }
+#mobile-sidebar {
+  width: 200px;
+  // @include media-breakpoint-up($mobile-breakpoint) {
+  //   display: none;
+  // }
+}
 
 #main {
   width: 100%;
@@ -60,7 +60,7 @@ $mobile-breakpoint: sm;
     background-color: $gray-200;
   }
 
-  // @include media-breakpoint-up($mobile-breakpoint) {
-  //   display: none;
-  // }
+  @include media-breakpoint-up($mobile-breakpoint) {
+    display: none;
+  }
 }
