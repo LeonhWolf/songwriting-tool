@@ -5,7 +5,6 @@ import "../i18n/index";
 import Default from "../templates/Default";
 import { paths } from "../router";
 import css from "./Home.module.scss";
-import Breadcrumb from "../components/Breadcrumb";
 import { ReactComponent as EditSVG } from "../assets/SVGs/pencil-square.svg";
 import { ReactComponent as ArchiveSVG } from "../assets/SVGs/archive.svg";
 
@@ -42,17 +41,6 @@ const Home = () => {
   return (
     <Default title={"Home"} contentPosition="left">
       <div>
-        <div
-          data-testid={
-            process.env.NODE_ENV !== "production"
-              ? "home-breadcrumb"
-              : undefined
-          }
-        >
-          breadcrumb
-        </div>
-        {/* TODO */}
-        {/* <Breadcrumb/> */}
         <div
           id="tiles-navigation"
           className="d-flex"

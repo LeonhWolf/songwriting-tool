@@ -3,6 +3,7 @@ import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { ReactComponent as HamburgerSVG } from "../assets/SVGs/list.svg";
 import Offcanvas from "../components/Offcanvas";
+import Breadcrumb from "../components/Breadcrumb";
 import css from "./Default.module.scss";
 
 type BaseProps = {
@@ -44,9 +45,10 @@ function Default(props: IProps) {
 
       <main id={css["main"]}>
         <header id={css["header"]}>
-          <div id="title-and-subtitle">
+          <div id="title-subtitle-breadcrumb">
             <h1>{props.title}</h1>
             {props.subtitle && <h5 className="text-muted">{props.subtitle}</h5>}
+            <Breadcrumb />
           </div>
           <button
             id={css["hamburger-button"]}
