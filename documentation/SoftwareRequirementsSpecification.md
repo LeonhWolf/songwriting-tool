@@ -1,6 +1,7 @@
 # Summary
 
 - each day a new object is selected (globally the same for every user)
+  - nouns, adjectives and adverbs
 - user can practice an exercise for the given object
 - user can have automatic rotation of exercises (e.g. object writing or metaphors), subtypes (e.g. expressed identity metaphor, verbal metaphor, etc.), etc.
 - user can access past entries (archive)
@@ -9,7 +10,7 @@
 
 **Create:**
 
-- user select to start daily exercise
+- user selects to start daily exercise
 
 **Read (archive):**
 
